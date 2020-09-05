@@ -1,20 +1,18 @@
 var entries = [];
-var robotImages = [];
+var robotDisplays = [];
 
 function setup() {
   createCanvas(400, 400);
   
   entries.push(new KeyBot());
   entries.push(new CircleBot());
-  // Add other entries here.
 
-  for (e of entries) {
-    console.log("Entry: " + JSON.stringify(e));
-    let canvas = createGraphics(100, 100);
-    if (e.draw) {
-      e.draw(canvas);
-    }
-    robotImages.push(canvas);
+  let x = 100;
+  for (let e of entries) {
+    let robotContainer = new RobotContainer(e, x, 100, 0);
+    let robotDisplay = new RobotDisplay(robotContainer);
+    robotDisplays.push(robotDisplay);
+    x += 110;
   }
 }
 
@@ -23,14 +21,9 @@ var angle = 0;
 function draw() {
   background(220);
   let x = 50;
-  for (r of robotImages) {
-    translate(x, 100);
-    rotate(angle);
-    translate(-20, 0);
-    image(r, -50, -50);
-    resetMatrix();
-    x += 100;
+  for (r of robotDisplays) {
+    r.draw();
+    r.robotContainer.t += 0.01;
+    r.robotContainer.forward(1.0);
   }
-
-  angle += 0.02;
 }
