@@ -22,19 +22,15 @@ var angle = 0;
 
 function draw() {
   background(220);
-  fill(color(128, 200, 5));
-  noStroke();
-  ellipse(mouseX, mouseY, 50, 50);
-
-  
   let x = 50;
   for (r of robotImages) {
     translate(x, 100);
     rotate(angle);
+    translate(-20, 0);
     image(r, -50, -50);
     resetMatrix();
-    x += 150;
+    x += 100;
   }
 
-  angle += 0.01;
+  angle += 0.02;
 }
