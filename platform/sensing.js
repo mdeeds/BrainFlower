@@ -1,3 +1,5 @@
+// Describes the current state of the world as percieved by the robot.
+// May be modified to indicate intention of movement.
 class SensorState {
   constructor() {
     // The overlap of the left and right sensors
