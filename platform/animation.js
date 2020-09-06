@@ -16,3 +16,24 @@ class RobotDisplay {
     }
 }
 
+
+class Flower {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.t = 0.0;
+    }
+
+    draw() {
+        translate(this.x, this.y);
+        rotate(this.t);
+        fill(color("pink"));
+        stroke(color("white"));
+        ellipse(0, 5, 7, 10);
+        ellipse(0, -5, 7, 10);
+        ellipse(5, 0, 10, 7);
+        ellipse(-5, 0, 10, 7);
+        resetMatrix();
+        this.t += 0.1;
+    }
+}
