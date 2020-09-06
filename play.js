@@ -54,6 +54,25 @@ function generateSenses()  {
   return new SensorState();
 }
 
+function checkFlower(f) {
+  let overlappingRobot = null;
+  let bestDistance2 = 2500;
+  for (rd of robotDisplays) {
+    let d2 = distance2(f.x, f.y, rd.robotContainer.x, rd.robotContainer.y); 
+    if (d2 < 2500) {
+      overlappingRobot = rd;
+      bestDistance2 = d2;
+    }
+  }
+  if (overlappingRobot) {
+    // TODO: points!
+    flowers.delete(f);
+    addRandomFlower();
+    return false;
+  }
+  return true;
+}
+
 function draw() {
   background(220);
   let x = 50;
@@ -78,6 +97,8 @@ function draw() {
     }
   }
   for (f of flowers) {
-    f.draw();
+    if (checkFlower(f)) {
+      f.draw();
+    }
   }
 }
