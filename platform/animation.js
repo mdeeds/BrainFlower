@@ -16,7 +16,6 @@ class RobotDisplay {
     }
 }
 
-
 class Flower {
     constructor(x, y) {
         this.x = x;

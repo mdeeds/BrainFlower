@@ -1,22 +1,51 @@
-var entries = [];
 var robotDisplays = [];
 
-var flower;
+var kArenaSize = 800;
+
+var flowers = new Set();
+
+function distance2(x1, y1, x2, y2) {
+  return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+}
+
+function addRandomFlower() {
+  let found = false;
+  let x;
+  let y;
+  while (true) {
+    x = Math.random() * kArenaSize;
+    y = Math.random() * kArenaSize;
+    let overlapping = false;
+    for (rd of robotDisplays) {
+      let rc = rd.robotContainer;
+      if (distance2(rc.x, rc.y, x, y) < 10000) {
+        overlapping = true;
+        break;
+      }
+    }
+    if (!overlapping) {
+      break;
+    }
+  }
+  let flower = new Flower(x, y);
+  flowers.add(flower);
+}
+
+function startRobot(robot, x, y, t) {
+  let robotContainer = new RobotContainer(robot, x, y, t);
+  let robotDisplay = new RobotDisplay(robotContainer);
+  robotDisplays.push(robotDisplay);
+}
 
 function setup() {
-  createCanvas(800, 800);
+  createCanvas(kArenaSize, kArenaSize);
   
-  entries.push(new KeyBot());
-  entries.push(new CircleBot());
+  startRobot(new KeyBot(), 100, 100, Math.PI / 4);
+  startRobot(new CircleBot(), kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
 
-  let x = 100;
-  for (let e of entries) {
-    let robotContainer = new RobotContainer(e, x, 100, 0);
-    let robotDisplay = new RobotDisplay(robotContainer);
-    robotDisplays.push(robotDisplay);
-    x += 250;
+  for (let i = 0; i < 100; ++i) {
+    addRandomFlower();
   }
-  flower = new Flower(200, 200);
 }
 
 var angle = 0;
@@ -37,6 +66,18 @@ function draw() {
     let turn = Math.max(-1, Math.min(1.0, s.turn));
     rc.t += turn / 20.0;
     rc.forward(forward * 5);
+    if (rc.x > kArenaSize - 50) {
+      rc.x = kArenaSize - 50;
+    } else if (rc.x < 50) {
+      rc.x = 50;
+    }
+    if (rc.y > kArenaSize - 50) {
+      rc.y = kArenaSize - 50;
+    } else if (rc.y < 50) {
+      rc.y = 50;
+    }
   }
-  flower.draw();
+  for (f of flowers) {
+    f.draw();
+  }
 }
