@@ -43,7 +43,7 @@ function setup() {
   startRobot(new KeyBot(), 100, 100, Math.PI / 4);
   startRobot(new CircleBot(), kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
 
-  for (let i = 0; i < 100; ++i) {
+  for (let i = 0; i < 15; ++i) {
     addRandomFlower();
   }
 }
@@ -67,7 +67,9 @@ function checkFlower(f) {
   if (overlappingRobot) {
     // TODO: points!
     flowers.delete(f);
-    addRandomFlower();
+    if (Math.random() < 0.5) {
+      addRandomFlower();
+    }
     return false;
   }
   return true;
@@ -75,6 +77,12 @@ function checkFlower(f) {
 
 function draw() {
   background(220);
+  if (Math.random() < 0.005) {
+    addRandomFlower();
+  }
+  noStroke();
+  fill(color("black"));
+  text("Flowers: " + flowers.size, 30, 30);
   let x = 50;
   for (r of robotDisplays) {
     r.draw();
