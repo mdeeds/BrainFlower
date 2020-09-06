@@ -1,6 +1,28 @@
 class KeyBot {
   constructor() {
-    this.x = 0;
+    this.speed = 0;
+    this.turn = 0;
+    let body = document.getElementById('body');
+    body.addEventListener('keydown', KeyBot.prototype.handleKey.bind(this));
+    body.addEventListener('keyup', KeyBot.prototype.handleKey.bind(this));
+  }
+
+  handleKey(e) {
+    if (e.type === 'keydown') {
+      if (e.code === 'ArrowRight') {
+        this.turn = 0.5;
+      } else if (e.code === 'ArrowLeft') {
+        this.turn = -0.5;
+      } else if (e.code === 'ArrowUp') {
+        this.speed = 1.0;
+      }
+    } else if (e.type === 'keyup') {
+      if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
+        this.turn = 0;
+      } else if (e.code === 'ArrowUp') {
+        this.speed = 0;
+      }
+    }
   }
 
   draw(c) {
@@ -11,6 +33,7 @@ class KeyBot {
   }
 
   run(s) {
-
+    s.speed = this.speed;
+    s.turn = this.turn;
   }
 }
