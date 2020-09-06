@@ -16,6 +16,6 @@ class CircleBot {
 
   run(s) {
     s.speed = 1.0;
-    s.turn = 0.22;
+    s.turn = 0.15;
   }
 };

@@ -9,6 +9,9 @@ function distance2(x1, y1, x2, y2) {
 }
 
 function addRandomFlower() {
+  if (flowers.size >= 100) {
+    return;
+  }
   let found = false;
   let x;
   let y;
@@ -75,7 +78,9 @@ function checkFlower(f) {
   return true;
 }
 
+var frameNumber = 0;
 function draw() {
+  ++frameNumber;
   background(220);
   if (Math.random() < 0.005) {
     addRandomFlower();
@@ -83,6 +88,8 @@ function draw() {
   noStroke();
   fill(color("black"));
   text("Flowers: " + flowers.size, 30, 30);
+  text("Frame: " + frameNumber + 
+    " Time: " + (frameNumber / 60).toFixed(2), 20, 60);
   let x = 50;
   for (r of robotDisplays) {
     r.draw();
@@ -91,19 +98,20 @@ function draw() {
     rc.robot.run(s);
     let forward = Math.max(0, Math.min(1, s.speed - Math.abs(s.turn)));
     let turn = Math.max(-1, Math.min(1.0, s.turn));
-    rc.t += turn / 20.0;
+    rc.t += turn / 10.0;
     rc.forward(forward * 5);
-    if (rc.x > kArenaSize - 50) {
-      rc.x = kArenaSize - 50;
-    } else if (rc.x < 50) {
-      rc.x = 50;
-    }
-    if (rc.y > kArenaSize - 50) {
-      rc.y = kArenaSize - 50;
-    } else if (rc.y < 50) {
-      rc.y = 50;
+  }
+  for (r1 of robotDisplays) {
+    for (r2 of robotDisplays) {
+      if (r1 != r2) {
+        r1.robotContainer.collide(r2.robotContainer);
+      }
     }
   }
+  for (r of robotDisplays) {
+    r.robotContainer.update();
+  }
+
   for (f of flowers) {
     if (checkFlower(f)) {
       f.draw();

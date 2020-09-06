@@ -9,8 +9,38 @@ class RobotContainer {
     this.t = t;
   }
 
+  /**
+   * @param {number} d Distance to move in the forward direction.
+   */
   forward(d) {
-    this.x += Math.cos(this.t) * d;
-    this.y += Math.sin(this.t) * d;
+    this.newx = this.x + Math.cos(this.t) * d;
+    this.newy = this.y + Math.sin(this.t) * d;
   }
+
+
+  /**
+   * 
+   * @param {RobotContainer} other The other robot to check and handle collision.
+   */
+  collide(other) {
+    let dx = other.x - this.x;
+    let dy = other.y - this.y;
+    let absd = Math.sqrt(dx*dx + dy*dy);
+    if (absd > 100) {
+      return;
+    }
+    let dhatx = dx / absd;
+    let dhaty = dy / absd;
+    let backset = 100 - absd;
+    this.newx -= dhatx * backset;
+    this.newy -= dhaty * backset;
+  }
+
+  update() {
+    this.newx = Math.max(50, Math.min(kArenaSize - 50, this.newx));
+    this.newy = Math.max(50, Math.min(kArenaSize - 50, this.newy));
+    this.x = this.newx;
+    this.y = this.newy;
+  }
+
 }
