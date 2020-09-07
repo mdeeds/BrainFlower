@@ -2,6 +2,10 @@ class CircleBot {
   CircleBot() {
   }
 
+  /**
+   * Draws the CircleBot.
+   * @param {Renderer} c 
+   */
   draw(c) {
     c.noStroke();
     c.fill(color(240, 255, 34));
@@ -14,6 +18,9 @@ class CircleBot {
     c.rect(40, 40, 20, 20);
   }
 
+  /**
+   * @param {SensorState} s 
+   */
   run(s) {
     s.speed = 1.0;
     s.turn = 0.15;

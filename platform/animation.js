@@ -1,5 +1,11 @@
-// contains a RobotContainer as well as graphics.
+/**
+ * contains a RobotContainer as well as graphics.
+ */
 class RobotDisplay {
+    /**
+     * 
+     * @param {RobotContainer} robotContainer 
+     */
     constructor(robotContainer) {
         this.robotContainer = robotContainer;
         this.image = createGraphics(100, 100);
@@ -17,6 +23,11 @@ class RobotDisplay {
 }
 
 class Flower {
+    /**
+     * Constructs a flower at the specified location.
+     * @param {number} x 
+     * @param {number} y 
+     */
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -28,6 +39,7 @@ class Flower {
         rotate(this.t);
         fill(color("pink"));
         stroke(color("white"));
+        strokeWeight(1);
         ellipse(0, 5, 7, 10);
         ellipse(0, -5, 7, 10);
         ellipse(5, 0, 10, 7);

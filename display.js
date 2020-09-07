@@ -6,6 +6,7 @@ function setup() {
   
   entries.push(new KeyBot());
   entries.push(new CircleBot());
+  entries.push(new MattBot());
 
   let x = 100;
   for (let e of entries) {
