@@ -103,24 +103,14 @@ function checkFlower(f) {
   return true;
 }
 
-function playFrame() {
-  background(220);
-
+/**
+ * Runs the robots and physics simulation without any draw operations.
+ */
+function runFrame() {
   if (Math.random() < 0.005) {
     addRandomFlower();
   }
-  for (r of robotStats.values()) {
-    r.draw();
-  }
-  noStroke();
-  fill(color("black"));
-  textSize(6);
-  text("Flowers: " + flowers.size, 30, 700);
-  text("Frame: " + frameNumber + 
-    " Time: " + (frameNumber / 60).toFixed(2), 20, 720);
-  let x = 50;
   for (r of robotDisplays) {
-    r.draw();
     let rc = r.robotContainer;
     let s = generateSenses(rc);
     rc.robot.run(s);
@@ -139,11 +129,29 @@ function playFrame() {
   for (r of robotDisplays) {
     r.robotContainer.update();
   }
-
   for (f of flowers) {
-    if (checkFlower(f)) {
-      f.draw();
-    }
+    checkFlower(f);
+  }
+}
+
+function playFrame() {
+  runFrame();
+  background(220);
+  for (r of robotStats.values()) {
+    r.draw();
+  }
+  noStroke();
+  fill(color("black"));
+  textSize(6);
+  text("Flowers: " + flowers.size, 30, 700);
+  text("Frame: " + frameNumber + 
+    " Time: " + (frameNumber / 60).toFixed(2), 20, 720);
+  let x = 50;
+  for (r of robotDisplays) {
+    r.draw();
+  }
+  for (f of flowers) {
+    f.draw();
   }
 
   let framesRemaining = kFramesPerRound - frameNumber;
