@@ -7,6 +7,9 @@ var flowers = new Set();
 
 var robotStats = new Map();
 
+var leftEntryChoice;
+var rightEntrychoice;
+
 class RobotScore {
   /**
    * 
@@ -63,7 +66,69 @@ function startRobot(robot, x, y, t) {
   robotStats.set(robotDisplay, new RobotScore(x, 50));
 }
 
+let entryMap = new Map();
+
+class Match {
+  constructor(leftEntryChoice, rightEntryChoice) {
+    this.leftEntryChoice = leftEntryChoice;
+    this.rightEntryChoice = rightEntryChoice;
+    this.populateChoice(this.leftEntryChoice);
+    this.populateChoice(this.rightEntryChoice);
+    this.setToOtherValue(rightEntryChoice, leftEntryChoice);
+    this.leftEntryChoice.changed(this.handleChange.bind(this));
+    this.rightEntryChoice.changed(this.handleChange.bind(this));
+  }
+
+  /**
+   * 
+   * @param {Element} choice 
+   */
+  populateChoice(choice) {
+    for (let label of entryMap.keys()) {
+      choice.option(label);
+    }
+  }
+
+  setToOtherValue(choiceToChange, choiceToKeep) {
+    for (let label of entryMap.keys()) {
+      if (label != choiceToKeep.value()) {
+        choiceToChange.elt.value = label;
+        break;
+      }
+    }
+  }
+
+  /**
+   * 
+   * @param {Event} e 
+   */
+  handleChange(e) {
+    console.log("Change");
+    if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
+      console.log("Same");
+      if (leftEntryChoice.elt == e.target) {
+        this.setToOtherValue(rightEntryChoice, leftEntryChoice);
+      } else {
+        this.setToOtherValue(leftEntryChoice, rightEntryChoice);
+      }
+    }
+  }
+}
+
 function setup() {
+  entryMap.set("KeyBot", new KeyBot());
+  entryMap.set("CircleBot", new CircleBot());
+
+  leftEntryChoice = createSelect();
+  leftEntryChoice.position(10, 10);
+  leftEntryChoice.size(380, 25);
+
+  rightEntryChoice = createSelect();
+  rightEntryChoice.position(410, 10);
+  rightEntryChoice.size(380, 25);
+
+  let match = new Match(leftEntryChoice, rightEntryChoice);
+
   createCanvas(kArenaSize, kArenaSize);
   
   startRobot(new KeyBot(), 100, 100, Math.PI / 4);
@@ -103,49 +168,12 @@ function checkFlower(f) {
   return true;
 }
 
-/**
- * Runs the robots and physics simulation without any draw operations.
- */
-function runFrame() {
-  if (Math.random() < 0.005) {
-    addRandomFlower();
-  }
-  for (r of robotDisplays) {
-    let rc = r.robotContainer;
-    let s = generateSenses(rc);
-    rc.robot.run(s);
-    let forward = Math.max(0, Math.min(1, s.speed - Math.abs(s.turn)));
-    let turn = Math.max(-1, Math.min(1.0, s.turn));
-    rc.t += turn / 10.0;
-    rc.forward(forward * 5);
-  }
-  for (r1 of robotDisplays) {
-    for (r2 of robotDisplays) {
-      if (r1 != r2) {
-        r1.robotContainer.collide(r2.robotContainer);
-      }
-    }
-  }
-  for (r of robotDisplays) {
-    r.robotContainer.update();
-  }
-  for (f of flowers) {
-    checkFlower(f);
-  }
-}
-
 function playFrame() {
-  runFrame();
+  runFrame(robotDisplays, flowers);
   background(220);
   for (r of robotStats.values()) {
     r.draw();
   }
-  noStroke();
-  fill(color("black"));
-  textSize(6);
-  text("Flowers: " + flowers.size, 30, 700);
-  text("Frame: " + frameNumber + 
-    " Time: " + (frameNumber / 60).toFixed(2), 20, 720);
   let x = 50;
   for (r of robotDisplays) {
     r.draw();
