@@ -1,0 +1,21 @@
+class CircleBot {
+  CircleBot() {
+  }
+
+  draw(c) {
+    c.noStroke();
+    c.fill(color(34, 240, 255));
+    c.ellipse(50, 50, 95, 95);
+    c.stroke(color(0,0,0));
+    c.fill(color(200, 255, 255));
+    c.ellipse(80, 50, 20, 20);
+    c.ellipse(80, 50, 15, 15);
+
+    c.rect(40, 40, 20, 20);
+  }
+
+  run(s) {
+    s.speed = 1.0;
+    s.turn = 0.5;
+  }
+};
