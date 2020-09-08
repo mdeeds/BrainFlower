@@ -1,11 +1,8 @@
 var robotDisplays = [];
+var robotContainers = [];
 
 var kArenaSize = 800;
 var kFramesPerRound = 1800;
-
-var flowers = new Set();
-
-var robotStats = new Map();
 
 var leftEntryChoice;
 var rightEntrychoice;
@@ -31,39 +28,6 @@ class RobotScore {
 
 function distance2(x1, y1, x2, y2) {
   return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-}
-
-function addRandomFlower() {
-  if (flowers.size >= 100) {
-    return;
-  }
-  let found = false;
-  let x;
-  let y;
-  while (true) {
-    x = Math.random() * kArenaSize;
-    y = Math.random() * kArenaSize;
-    let overlapping = false;
-    for (rd of robotDisplays) {
-      let rc = rd.robotContainer;
-      if (distance2(rc.x, rc.y, x, y) < 10000) {
-        overlapping = true;
-        break;
-      }
-    }
-    if (!overlapping) {
-      break;
-    }
-  }
-  let flower = new Flower(x, y);
-  flowers.add(flower);
-}
-
-function startRobot(robot, x, y, t) {
-  let robotContainer = new RobotContainer(robot, x, y, t);
-  let robotDisplay = new RobotDisplay(robotContainer);
-  robotDisplays.push(robotDisplay);
-  robotStats.set(robotDisplay, new RobotScore(x, 50));
 }
 
 let entryMap = new Map();
@@ -131,12 +95,7 @@ function setup() {
 
   createCanvas(kArenaSize, kArenaSize);
   
-  startRobot(new KeyBot(), 100, 100, Math.PI / 4);
-  startRobot(new CircleBot(), kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
-
-  for (let i = 0; i < 15; ++i) {
-    addRandomFlower();
-  }
+  setupGame();
 }
 
 var angle = 0;
@@ -145,31 +104,8 @@ function generateSenses()  {
   return new SensorState();
 }
 
-function checkFlower(f) {
-  let overlappingRobot = null;
-  let bestDistance2 = 2500;
-  for (rd of robotDisplays) {
-    let d2 = distance2(f.x, f.y, rd.robotContainer.x, rd.robotContainer.y); 
-    if (d2 < 2500) {
-      overlappingRobot = rd;
-      bestDistance2 = d2;
-    }
-  }
-  if (overlappingRobot) {
-    // TODO: points!
-    let stats = robotStats.get(overlappingRobot);
-    ++stats.score;
-    flowers.delete(f);
-    if (Math.random() < 0.5) {
-      addRandomFlower();
-    }
-    return false;
-  }
-  return true;
-}
-
 function playFrame() {
-  runFrame(robotDisplays, flowers);
+  runFrame(robotContainers, flowers);
   background(220);
   for (r of robotStats.values()) {
     r.draw();
