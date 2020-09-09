@@ -8,10 +8,15 @@ var robotContainers = [];
  * @param {RobotContainer} rc 
  * @returns {SensorState}
  */
-function generateSenses(rc)  {
+function generateSenses(rc, otherRobot)  {
   let state = new SensorState();
+  state.leftFlowerDistance = 1200;
+  state.rightFlowerDistance = 1200;
   for (f of flowers) {
-    let t = Math.atan2(f.y - rc.y, f.x - rc.x);
+    let dy = f.y - rc.y;
+    let dx = f.x - rc.x;
+    let distance = Math.sqrt(dx*dx + dy*dy);
+    let t = Math.atan2(dy, dx);
     let dt = t - rc.t;
     if (dt < -Math.PI) {
       dt += 2 * Math.PI;
@@ -20,10 +25,28 @@ function generateSenses(rc)  {
     }
     if (dt < Math.PI / 4 && dt > -Math.PI / 12) {
       state.leftFlowers++;
+      state.leftFlowerDistance = 
+        Math.min(state.leftFlowerDistance, distance);
     }
     if (dt < Math.PI / 12 && dt > -Math.PI / 4) {
       state.rightFlowers++;
-    }    
+      state.rightFlowerDistance =
+        Math.min(state.rightFlowerDistance, distance);
+    } 
+  }
+  {
+    // Other robot
+    let dx = otherRobot.x - rc.x;
+    let dy = otherRobot.y - rc.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+    let t = Math.atan2(dy, dx) - rc.t;
+    if (t < -Math.PI) {
+      t += 2 * Math.PI;
+    } else if (t > Math.PI) {
+      t -= 2 * Math.PI;
+    }
+    state.opponentAngle = t;
+    state.opponentDistance = distance;
   }
   return state;
 }
@@ -116,8 +139,10 @@ function runFrame(robotContainers, flowers) {
     if (Math.random() < 0.005) {
       addRandomFlower();
     }
-    for (rc of robotContainers) {
-      let s = generateSenses(rc);
+    for (i of [0, 1]) {
+      let rc = robotContainers[i];
+      let otherRobot = robotContainers[i ^ 1];
+      let s = generateSenses(rc, otherRobot);
       rc.robot.run(s);
       let forward = Math.max(0, Math.min(1, s.speed - Math.abs(s.turn)));
       let turn = Math.max(-1, Math.min(1.0, s.turn));

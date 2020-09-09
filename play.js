@@ -116,6 +116,7 @@ function setup() {
   entryMap.set("KeyBot", new KeyBot());
   entryMap.set("CircleBot", new CircleBot());
   entryMap.set("MattBot2", new MattBot2());
+  entryMap.set("RudeBot", new RudeBot());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(10, 10);
