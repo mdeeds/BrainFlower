@@ -1,31 +1,5 @@
-var kArenaSize = 800;
-var kFramesPerRound = 1800;
-
 var leftEntryChoice;
 var rightEntryChoice;
-
-class RobotScore {
-  /**
-   * 
-   * @param {number} x 
-   * @param {number} y 
-   */
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.score = 0;
-  }
-  draw() {
-    textSize(24);
-    fill(color("black"));
-    noStroke();
-    text(this.score.toFixed(0), this.x, this.y);
-  }
-}
-
-function distance2(x1, y1, x2, y2) {
-  return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-}
 
 let entryMap = new Map();
 
@@ -117,6 +91,7 @@ function setup() {
   entryMap.set("CircleBot", new CircleBot());
   entryMap.set("MattBot2", new MattBot2());
   entryMap.set("RudeBot", new RudeBot());
+  entryMap.set("CloseBot", new CloseBot());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(10, 10);
@@ -139,7 +114,7 @@ function setup() {
 var angle = 0;
 
 function playFrame() {
-  runFrame(robotContainers, flowers);
+  runFrame();
   background(220);
   for (r of robotStats.values()) {
     r.draw();

@@ -37,6 +37,8 @@ class SensorState {
     let result = [];
     result.push(this.leftFlowers);
     result.push(this.rightFlowers);
+    result.push(this.leftFlowerDistance);
+    result.push(this.rightFlowerDistance);
     result.push(this.speed);
     result.push(this.turn);
   }
@@ -48,7 +50,9 @@ class SensorState {
   setFromArray(a) {
     this.leftFlowers = a[0];
     this.rightFlowers = a[1];
-    this.speed = a[2];
-    this.turn = a[3];
+    this.leftFlowerDistance = a[2];
+    this.rightFlowerDistance = a[3];
+    this.speed = a[4];
+    this.turn = a[5];
   }
 }

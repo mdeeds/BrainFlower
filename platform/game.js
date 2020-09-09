@@ -1,3 +1,6 @@
+var kArenaSize = 800;
+var kFramesPerRound = 1800;
+
 var flowers = new Set();
 var robotStats = new Map();
 
@@ -51,6 +54,10 @@ function generateSenses(rc, otherRobot)  {
   return state;
 }
 
+function distance2(x1, y1, x2, y2) {
+  return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+}
+
 function addRandomFlower() {
   if (flowers.size >= 100) {
     return;
@@ -87,7 +94,7 @@ function checkFlower(f) {
     }
   }
   if (overlappingRobot) {
-    let stats = robotStats.get(overlappingRobot);
+    let stats = robotStats.get(overlappingRobot.robot);
     ++stats.score;
     flowers.delete(f);
     if (Math.random() < 0.5) {
@@ -96,6 +103,25 @@ function checkFlower(f) {
     return false;
   }
   return true;
+}
+
+class RobotScore {
+  /**
+   * 
+   * @param {number} x 
+   * @param {number} y 
+   */
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.score = 0;
+  }
+  draw() {
+    textSize(24);
+    fill(color("black"));
+    noStroke();
+    text(this.score.toFixed(0), this.x, this.y);
+  }
 }
 
 /**
@@ -110,7 +136,7 @@ function startRobot(robot, x, y, t) {
   let robotContainer = new RobotContainer(robot, x, y, t);
   robotContainers.push(robotContainer);
   let robotDisplay = new RobotDisplay(robotContainer);
-  robotStats.set(robotContainer, new RobotScore(x, 50));
+  robotStats.set(robotContainer.robot, new RobotScore(x, 50));
   return robotContainer;
 }
 
@@ -120,11 +146,14 @@ function startRobot(robot, x, y, t) {
  * @param {RobotContainer} right 
  */
 function setupGame(left, right){
+  robotContainers.length = 0;
+  flowers.clear();
+  robotStats.clear();
+
   let leftContainer =
     startRobot(left, 100, 100, Math.PI / 4);
   let rightContainer =
     startRobot(right, kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
-
   for (let i = 0; i < 15; ++i) {
     addRandomFlower();
   }
@@ -135,7 +164,7 @@ function setupGame(left, right){
 /**
  * Runs the robots and physics simulation without any draw operations.
  */
-function runFrame(robotContainers, flowers) {
+function runFrame() {
     if (Math.random() < 0.005) {
       addRandomFlower();
     }
