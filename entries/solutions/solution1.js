@@ -1,7 +1,7 @@
 /**
  * Matt's entry for Robo Harvest
  */
- class MattBot {
+ class MattBot1 {
     /**
      * @param {Renderer} c 
      */

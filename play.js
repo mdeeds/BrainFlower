@@ -1,11 +1,8 @@
-var robotDisplays = [];
-var robotContainers = [];
-
 var kArenaSize = 800;
 var kFramesPerRound = 1800;
 
 var leftEntryChoice;
-var rightEntrychoice;
+var rightEntryChoice;
 
 class RobotScore {
   /**
@@ -45,12 +42,31 @@ class Match {
 
   /**
    * 
+   * @param {number} i
+   * @returns {RobotContainer} 
+   */
+  getEntry(i) {
+    if (i == 0) {
+      return entryMap.get(this.leftEntryChoice.value());
+    } else {
+      return entryMap.get(this.rightEntryChoice.value());
+    }
+  }
+
+  remove() {
+    leftEntryChoice.remove();
+    rightEntryChoice.remove();
+  }
+
+  /**
+   * 
    * @param {Element} choice 
    */
   populateChoice(choice) {
     for (let label of entryMap.keys()) {
       choice.option(label);
     }
+    choice.tabindex = "-1";
   }
 
   setToOtherValue(choiceToChange, choiceToKeep) {
@@ -79,9 +95,27 @@ class Match {
   }
 }
 
+var started = false;
+var startButton;
+var match;
+var robotDisplays = [];
+
+function startGame() {
+  started = true;
+  startButton.remove();
+  let left = match.getEntry(0);
+  let right = match.getEntry(1);
+  match.remove();
+  robotContainers = setupGame(left, right);
+  for (let rc of robotContainers) {
+    robotDisplays.push(new RobotDisplay(rc));
+  }
+}
+
 function setup() {
   entryMap.set("KeyBot", new KeyBot());
   entryMap.set("CircleBot", new CircleBot());
+  entryMap.set("MattBot2", new MattBot2());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(10, 10);
@@ -91,18 +125,17 @@ function setup() {
   rightEntryChoice.position(410, 10);
   rightEntryChoice.size(380, 25);
 
-  let match = new Match(leftEntryChoice, rightEntryChoice);
+  match = new Match(leftEntryChoice, rightEntryChoice);
 
   createCanvas(kArenaSize, kArenaSize);
-  
-  setupGame();
+
+  startButton = createButton("Start");
+  startButton.size(60, 40);
+  startButton.position(kArenaSize / 2 - 25, 200);
+  startButton.mousePressed(startGame);
 }
 
 var angle = 0;
-
-function generateSenses()  {
-  return new SensorState();
-}
 
 function playFrame() {
   runFrame(robotContainers, flowers);
@@ -135,10 +168,23 @@ function playFrame() {
   }
 }
 
+function splashFrame() {
+  background(color("LightSlateGray"));
+  textSize(40);
+  textAlign(CENTER);
+  noStroke();
+  fill(color("Teal"));
+  text("choose your robots", kArenaSize / 2, 100);
+}
+
 var frameNumber = 0;
 function draw() {
-  ++frameNumber;
-  if (frameNumber <= kFramesPerRound) {
-    playFrame();
+  if (!started) {
+    splashFrame();
+  } else {
+    ++frameNumber;
+    if (frameNumber <= kFramesPerRound) {
+      playFrame();
+    }
   }
 }

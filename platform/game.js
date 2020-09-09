@@ -1,5 +1,32 @@
 var flowers = new Set();
-  var robotStats = new Map();
+var robotStats = new Map();
+
+var robotContainers = [];
+
+/**
+ * Generates a perception of the world from the perspective of `rc`.
+ * @param {RobotContainer} rc 
+ * @returns {SensorState}
+ */
+function generateSenses(rc)  {
+  let state = new SensorState();
+  for (f of flowers) {
+    let t = Math.atan2(f.y - rc.y, f.x - rc.x);
+    let dt = t - rc.t;
+    if (dt < -Math.PI) {
+      dt += 2 * Math.PI;
+    } else if (dt > Math.PI) {
+      dt -= 2 * Math.PI;
+    }
+    if (dt < Math.PI / 4 && dt > -Math.PI / 12) {
+      state.leftFlowers++;
+    }
+    if (dt < Math.PI / 12 && dt > -Math.PI / 4) {
+      state.rightFlowers++;
+    }    
+  }
+  return state;
+}
 
 function addRandomFlower() {
   if (flowers.size >= 100) {
@@ -37,7 +64,6 @@ function checkFlower(f) {
     }
   }
   if (overlappingRobot) {
-    // TODO: points!
     let stats = robotStats.get(overlappingRobot);
     ++stats.score;
     flowers.delete(f);
@@ -49,22 +75,38 @@ function checkFlower(f) {
   return true;
 }
 
+/**
+ * 
+ * @param {Robot} robot 
+ * @param {number} x 
+ * @param {number} y 
+ * @param {number} t
+ * @returns {RobotContainer} 
+ */
 function startRobot(robot, x, y, t) {
   let robotContainer = new RobotContainer(robot, x, y, t);
   robotContainers.push(robotContainer);
   let robotDisplay = new RobotDisplay(robotContainer);
-  robotDisplays.push(robotDisplay);
   robotStats.set(robotContainer, new RobotScore(x, 50));
+  return robotContainer;
 }
 
-
-function setupGame(){
-  startRobot(new KeyBot(), 100, 100, Math.PI / 4);
-  startRobot(new CircleBot(), kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
+/**
+ * 
+ * @param {RobotContainer} left 
+ * @param {RobotContainer} right 
+ */
+function setupGame(left, right){
+  let leftContainer =
+    startRobot(left, 100, 100, Math.PI / 4);
+  let rightContainer =
+    startRobot(right, kArenaSize - 100, kArenaSize - 100, -3 * Math.PI / 4);
 
   for (let i = 0; i < 15; ++i) {
     addRandomFlower();
   }
+
+  return [ leftContainer, rightContainer ];
 }
 
 /**

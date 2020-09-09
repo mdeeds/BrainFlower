@@ -1,10 +1,8 @@
 /**
  * Matt's entry for Robo Harvest
  */
- class MattBot {
-     constructor() {
-         this.turnRate = 0;
-     }
+ class MattBot2 {
+        constructor() {}
     /**
      * @param {Renderer} c 
      */
@@ -15,14 +13,17 @@
         c.ellipse(50, 50, 90, 90);
         c.rect(80, 50-12, 5, 24);
     }
-    
+
     /**
      * 
      * @param {SensorState} s 
      */
     run(s) {
-      s.turn = this.turnRate;
-      this.turnRate += 1 / kFramesPerRound;
-      s.speed = 1.0;
+        if (s.rightFlowers > s.leftFlowers) {
+            s.turn = -0.3;
+        } else {
+            s.turn = 0.2;
+        }
+        s.speed = 1.0;
     }
 }
