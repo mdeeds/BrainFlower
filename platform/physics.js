@@ -51,5 +51,4 @@ class RobotContainer {
     this.x = this.newx;
     this.y = this.newy;
   }
-
-}
+};

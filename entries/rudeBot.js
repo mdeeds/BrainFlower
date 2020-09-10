@@ -1,7 +1,4 @@
 class RudeBot {
-  RudeBot() {
-  }
-
   /**
    * Draws the RudeBot.
    * @param {Renderer} c 

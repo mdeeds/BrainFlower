@@ -51,7 +51,75 @@ function generateSenses(rc, otherRobot)  {
     state.opponentAngle = t;
     state.opponentDistance = distance;
   }
+
+  {
+    // Walls
+    state.distanceToWall = findClosestWall(
+      new Ray(rc.x, rc.y, rc.t));
+    state.leftDistanceToWall = findClosestWall(
+      new Ray(rc.x, rc.y, rc.t - Math.PI / 4));
+    state.rightDistanceToWall = findClosestWall(
+      new Ray(rc.x, rc.y, rc.t + Math.PI / 4));
+  }
   return state;
+}
+
+findClosestWall = function(robotRay) {
+  // This should be a static const.
+  const walls = [
+    new Ray(0,0,0),
+    new Ray(0,0,-Math.PI/2),
+    new Ray(kArenaSize, kArenaSize, Math.PI),
+    new Ray(kArenaSize, kArenaSize, Math.PI/2),
+  ]
+  let closestWall = 2 * kArenaSize;
+  for (w of walls) {
+    let d = getDistanceToLine(robotRay, w);
+    if (d >= 0) {
+      closestWall = Math.min(d, closestWall);
+    }
+  }
+  return closestWall;
+}
+
+class Ray {
+  constructor(x, y, t) {
+    this.x = x;
+    this.y = y;
+    this.t = t;
+  }
+}
+
+/**
+ * 
+ */
+getDistanceToLine = function(r1, r2) {
+  let x1 = r1.x;
+  let y1 = r1.y;
+  let t1 = r1.t;
+  let x2 = r2.x;
+  let y2 = r2.y;
+  let t2 = r2.t;
+
+  if (t1 == t2) {
+    return -1;
+  }
+  let cos1 = Math.cos(t1);
+  if (Math.abs(cos1) < 0.001) {
+    return getDistanceToLine(
+      y1, x1, Math.PI / 4 - t1, 
+      y2, x2, Math.PI / 4 - t2);
+  }
+  // p1 = (x1, y1); p2 = (x2, y2)
+  // p1 + a1 v1 = p2 + a2 v2
+  // solve for a1 and a2.
+  let tan1 = Math.tan(t1);
+  let sin2 = Math.sin(t2);
+  let cos2 = Math.cos(t2);
+  let a2 = (y1 - y2 + tan1 * (x2 - x1)) /
+    (sin2 - tan1 * cos2);
+  let a1 = (x2 + a2 * cos2 - x1) / (cos1);
+  return a1;
 }
 
 function distance2(x1, y1, x2, y2) {

@@ -1,6 +1,9 @@
 // Describes the current state of the world as percieved by the robot.
 // May be modified to indicate intention of movement.
 
+kInputSize = 9;
+kOutputSize = 2;
+
 /**
  * Describes the current state of the world as percieved by the robot.
  * May be modified to indicate intention of movement.
@@ -22,6 +25,10 @@ class SensorState {
     this.opponentDistance = 0;
     this.opponentAngle = 0;
 
+    this.distanceToWall = 0;
+    this.leftDistanceToWall = 0;
+    this.rightDistanceToWall = 0;
+
     /** @member {number} - Current driving speed.  Range 0.0 to 1.0. */
     this.speed = 0.0;
     /** @member {number} 
@@ -39,20 +46,23 @@ class SensorState {
     result.push(this.rightFlowers);
     result.push(this.leftFlowerDistance);
     result.push(this.rightFlowerDistance);
+    result.push(this.opponentDistance);
+    result.push(this.opponentAngle);
+    result.push(this.distanceToWall);
+    result.push(this.leftDistanceToWall);
+    result.push(this.rightDistanceToWall);
+    
     result.push(this.speed);
     result.push(this.turn);
+    return result;
   }
 
   /**
-   * Sets this sensor state from the numbers provided.
+   * 
    * @param {number[]} a 
    */
-  setFromArray(a) {
-    this.leftFlowers = a[0];
-    this.rightFlowers = a[1];
-    this.leftFlowerDistance = a[2];
-    this.rightFlowerDistance = a[3];
-    this.speed = a[4];
-    this.turn = a[5];
+  setOutputFromArray(a) {
+    this.speed = a[0];
+    this.turn = a[1];
   }
 }

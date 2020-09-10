@@ -92,6 +92,8 @@ function setup() {
   entryMap.set("MattBot2", new MattBot2());
   entryMap.set("RudeBot", new RudeBot());
   entryMap.set("CloseBot", new CloseBot());
+  entryMap.set("LearnBot", new LearnBot());
+  entryMap.set("SquareBot", new SquareBot());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(10, 10);
