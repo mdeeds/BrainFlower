@@ -223,6 +223,11 @@ function runFrame() {
       let forward = Math.max(0, Math.min(1, s.speed - Math.abs(s.turn)));
       let turn = Math.max(-1, Math.min(1.0, s.turn));
       rc.t += turn / 10.0;
+      if (rc.t > Math.PI) {
+        rc.t -= Math.PI * 2;
+      } else if (rc.t < -Math.PI) {
+        rc.t += Math.PI * 2;
+      }
       rc.forward(forward * 5);
     }
     for (r1 of robotContainers) {
