@@ -2,8 +2,6 @@ var kArenaSize = 800;
 var kFramesPerRound = 1800;
 
 var flowers = new Set();
-var robotStats = new Map();
-
 var robotContainers = [];
 
 /**
@@ -162,8 +160,7 @@ function checkFlower(f) {
     }
   }
   if (overlappingRobot) {
-    let stats = robotStats.get(overlappingRobot.robot);
-    ++stats.score;
+    ++overlappingRobot.score;
     flowers.delete(f);
     if (Math.random() < 0.5) {
       addRandomFlower();
@@ -171,25 +168,6 @@ function checkFlower(f) {
     return false;
   }
   return true;
-}
-
-class RobotScore {
-  /**
-   * 
-   * @param {number} x 
-   * @param {number} y 
-   */
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.score = 0;
-  }
-  draw() {
-    textSize(24);
-    fill(color("black"));
-    noStroke();
-    text(this.score.toFixed(0), this.x, this.y);
-  }
 }
 
 /**
@@ -204,7 +182,6 @@ function startRobot(robot, x, y, t) {
   let robotContainer = new RobotContainer(robot, x, y, t);
   robotContainers.push(robotContainer);
   let robotDisplay = new RobotDisplay(robotContainer);
-  robotStats.set(robotContainer.robot, new RobotScore(x, 50));
   return robotContainer;
 }
 
@@ -216,7 +193,6 @@ function startRobot(robot, x, y, t) {
 function setupGame(left, right){
   robotContainers.length = 0;
   flowers.clear();
-  robotStats.clear();
 
   let leftContainer =
     startRobot(left, 100, 100, Math.PI / 4);

@@ -14,6 +14,7 @@ class RobotContainer {
     this.x = x;
     this.y = y;
     this.t = t;
+    this.score = 0;
   }
 
   /**
@@ -31,13 +32,25 @@ class RobotContainer {
   collide(other) {
     let dx = other.x - this.x;
     let dy = other.y - this.y;
-    let absd = Math.sqrt(dx*dx + dy*dy);
-    if (absd > 100) {
+    let separation = Math.sqrt(dx*dx + dy*dy);
+    if (separation > 100) {
       return;
     }
-    let dhatx = dx / absd;
-    let dhaty = dy / absd;
-    let backset = 100 - absd;
+    let dhatx = dx / separation;
+    let dhaty = dy / separation;
+    let backset = 100 - separation;
+
+    let linedUp = (dotRay(this.t, dx, dy) > 0.9);
+    let fromBehind = (dotAngles(this.t, other.t) > 0.6);
+    if (linedUp && fromBehind) {
+      backset += 50;
+      other.newx += dhatx * 50;
+      other.newy += dhaty * 50;
+      if (other.score > 0) {
+        --other.score;
+        ++this.score;
+      }
+    }
     this.newx -= dhatx * backset;
     this.newy -= dhaty * backset;
   }
@@ -52,3 +65,20 @@ class RobotContainer {
     this.y = this.newy;
   }
 };
+
+// Returns the dot product of t1 and t2.
+dotAngles = function(t1, t2) {
+  let dt = t2 - t1;
+  if (dt < -Math.PI) {
+    dt += 2 * Math.PI;
+  }
+  if (dt > Math.PI) {
+    dt -= 2 * Math.PI;
+  }
+  return Math.cos(dt);
+}
+
+dotRay = function(t1, dx, dy) {
+  let t2 = Math.atan2(dy, dx);
+  return dotAngles(t1, t2);
+}

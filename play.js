@@ -118,12 +118,15 @@ var angle = 0;
 function playFrame() {
   runFrame();
   background(220);
-  for (r of robotStats.values()) {
-    r.draw();
-  }
   let x = 50;
   for (r of robotDisplays) {
     r.draw();
+    let rc = r.robotContainer;
+    textSize(24);
+    noStroke();
+    fill(color("Black"))
+    text(rc.score.toFixed(0), x, 30);
+    x += 650;
   }
   for (f of flowers) {
     f.draw();
