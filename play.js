@@ -1,6 +1,10 @@
 var leftEntryChoice;
 var rightEntryChoice;
 
+var flowerSound = false;
+var wallSound = false;
+var hitSound = false;
+
 let entryMap = new Map();
 
 class Match {
@@ -74,7 +78,17 @@ var startButton;
 var match;
 var robotDisplays = [];
 
+function loadSound(path) {
+  let audio = document.createElement("audio");
+  audio.src = path;
+  return audio;
+}
+
 function startGame() {
+  flowerSound = loadSound("sfx/Flower.mp3");
+  wallSound = loadSound("sfx/Wall.mp3");
+  hitSound = loadSound("sfx/Hit.mp3");
+
   started = true;
   startButton.remove();
   let left = match.getEntry(0);

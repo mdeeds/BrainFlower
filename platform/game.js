@@ -161,6 +161,9 @@ function checkFlower(f) {
   }
   if (overlappingRobot) {
     ++overlappingRobot.score;
+    if (flowerSound) {
+      flowerSound.play();
+    }
     flowers.delete(f);
     if (Math.random() < 0.5) {
       addRandomFlower();

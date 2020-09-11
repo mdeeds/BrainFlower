@@ -42,6 +42,7 @@ class RobotContainer {
 
     let linedUp = (dotRay(this.t, dx, dy) > 0.9);
     let fromBehind = (dotAngles(this.t, other.t) > 0.6);
+    let played = false;
     if (linedUp && fromBehind) {
       backset += 50;
       other.newx += dhatx * 50;
@@ -49,7 +50,14 @@ class RobotContainer {
       if (other.score > 0) {
         --other.score;
         ++this.score;
+        if (hitSound) {
+          hitSound.play();
+          played = true;
+        }
       }
+    }
+    if (!played && wallSound) {
+      wallSound.play();
     }
     this.newx -= dhatx * backset;
     this.newy -= dhaty * backset;
@@ -59,6 +67,11 @@ class RobotContainer {
    * Update the robots position.  Call this after applying movement to newx and newy.
    */
   update() {
+    if (this.newx < 50 || this.newy < 50 || 
+      this.newx > kArenaSize -50 || 
+      this.newy > kArenaSize - 50) {
+      wallSound.play();
+    }
     this.newx = Math.max(50, Math.min(kArenaSize - 50, this.newx));
     this.newy = Math.max(50, Math.min(kArenaSize - 50, this.newy));
     this.x = this.newx;
