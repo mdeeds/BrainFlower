@@ -4,6 +4,10 @@ var kFramesPerRound = 1800;
 var flowers = new Set();
 var robotContainers = [];
 
+var flowerSound = false;
+var wallSound = false;
+var hitSound = false;
+
 /**
  * Generates a perception of the world from the perspective of `rc`.
  * @param {RobotContainer} rc 
@@ -13,7 +17,7 @@ function generateSenses(rc, otherRobot)  {
   let state = new SensorState();
   state.leftFlowerDistance = 1200;
   state.rightFlowerDistance = 1200;
-  for (f of flowers) {
+  for (let f of flowers) {
     let dy = f.y - rc.y;
     let dx = f.x - rc.x;
     let distance = Math.sqrt(dx*dx + dy*dy);
@@ -71,7 +75,7 @@ findClosestWall = function(robotRay) {
     new Ray(kArenaSize, kArenaSize, Math.PI/2),
   ]
   let closestWall = 2 * kArenaSize;
-  for (w of walls) {
+  for (let w of walls) {
     let d = getDistanceToLine(robotRay, w);
     if (d >= 0) {
       closestWall = Math.min(d, closestWall);
@@ -135,7 +139,7 @@ function addRandomFlower() {
     x = Math.random() * kArenaSize;
     y = Math.random() * kArenaSize;
     let overlapping = false;
-    for (rc of robotContainers) {
+    for (let rc of robotContainers) {
       if (distance2(rc.x, rc.y, x, y) < 10000) {
         overlapping = true;
         break;
@@ -152,7 +156,7 @@ function addRandomFlower() {
 function checkFlower(f) {
   let overlappingRobot = null;
   let bestDistance2 = 2500;
-  for (rc of robotContainers) {
+  for (let rc of robotContainers) {
     let d2 = distance2(f.x, f.y, rc.x, rc.y); 
     if (d2 < 2500) {
       overlappingRobot = rc;
@@ -188,7 +192,6 @@ function checkFlower(f) {
 function startRobot(robot, x, y, t) {
   let robotContainer = new RobotContainer(robot, x, y, t);
   robotContainers.push(robotContainer);
-  let robotDisplay = new RobotDisplay(robotContainer);
   return robotContainer;
 }
 
@@ -219,11 +222,13 @@ function runFrame() {
     if (Math.random() < 0.005) {
       addRandomFlower();
     }
-    for (i of [0, 1]) {
+    for (let i of [0, 1]) {
       let rc = robotContainers[i];
       let otherRobot = robotContainers[i ^ 1];
       let s = generateSenses(rc, otherRobot);
+      let startTime = window.performance.now();
       rc.robot.run(s);
+      rc.elapsed += window.performance.now() - startTime;
       let forward = Math.max(0, Math.min(1, s.speed - Math.abs(s.turn)));
       let turn = Math.max(-1, Math.min(1.0, s.turn));
       rc.t += turn / 10.0;
@@ -234,17 +239,17 @@ function runFrame() {
       }
       rc.forward(forward * 5);
     }
-    for (r1 of robotContainers) {
-      for (r2 of robotContainers) {
+    for (let r1 of robotContainers) {
+      for (let r2 of robotContainers) {
         if (r1 != r2) {
           r1.collide(r2);
         }
       }
     }
-    for (r of robotContainers) {
+    for (let r of robotContainers) {
       r.update();
     }
-    for (f of flowers) {
+    for (let f of flowers) {
       checkFlower(f);
     }
   }

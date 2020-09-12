@@ -22,7 +22,7 @@ var angle = 0;
 function draw() {
   background(220);
   let x = 50;
-  for (r of robotDisplays) {
+  for (let r of robotDisplays) {
     r.draw();
     r.robotContainer.t += 0.01;
     r.robotContainer.forward(1.0);

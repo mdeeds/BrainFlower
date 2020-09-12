@@ -1,7 +1,4 @@
 class CircleBot {
-  CircleBot() {
-  }
-
   /**
    * Draws the CircleBot.
    * @param {Renderer} c 

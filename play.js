@@ -1,11 +1,35 @@
 var leftEntryChoice;
 var rightEntryChoice;
 
-var flowerSound = false;
-var wallSound = false;
-var hitSound = false;
-
 let entryMap = new Map();
+
+function setup() {
+  tf.setBackend('cpu');
+  addEntry(new KeyBot());
+  addEntry(new CircleBot());
+  addEntry(new MattBot2());
+  addEntry(new RudeBot());
+  addEntry(new CloseBot());
+  addEntry(new LearnBot());
+  addEntry(new SquareBot());
+
+  leftEntryChoice = createSelect();
+  leftEntryChoice.position(10, 10);
+  leftEntryChoice.size(380, 25);
+
+  rightEntryChoice = createSelect();
+  rightEntryChoice.position(410, 10);
+  rightEntryChoice.size(380, 25);
+
+  match = new Match(leftEntryChoice, rightEntryChoice);
+
+  createCanvas(kArenaSize, kArenaSize);
+
+  startButton = createButton("Start");
+  startButton.size(60, 40);
+  startButton.position(kArenaSize / 2 - 25, 200);
+  startButton.mousePressed(startGame);
+}
 
 class Match {
   constructor(leftEntryChoice, rightEntryChoice) {
@@ -100,31 +124,9 @@ function startGame() {
   }
 }
 
-function setup() {
-  entryMap.set("KeyBot", new KeyBot());
-  entryMap.set("CircleBot", new CircleBot());
-  entryMap.set("MattBot2", new MattBot2());
-  entryMap.set("RudeBot", new RudeBot());
-  entryMap.set("CloseBot", new CloseBot());
-  entryMap.set("LearnBot", new LearnBot());
-  entryMap.set("SquareBot", new SquareBot());
-
-  leftEntryChoice = createSelect();
-  leftEntryChoice.position(10, 10);
-  leftEntryChoice.size(380, 25);
-
-  rightEntryChoice = createSelect();
-  rightEntryChoice.position(410, 10);
-  rightEntryChoice.size(380, 25);
-
-  match = new Match(leftEntryChoice, rightEntryChoice);
-
-  createCanvas(kArenaSize, kArenaSize);
-
-  startButton = createButton("Start");
-  startButton.size(60, 40);
-  startButton.position(kArenaSize / 2 - 25, 200);
-  startButton.mousePressed(startGame);
+function addEntry(robot) {
+  let name = robot.constructor.name;
+  entryMap.set(name, robot);
 }
 
 var angle = 0;
@@ -133,7 +135,7 @@ function playFrame() {
   runFrame();
   background(220);
   let x = 50;
-  for (r of robotDisplays) {
+  for (let r of robotDisplays) {
     r.draw();
     let rc = r.robotContainer;
     textSize(24);
@@ -142,7 +144,7 @@ function playFrame() {
     text(rc.score.toFixed(0), x, 30);
     x += 650;
   }
-  for (f of flowers) {
+  for (let f of flowers) {
     f.draw();
   }
 

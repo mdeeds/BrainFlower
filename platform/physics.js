@@ -15,6 +15,7 @@ class RobotContainer {
     this.y = y;
     this.t = t;
     this.score = 0;
+    this.elapsed = 0;
   }
 
   /**
@@ -70,7 +71,9 @@ class RobotContainer {
     if (this.newx < 50 || this.newy < 50 || 
       this.newx > kArenaSize -50 || 
       this.newy > kArenaSize - 50) {
-      wallSound.play();
+        if (wallSound) {
+          wallSound.play();
+        }
     }
     this.newx = Math.max(50, Math.min(kArenaSize - 50, this.newx));
     this.newy = Math.max(50, Math.min(kArenaSize - 50, this.newy));
