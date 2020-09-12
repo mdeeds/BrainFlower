@@ -162,6 +162,10 @@ function checkFlower(f) {
   if (overlappingRobot) {
     ++overlappingRobot.score;
     if (flowerSound) {
+      console.log("State: " + flowerSound.readyState);
+      if (!flowerSound.ended) {
+        flowerSound.currentTime = 0;
+      }
       flowerSound.play();
     }
     flowers.delete(f);
