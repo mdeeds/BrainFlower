@@ -47,15 +47,15 @@ class SensorState {
    */
   asArray() {
     let result = [];
-    result.push(this.leftFlowers);
-    result.push(this.rightFlowers);
-    result.push(this.leftFlowerDistance);
-    result.push(this.rightFlowerDistance);
-    result.push(this.opponentDistance);
-    result.push(this.opponentAngle);
-    result.push(this.distanceToWall);
-    result.push(this.leftDistanceToWall);
-    result.push(this.rightDistanceToWall);
+    result.push(this.leftFlowers / 10.0);
+    result.push(this.rightFlowers / 10.0);
+    result.push(this.leftFlowerDistance / 400);
+    result.push(this.rightFlowerDistance / 400);
+    result.push(this.opponentDistance / 400);
+    result.push(this.opponentAngle / Math.PI);
+    result.push(this.distanceToWall / 400);
+    result.push(this.leftDistanceToWall / 400);
+    result.push(this.rightDistanceToWall / 400);
     
     result.push(this.speed);
     result.push(this.turn);
