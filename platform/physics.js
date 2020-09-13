@@ -52,12 +52,18 @@ class RobotContainer {
         --other.score;
         ++this.score;
         if (hitSound) {
+          if (!hitSound.ended) {
+            hitSound.currentTime = 0;
+          }
           hitSound.play();
           played = true;
         }
       }
     }
     if (!played && wallSound) {
+      if (!wallSound.ended) {
+        wallSound.currentTime = 0;
+      }
       wallSound.play();
     }
     this.newx -= dhatx * backset;

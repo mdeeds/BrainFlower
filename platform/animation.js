@@ -38,7 +38,7 @@ class Flower {
         translate(this.x, this.y);
         rotate(this.t);
         fill(color("pink"));
-        stroke(color("white"));
+        stroke(color("LightCoral"));
         strokeWeight(1);
         ellipse(0, 5, 7, 10);
         ellipse(0, -5, 7, 10);

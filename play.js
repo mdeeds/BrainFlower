@@ -7,6 +7,7 @@ function setup() {
   tf.setBackend('cpu');
   addEntry(new KeyBot());
   addEntry(new CircleBot());
+  addEntry(new KeyBot2());
   addEntry(new MattBot2());
   addEntry(new RudeBot());
   addEntry(new CloseBot());
@@ -133,7 +134,7 @@ var angle = 0;
 
 function playFrame() {
   runFrame();
-  background(220);
+  background("DarkSeaGreen");
   let x = 50;
   for (let r of robotDisplays) {
     r.draw();

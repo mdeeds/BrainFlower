@@ -52,6 +52,8 @@ function generateSenses(rc, otherRobot)  {
     }
     state.opponentAngle = t;
     state.opponentDistance = distance;
+    state.opponentHeading = otherRobot.t;
+    state.opponentScore = otherRobot.score;
   }
 
   {
@@ -63,6 +65,8 @@ function generateSenses(rc, otherRobot)  {
     state.rightDistanceToWall = findClosestWall(
       new Ray(rc.x, rc.y, rc.t + Math.PI / 4));
   }
+  state.myHeading = rc.t;
+  state.myScore = rc.score;
   return state;
 }
 
@@ -166,7 +170,6 @@ function checkFlower(f) {
   if (overlappingRobot) {
     ++overlappingRobot.score;
     if (flowerSound) {
-      console.log("State: " + flowerSound.readyState);
       if (!flowerSound.ended) {
         flowerSound.currentTime = 0;
       }

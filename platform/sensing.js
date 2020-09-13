@@ -29,6 +29,11 @@ class SensorState {
     this.leftDistanceToWall = 0;
     this.rightDistanceToWall = 0;
 
+    this.myScore = 0;
+    this.opponentScore = 0;
+    this.myHeading = 0;
+    this.opponentHeading = 0;
+
     /** @member {number} - Current driving speed.  Range 0.0 to 1.0. */
     this.speed = 0.0;
     /** @member {number} 
