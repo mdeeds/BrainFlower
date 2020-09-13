@@ -15,11 +15,11 @@ function setup() {
   addEntry(new SquareBot());
 
   leftEntryChoice = createSelect();
-  leftEntryChoice.position(10, 10);
+  leftEntryChoice.position(70, 10);
   leftEntryChoice.size(380, 25);
 
   rightEntryChoice = createSelect();
-  rightEntryChoice.position(410, 10);
+  rightEntryChoice.position(470, 10);
   rightEntryChoice.size(380, 25);
 
   match = new Match(leftEntryChoice, rightEntryChoice);
@@ -28,7 +28,7 @@ function setup() {
 
   startButton = createButton("Start");
   startButton.size(60, 40);
-  startButton.position(kArenaSize / 2 - 25, 200);
+  startButton.position(kArenaSize / 2 - 25 + 50, 200);
   startButton.mousePressed(startGame);
 }
 

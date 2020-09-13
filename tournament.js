@@ -2,7 +2,7 @@
 var scores = new Map();
 var winCount = new Map();
 var thoughts = new Map();
-var kMaxGames = 100;
+var kMaxGames = 500;
 
 function addScore(robot, score, otherScore, elapsed) {
   let name = robot.constructor.name;

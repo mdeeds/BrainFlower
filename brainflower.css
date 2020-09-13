@@ -1,0 +1,26 @@
+canvas {
+  border: green;
+  border-width: 9px;
+  border-style: solid;
+  margin: 50px;
+  max-width: fit-content;
+}
+
+body {
+  background: black;
+  margin: auto;
+  color: lightgreen;
+  font-family: monospace;
+}
+
+select {
+  color: lightgreen;
+  background: black;
+  font-family: monospace;
+}
+
+button {
+  color: lightgreen;
+  background: black;
+  border-style: outset solid lightgreen;
+}

@@ -10,7 +10,7 @@ class LearnBot {
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
     this.learning = true;
 
-    this.referenceBot = new KeyBot();
+    this.referenceBot = new CircleBot();
   }
   /**
    * Draws the LearnBot.
