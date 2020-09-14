@@ -15,23 +15,23 @@ class RudeBot {
 
   /**
    * @param {SensorState} s 
+   * @returns {number[]} - [ speed, turn ] 
    */
   run(s) {
     if (s.opponentAngle < -1) {
-      s.turn = -0.8;
+      return [1.0, -0.8];
     } else if (s.opponentAngle < -0.3) {
-      s.turn = -0.5
+      return [1.0, -0.5];
     } else if (s.opponentAngle < -0.1) {
-      s.turn = -0.1;
+      return [1.0, -0.1];
     } else if (s.opponentAngle < 0.1) {
-      s.turn = 0.0;
+      return [1.0, 0.0];
     } else if (s.opponentAngle < 0.3) {
-      s.turn = 0.1;
+      return [1.0, 0.1];
     } else if (s.opponentAngle < 1) {
-      s.turn = 0.5;
+      return [1.0, 0.5];
     } else {
-      s.turn = -0.8;
+      return [1.0, -0.8];
     }
-    s.speed = 1.0;
   }
 };

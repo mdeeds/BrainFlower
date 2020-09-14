@@ -33,12 +33,6 @@ class SensorState {
     this.opponentScore = 0;
     this.myHeading = 0;
     this.opponentHeading = 0;
-
-    /** @member {number} - Current driving speed.  Range 0.0 to 1.0. */
-    this.speed = 0.0;
-    /** @member {number} 
-     * Current turning speed.  -1.0 Left, 1.0 Right, 0.0 Straight */
-    this.turn = 0.0;
   }
 
   /**
@@ -60,14 +54,5 @@ class SensorState {
     result.push(this.speed);
     result.push(this.turn);
     return result;
-  }
-
-  /**
-   * 
-   * @param {number[]} a 
-   */
-  setOutputFromArray(a) {
-    this.speed = a[0];
-    this.turn = a[1];
   }
 }

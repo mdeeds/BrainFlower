@@ -18,12 +18,11 @@ class SquareBot {
    */
   run(s) {
     if (s.distanceToWall < 150) {
-      s.turn = -1;
+      return [1.0, -1];
     } else if (s.rightDistanceToWall < 300) {
-      s.turn = 0.2
+      return [1.0, 0.2];
     } else {
-      s.turn = -0.1;
+      return [1.0, -0.1];
     }
-    s.speed = 1.0;
   }
 };

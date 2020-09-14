@@ -32,8 +32,11 @@ class KeyBot {
     c.rect(80,80,10,10);
   }
 
+  /**
+   * @param {SensorState} s 
+   * @returns {number[]} - [ speed, turn ] 
+   */
   run(s) {
-    s.speed = this.speed;
-    s.turn = this.turn;
+    return [this.speed, this.turn];
   }
 }
