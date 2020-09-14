@@ -1,25 +1,34 @@
 
-var scores = new Map();
-var winCount = new Map();
-var thoughts = new Map();
-var kMaxGames = 100;
+var kMaxGames = 10;
 
-function addScore(robot, score, otherScore, elapsed) {
-  let name = robot.constructor.name;
-  if (!scores.get(name)) {
-    scores.set(name, score);
-    thoughts.set(name, elapsed)
-  } else {
-    scores.set(name, scores.get(name) + score);
-    thoughts.set(thoughts.get(name) + elapsed);
-  }
-
-  if (!winCount.get(name)) {
-    winCount.set(name, (score > otherScore) ? 1 : 0);
-  } else if (score > otherScore) {
-    winCount.set(name, winCount.get(name) + 1);
+class GameResult {
+  constructor() {
+    this.score = 0;
+    this.winCount = 0;
+    this.thoughts = 0;
   }
 }
+
+function addScore(containerA, containerB) {
+  let key = containerA.robot.constructor.name
+    + " vs. "
+    + containerB.robot.constructor.name;
+
+  if (!matches.get(key)) {
+    matches.set(key, new GameResult());
+  }
+
+  let gr = matches.get(key);
+  gr.score += containerA.score;
+  gr.winCount += (containerA.score > containerB.score) ? 1 : 0;
+  gr.thoughts += containerA.thoughts;
+}
+
+/**
+ * key: "foo vs. bar"
+ * value: {GameResult}
+ */
+var matches = new Map();
 
 function runOneGame(robotA, robotB) {
     rcs = setupGame(robotA, robotB);
@@ -32,22 +41,14 @@ function runOneGame(robotA, robotB) {
     for (let i = 0; i < kFramesPerRound; ++i) {
       runFrame();
     }
-    addScore(robotA, containerA.score, containerB.score, containerA.elapsed);
-    addScore(robotB, containerB.score, containerA.score, containerB.elapsed);
+    addScore(containerA, containerB);
+    addScore(containerB, containerA);
 }
 
 entries = [];
 
-function setup() {
-  tf.setBackend('cpu');
-  let startTime = window.performance.now();
-  entries.push(new CircleBot());
-  entries.push(new MattBot2());
-  entries.push(new RudeBot());
-  entries.push(new CloseBot());
-  entries.push(new LearnBot());
-  entries.push(new SquareBot());
-
+function runGames() {
+  let startTime= window.performance.now();
   let gameCount = 0;
   while (gameCount < kMaxGames) {
     for (let i = 0; i < entries.length; ++i) {
@@ -65,10 +66,77 @@ function setup() {
   createDiv("Time per game: " 
     + (elapsed / gameCount).toFixed(3)
     + " ms");
-  for (let name of scores.keys()) {
-      createDiv(name + ": " + scores.get(name) + 
-      " wins: " + winCount.get(name) +
-      " thinking: " + thoughts.get(name).toFixed(2));
-  };
+}
+
+function renderTable(cols, a) {
+  let oldTable = document.getElementById("tab");
+  if (oldTable) {
+    oldTable.parentElement.remove(oldTable);
+  }
+  
+  let names = [];
+  for (e of entries) {
+    names.push(e.constructor.name);
+  }
+
+
+  let table = document.createElement("table");
+  table.id = "tab";
+  {
+    let tr = document.createElement("tr");
+    {
+      let td = document.createElement("td");
+      tr.appendChild(td);
+      td.innerText = "vs.";
+    }
+    table.appendChild(tr);
+    for (let n of names) {
+      let td = document.createElement("td");
+      tr.appendChild(td);
+      td.innerText = n;
+    }
+  }
+
+  for (n1 of names) {
+    let tr = document.createElement("tr");
+    table.appendChild(tr);
+    let td = document.createElement("td");
+    td.innerText = n1;
+    tr.appendChild(td);
+    table.appendChild(tr);
+    for (n2 of names) {
+      td = document.createElement("td");
+      tr.appendChild(td);
+      if (n1 == n2) {
+        td.innerText = "-";
+      } else {
+        let key = n1 + " vs. " + n2;
+        let gr = matches.get(key);
+        td.innerText = gr.score;
+      }
+    }
+  }
+  let b = document.getElementById("body");
+  b.appendChild(table);
+}
+
+function setup() {
+  tf.setBackend('cpu');
+  let startTime = window.performance.now();
+  entries.push(new CircleBot());
+  entries.push(new MattBot2());
+  entries.push(new RudeBot());
+  entries.push(new CloseBot());
+  entries.push(new LearnBot());
+  entries.push(new SquareBot());
+
+  runGames();
+  renderTable();
+
+  // for (let name of scores.keys()) {
+  //     createDiv(name + ": " + scores.get(name) + 
+  //     " wins: " + winCount.get(name) +
+  //     " thinking: " + thoughts.get(name).toFixed(2));
+  // };
 }
 

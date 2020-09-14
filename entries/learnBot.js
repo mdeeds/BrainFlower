@@ -8,7 +8,7 @@ class LearnBot {
     this.model.compile({optimizer: 'sgd', loss: 'meanSquaredError'});
     let body = document.getElementById('body');
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
-    this.learning = true;
+    this.learning = false;
 
     this.referenceBot = new CircleBot();
   }
