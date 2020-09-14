@@ -41,21 +41,25 @@ class LearnBot {
    * @param {SensorState} s 
    * @returns {number[]} - [ speed, turn ] 
    */
-  async run(s) {
-    let arr = s.asArray();
-    let input = arr.slice(0, kInputSize);
+  run(s) {
+    let input = s.asArray();
     if (this.learning) {
       let referenceArray = this.referenceBot.run(s);
-      const ys = tf.tensor2d(
-        [referenceArray], [1, kOutputSize]);
-      const xs = tf.tensor2d([input], [1, kInputSize]);
-      await this.model.fit(xs, ys, {epochs: 1});
+      this.learn(input, referenceArray);
       return referenceArray;
     } else {
       let outputTensor = 
         this.model.predict(tf.tensor2d([input], [1, kInputSize]));
       let output = outputTensor.dataSync();
       return output;
-    }
+    }  
+    return result;
+  }
+
+  async learn(input, referenceArray) {
+      const ys = tf.tensor2d(
+        [referenceArray], [1, kOutputSize]);
+      const xs = tf.tensor2d([input], [1, kInputSize]);
+      await this.model.fit(xs, ys, {epochs: 1});
   }
 };

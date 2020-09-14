@@ -56,9 +56,6 @@ class SensorState {
     result.push(this.distanceToWall / 400);
     result.push(this.leftDistanceToWall / 400);
     result.push(this.rightDistanceToWall / 400);
-    
-    result.push(this.speed);
-    result.push(this.turn);
     return result;
   }
 }
