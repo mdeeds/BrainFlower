@@ -47,7 +47,7 @@ class LearnBot {
     if (this.learning) {
       let referenceArray = this.referenceBot.run(s);
       const ys = tf.tensor2d(
-        [referenceArray.slice(kInputSize)], [1, kOutputSize]);
+        [referenceArray], [1, kOutputSize]);
       const xs = tf.tensor2d([input], [1, kInputSize]);
       await this.model.fit(xs, ys, {epochs: 1});
       return referenceArray;

@@ -46,13 +46,12 @@ class KeyBot2 {
   }
 
   /**
-   * 
-   * @param {SensorState} s 
+   * @param {SensorState} s
+   * @returns {number[]} - [ speed, turn ] 
    */
   run(s) {
     let da = subtractAngles(this.desiredAngle, s.myHeading);    
-    s.speed = this.speed;
-    s.turn = da;
+    return [this.speed, da];
   }
 }
 
