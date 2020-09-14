@@ -15,7 +15,6 @@
     }
 
     /**
-     * 
      * @param {SensorState} s 
      * @returns {number[]} - [ speed, turn ] 
      */

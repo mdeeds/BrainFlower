@@ -10,28 +10,34 @@ kOutputSize = 2;
  */
 class SensorState {
   constructor() {
-    // The overlap of the left and right sensors
-    /** @member {number} */  
+    /** @member {number} - Number of flowers to the left. */  
     this.leftFlowers = 0;
-    /** @member {number} */
+    /** @member {number} - Number of flowers to the right. */
     this.rightFlowers = 0;
-
-    /** @member {number} */
+    /** @member {number} - Distance to closest flower on the left. */
     this.leftFlowerDistance = 0;
-    /** @member {number} */
+    /** @member {number} - Distance to closest flower on the right. */
     this.rightFlowerDistance = 0;
 
-    /** @member {number} */
+    /** @member {number} - Distance to the oponent. */
     this.opponentDistance = 0;
+    /** @member {number} - Angle to the opponent. */
     this.opponentAngle = 0;
 
+    /** @member {number} - Distance to wall ahead. */
     this.distanceToWall = 0;
+    /** @member {number} - Distance to wall left 45 degrees. */
     this.leftDistanceToWall = 0;
+    /** @member {number} - Distance to wall right 45 degrees. */
     this.rightDistanceToWall = 0;
 
+    /** @member {number} - My current score (flowers). */
     this.myScore = 0;
+    /** @member {number} - The opponent's current score. */
     this.opponentScore = 0;
+    /** @member {number} - My absolute heading (right = 0). */
     this.myHeading = 0;
+    /** @member {number} - The opponent's current heading. */
     this.opponentHeading = 0;
   }
 
