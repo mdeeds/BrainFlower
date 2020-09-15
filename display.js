@@ -10,6 +10,7 @@ function setup() {
   entries.push(new KeyBot());
   entries.push(new CircleBot());
   entries.push(new MattBot2());
+  entries.push(new CloseBot());
 
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
