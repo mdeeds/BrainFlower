@@ -2,25 +2,28 @@ var entries = [];
 var robotDisplays = [];
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 800);
   
   entries.push(new KeyBot());
   entries.push(new CircleBot());
-  entries.push(new MattBot());
+  entries.push(new MattBot2());
 
-  let x = 100;
+  let dt = 2 * Math.PI / entries.length;
+  let t = 0;
   for (let e of entries) {
-    let robotContainer = new RobotContainer(e, x, 100, 0);
+    let x = Math.cos(t) * 300;
+    let y = Math.sin(t) * 300;
+    let robotContainer = new RobotContainer(e, x, y, t + Math.PI/2);
     let robotDisplay = new RobotDisplay(robotContainer);
     robotDisplays.push(robotDisplay);
-    x += 110;
+    t += dt;
   }
 }
 
 var angle = 0;
 
 function draw() {
-  background(220);
+  background("DarkSeaGreen");
   let x = 50;
   for (let r of robotDisplays) {
     r.draw();
