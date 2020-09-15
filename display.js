@@ -1,9 +1,12 @@
+kArenaSize = 800;
+
 var entries = [];
 var robotDisplays = [];
 
 function setup() {
-  createCanvas(800, 800);
-  
+  createCanvas(kArenaSize, kArenaSize);
+
+  /** Add your robot here! */
   entries.push(new KeyBot());
   entries.push(new CircleBot());
   entries.push(new MattBot2());
@@ -11,8 +14,8 @@ function setup() {
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
   for (let e of entries) {
-    let x = Math.cos(t) * 300;
-    let y = Math.sin(t) * 300;
+    let x = Math.cos(t) * 300 + kArenaSize/2;
+    let y = Math.sin(t) * 300 + kArenaSize/2;
     let robotContainer = new RobotContainer(e, x, y, t + Math.PI/2);
     let robotDisplay = new RobotDisplay(robotContainer);
     robotDisplays.push(robotDisplay);
@@ -28,6 +31,7 @@ function draw() {
   for (let r of robotDisplays) {
     r.draw();
     r.robotContainer.t += 0.01;
-    r.robotContainer.forward(1.0);
+    r.robotContainer.forward(3.0);
+    r.robotContainer.update();
   }
 }
