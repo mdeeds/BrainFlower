@@ -11,6 +11,7 @@ function setup() {
   entries.push(new CircleBot());
   entries.push(new MattBot2());
   entries.push(new CloseBot());
+  entries.push(new RudeBot());
 
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
