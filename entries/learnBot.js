@@ -1,16 +1,12 @@
 class LearnBot {
   constructor() {
-    this.model = tf.sequential();
-    this.model.add(tf.layers.dense({
-      inputShape: [kInputSize], units:7, activation: 'relu'}));
-    this.model.add(tf.layers.dense({
-      units: kOutputSize, activation: 'sigmoid'}));
-    this.model.compile({optimizer: 'sgd', loss: 'meanSquaredError'});
+    this.brain = new Brain("LearnBot");
+
     let body = document.getElementById('body');
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
     this.learning = false;
 
-    this.referenceBot = new CircleBot();
+    this.referenceBot = new MattBot2();
   }
   /**
    * Draws the LearnBot.
@@ -45,21 +41,10 @@ class LearnBot {
     let input = s.asArray();
     if (this.learning) {
       let referenceArray = this.referenceBot.run(s);
-      this.learn(input, referenceArray);
+      this.brain.train(input, referenceArray);
       return referenceArray;
     } else {
-      let outputTensor = 
-        this.model.predict(tf.tensor2d([input], [1, kInputSize]));
-      let output = outputTensor.dataSync();
-      return output;
+      return this.brain.infer(input);
     }  
-    return result;
-  }
-
-  async learn(input, referenceArray) {
-      const ys = tf.tensor2d(
-        [referenceArray], [1, kOutputSize]);
-      const xs = tf.tensor2d([input], [1, kInputSize]);
-      await this.model.fit(xs, ys, {epochs: 1});
   }
 };

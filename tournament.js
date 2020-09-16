@@ -71,7 +71,7 @@ function runGames() {
 function renderTable(cols, a) {
   let oldTable = document.getElementById("tab");
   if (oldTable) {
-    oldTable.parentElement.remove(oldTable);
+    oldTable.parentElement.removeChild(oldTable);
   }
   
   let names = [];
@@ -85,13 +85,13 @@ function renderTable(cols, a) {
   {
     let tr = document.createElement("tr");
     {
-      let td = document.createElement("td");
+      let td = document.createElement("th");
       tr.appendChild(td);
       td.innerText = "vs.";
     }
     table.appendChild(tr);
     for (let n of names) {
-      let td = document.createElement("td");
+      let td = document.createElement("th");
       tr.appendChild(td);
       td.innerText = n;
     }
@@ -100,7 +100,7 @@ function renderTable(cols, a) {
   for (n1 of names) {
     let tr = document.createElement("tr");
     table.appendChild(tr);
-    let td = document.createElement("td");
+    let td = document.createElement("th");
     td.innerText = n1;
     tr.appendChild(td);
     table.appendChild(tr);
@@ -120,23 +120,24 @@ function renderTable(cols, a) {
   b.appendChild(table);
 }
 
+function runAndDisplay() {
+  runGames();
+  renderTable();
+}
+
 function setup() {
   tf.setBackend('cpu');
-  let startTime = window.performance.now();
+
+  startButton = createButton("Start");
+  startButton.size(60, 40);
+  startButton.position(kArenaSize / 2 - 25 + 50, 200);
+  startButton.mousePressed(runAndDisplay);
+
   entries.push(new CircleBot());
   entries.push(new MattBot2());
   entries.push(new RudeBot());
   entries.push(new CloseBot());
   entries.push(new LearnBot());
   entries.push(new SquareBot());
-
-  runGames();
-  renderTable();
-
-  // for (let name of scores.keys()) {
-  //     createDiv(name + ": " + scores.get(name) + 
-  //     " wins: " + winCount.get(name) +
-  //     " thinking: " + thoughts.get(name).toFixed(2));
-  // };
 }
 
