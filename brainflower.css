@@ -27,6 +27,7 @@ button {
 
 table {
   border-collapse: collapse;
+  margin: 26px;
 }
 
 th {
