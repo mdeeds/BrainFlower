@@ -48,7 +48,6 @@ function runOneGame(robotA, robotB) {
 entries = [];
 
 function runGames() {
-  let startTime= window.performance.now();
   let gameCount = 0;
   while (gameCount < kMaxGames) {
     for (let i = 0; i < entries.length; ++i) {
@@ -61,11 +60,6 @@ function runGames() {
         }
     }
   }
-  let elapsed = window.performance.now() - startTime;
-  createDiv("Game count: " + gameCount.toFixed(0));
-  createDiv("Time per game: " 
-    + (elapsed / gameCount).toFixed(3)
-    + " ms");
 }
 
 function renderTable(cols, a) {
@@ -95,6 +89,11 @@ function renderTable(cols, a) {
       tr.appendChild(td);
       td.innerText = n;
     }
+    {
+      let td = document.createElement("th");
+      td.innerText = "total";
+      tr.appendChild(td);
+    }
   }
 
   for (n1 of names) {
@@ -104,6 +103,7 @@ function renderTable(cols, a) {
     td.innerText = n1;
     tr.appendChild(td);
     table.appendChild(tr);
+    let total = 0;
     for (n2 of names) {
       td = document.createElement("td");
       tr.appendChild(td);
@@ -113,8 +113,12 @@ function renderTable(cols, a) {
         let key = n1 + " vs. " + n2;
         let gr = matches.get(key);
         td.innerText = gr.score;
+        total += gr.score;
       }
     }
+    td = document.createElement("td");
+    tr.appendChild(td);
+    td.innerText = "" + total;
   }
   let b = document.getElementById("body");
   b.appendChild(table);
@@ -128,9 +132,8 @@ function runAndDisplay() {
 function setup() {
   tf.setBackend('cpu');
 
-  startButton = createButton("Start");
+  startButton = createButton("Run");
   startButton.size(60, 40);
-  startButton.position(kArenaSize / 2 - 25 + 50, 200);
   startButton.mousePressed(runAndDisplay);
 
   entries.push(new CircleBot());
