@@ -3,6 +3,7 @@ var kMaxGames = 10;
 
 class GameResult {
   constructor() {
+    this.robotName = "";
     this.score = 0;
     this.winCount = 0;
     this.thoughts = 0;
@@ -16,12 +17,13 @@ function addScore(containerA, containerB) {
 
   if (!matches.get(key)) {
     matches.set(key, new GameResult());
+    matches.get(key).robotName = containerA.robot.constructor.name;
   }
 
   let gr = matches.get(key);
   gr.score += containerA.score;
   gr.winCount += (containerA.score > containerB.score) ? 1 : 0;
-  gr.thoughts += containerA.thoughts;
+  gr.thoughts += containerA.elapsed;
 }
 
 /**
@@ -62,26 +64,40 @@ function runGames() {
   }
 }
 
-function renderTable(cols, a) {
-  let oldTable = document.getElementById("tab");
-  if (oldTable) {
-    oldTable.parentElement.removeChild(oldTable);
-  }
-  
+function sortedNames() {
   let names = [];
   for (e of entries) {
     names.push(e.constructor.name);
   }
+  let totalScore = new Map();
+  for (gr of matches.values()) {
+    if (!totalScore.has(gr.robotName)) {
+      totalScore.set(gr.robotName, 0);
+    }
+    totalScore.set(gr.robotName, totalScore.get(gr.robotName) + gr.score);
+  }
 
+  // Sort descending by score.  (b - a)
+  names.sort(function(a, b) { return totalScore.get(b) - totalScore.get(a); });
+  return names;
+}
 
+function renderTable(name, dataFn) {
+  let id = "tab" + name;
+  let oldTable = document.getElementById(id);
+  if (oldTable) {
+    oldTable.parentElement.removeChild(oldTable);
+  }
+  
+  let names = sortedNames();
   let table = document.createElement("table");
-  table.id = "tab";
+  table.id = id;
   {
     let tr = document.createElement("tr");
     {
       let td = document.createElement("th");
       tr.appendChild(td);
-      td.innerText = "vs.";
+      td.innerText = name;
     }
     table.appendChild(tr);
     for (let n of names) {
@@ -112,13 +128,13 @@ function renderTable(cols, a) {
       } else {
         let key = n1 + " vs. " + n2;
         let gr = matches.get(key);
-        td.innerText = gr.score;
-        total += gr.score;
+        td.innerText = dataFn(gr).toFixed(0);
+        total += dataFn(gr);
       }
     }
     td = document.createElement("td");
     tr.appendChild(td);
-    td.innerText = "" + total;
+    td.innerText = total.toFixed(0);
   }
   let b = document.getElementById("body");
   b.appendChild(table);
@@ -126,7 +142,12 @@ function renderTable(cols, a) {
 
 function runAndDisplay() {
   runGames();
-  renderTable();
+  renderTable("score", 
+    function(gr) {return gr.score; });
+  renderTable("wins", 
+    function(gr) {return gr.winCount; });
+  renderTable("thought", 
+    function(gr) {return gr.thoughts; });
 }
 
 function setup() {
