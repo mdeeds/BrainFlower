@@ -110,6 +110,9 @@ function loadSound(path) {
 }
 
 function startGame() {
+  music = loadSound("sfx/Music.mp3");
+  music.volume = 0.5;
+  music.play();
   flowerSound = loadSound("sfx/Flower.mp3");
   wallSound = loadSound("sfx/Wall.mp3");
   hitSound = loadSound("sfx/Hit.mp3");
