@@ -1,6 +1,27 @@
 
 var kMaxGames = 10;
 
+
+leftEntries = [];
+rightEntries = [];
+
+function setup() {
+  tf.setBackend('cpu');
+
+  startButton = createButton("Run");
+  startButton.size(60, 40);
+  startButton.mousePressed(runAndDisplay);
+
+  rightEntries.push(new CircleBot());
+  rightEntries.push(new MattBot());
+  rightEntries.push(new RudeBot());
+  rightEntries.push(new CloseBot());
+  rightEntries.push(new SquareBot());
+  rightEntries.push(new SteveBot());
+
+  leftEntries = rightEntries;
+}
+
 class GameResult {
   constructor() {
     this.robotName = "";
@@ -47,16 +68,16 @@ function runOneGame(robotA, robotB) {
     addScore(containerB, containerA);
 }
 
-entries = [];
-
 function runGames() {
   let gameCount = 0;
   while (gameCount < kMaxGames) {
-    for (let i = 0; i < entries.length; ++i) {
-        for (let j = i + 1; j < entries.length; ++j) {
-            console.log("i,j: " + i + "," + j);
-        robotA = entries[i];
-        robotB = entries[j];
+    for (let i = 0; i < leftEntries.length; ++i) {
+      for (let j = i + 1; j < rightEntries.length; ++j) {
+        robotA = leftEntries[i];
+        robotB = rightEntries[j];
+        if (robotA == robotB) {
+          continue;
+        }
         runOneGame(robotA, robotB);
         ++gameCount;
         }
@@ -64,12 +85,14 @@ function runGames() {
   }
 }
 
-function sortedNames() {
+function sortedNames(entries) {
+  let totalScore = new Map();
   let names = [];
   for (e of entries) {
-    names.push(e.constructor.name);
+    let name = e.constructor.name;
+    names.push(name);
+    totalScore.set(name, 0);
   }
-  let totalScore = new Map();
   for (gr of matches.values()) {
     if (!totalScore.has(gr.robotName)) {
       totalScore.set(gr.robotName, 0);
@@ -89,7 +112,8 @@ function renderTable(name, dataFn) {
     oldTable.parentElement.removeChild(oldTable);
   }
   
-  let names = sortedNames();
+  let leftNames = sortedNames(leftEntries);
+  let rightNames = sortedNames(rightEntries);
   let table = document.createElement("table");
   table.id = id;
   {
@@ -100,7 +124,7 @@ function renderTable(name, dataFn) {
       td.innerText = name;
     }
     table.appendChild(tr);
-    for (let n of names) {
+    for (let n of rightNames) {
       let td = document.createElement("th");
       tr.appendChild(td);
       td.innerText = n;
@@ -112,7 +136,7 @@ function renderTable(name, dataFn) {
     }
   }
 
-  for (n1 of names) {
+  for (n1 of leftNames) {
     let tr = document.createElement("tr");
     table.appendChild(tr);
     let td = document.createElement("th");
@@ -120,7 +144,7 @@ function renderTable(name, dataFn) {
     tr.appendChild(td);
     table.appendChild(tr);
     let total = 0;
-    for (n2 of names) {
+    for (n2 of rightNames) {
       td = document.createElement("td");
       tr.appendChild(td);
       if (n1 == n2) {
@@ -150,18 +174,4 @@ function runAndDisplay() {
     function(gr) {return gr.thoughts; });
 }
 
-function setup() {
-  tf.setBackend('cpu');
-
-  startButton = createButton("Run");
-  startButton.size(60, 40);
-  startButton.mousePressed(runAndDisplay);
-
-  entries.push(new CircleBot());
-  entries.push(new MattBot());
-  entries.push(new RudeBot());
-  entries.push(new CloseBot());
-  entries.push(new SquareBot());
-  entries.push(new SteveBot());
-}
 
