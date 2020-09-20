@@ -50,9 +50,9 @@ function generateSenses(rc, otherRobot)  {
     } else if (t > Math.PI) {
       t -= 2 * Math.PI;
     }
-    state.opponentAngle = t;
+    state.opponentAngle = t * 180 / Math.PI;
     state.opponentDistance = distance;
-    state.opponentHeading = otherRobot.t;
+    state.opponentHeading = otherRobot.t * 180 / Math.PI;
     state.opponentScore = otherRobot.score;
   }
 
@@ -65,7 +65,7 @@ function generateSenses(rc, otherRobot)  {
     state.rightDistanceToWall = findClosestWall(
       new Ray(rc.x, rc.y, rc.t + Math.PI / 4));
   }
-  state.myHeading = rc.t;
+  state.myHeading = rc.t * 180 / Math.PI;
   state.myScore = rc.score;
   return state;
 }

@@ -158,7 +158,7 @@ function setup() {
   startButton.mousePressed(runAndDisplay);
 
   entries.push(new CircleBot());
-  entries.push(new MattBot2());
+  entries.push(new MattBot());
   entries.push(new RudeBot());
   entries.push(new CloseBot());
   entries.push(new SquareBot());

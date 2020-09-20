@@ -32,7 +32,7 @@ class KeyBot2 {
       this.speed = 0;
     } else {
       this.speed = 1;
-      this.desiredAngle = Math.atan2(dy, dx);
+      this.desiredAngle = Math.atan2(dy, dx) * 180 / Math.PI;
     }
   }
 
@@ -61,11 +61,11 @@ class KeyBot2 {
 
 function subtractAngles(a, b) {
   let d = a - b;
-  if (d < -Math.PI) {
-    d += 2 * Math.PI;
+  if (d < -180) {
+    d += 360;
   }
-  if (d > Math.PI) {
-    d -= 2 * Math.PI;
+  if (d > 180) {
+    d -= 360;
   }
   return d;
 }
