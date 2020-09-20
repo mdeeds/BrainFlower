@@ -9,7 +9,6 @@ function setup() {
   /** Add your robot here! */
   entries.push(new KeyBot());
   entries.push(new CircleBot());
-  entries.push(new MattBot2());
   entries.push(new CloseBot());
   entries.push(new RudeBot());
   entries.push(new SteveBot());
