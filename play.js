@@ -8,12 +8,12 @@ function setup() {
   addEntry(new KeyBot());
   addEntry(new CircleBot());
   addEntry(new KeyBot2());
-  addEntry(new MattBot2());
   addEntry(new RudeBot());
   addEntry(new CloseBot());
   addEntry(new LearnBot());
   addEntry(new SquareBot());
   addEntry(new SteveBot());
+  addEntry(new MattBot());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(70, 10);
