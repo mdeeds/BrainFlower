@@ -6,7 +6,7 @@ class LearnBot {
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
     this.learning = false;
 
-    this.referenceBot = new MattBot2();
+    this.referenceBot = new MattBot();
   }
   /**
    * Draws the LearnBot.
