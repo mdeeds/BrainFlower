@@ -13,6 +13,7 @@ function setup() {
   addEntry(new CloseBot());
   addEntry(new LearnBot());
   addEntry(new SquareBot());
+  addEntry(new SteveBot());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(70, 10);
