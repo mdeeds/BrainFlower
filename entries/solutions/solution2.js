@@ -16,13 +16,13 @@
 
     /**
      * @param {SensorState} s 
-     * @returns {number[]} - [ speed, turn ] 
+     * @returns {number} - turn 
      */
     run(s) {
         if (s.rightFlowers > s.leftFlowers) {
-            return [1.0, -0.3];
+            return -0.3;
         } else {
-            return [1.0, 0.2];
+            return 0.2;
         }
     }
 }

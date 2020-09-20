@@ -44,7 +44,7 @@ class LearnBot {
       this.brain.train(input, referenceArray);
       return referenceArray;
     } else {
-      return this.brain.infer(input);
+      return this.brain.infer(input)[1];
     }  
   }
 };

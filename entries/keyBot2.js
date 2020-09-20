@@ -50,8 +50,12 @@ class KeyBot2 {
    * @returns {number[]} - [ speed, turn ] 
    */
   run(s) {
-    let da = subtractAngles(this.desiredAngle, s.myHeading);    
-    return [this.speed, da];
+    if (this.speed == 0) {
+      return 0.0;
+    } else {
+      let da = subtractAngles(this.desiredAngle, s.myHeading); 
+      return da;
+    }
   }
 }
 

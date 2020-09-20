@@ -17,24 +17,24 @@ class SteveBot {
   
     /**
      * @param {SensorState} s 
-     * @returns {number[]} - [ speed, turn ] 
+     * @returns {number} - Turn rate 
      */
     run(s) {
         if(s.leftFlowers == 0 && s.rightFlowers == 0)
         {
-            return [0.0, 1.5]
+            return 1.5;
         }
         if(s.leftFlowerDistance == s.rightFlowerDistance)
         {
-            return [1.0, 0.0];
+            return 0.0;
         }
         if(s.leftFlowerDistance > s.rightFlowerDistance)
         {
-            return [1.0, -0.5]
+            return -0.5;
         }
         else
         {
-            return [1.0, 0.5]
+            return 0.5;
         }
     }
   };

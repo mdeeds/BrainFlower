@@ -230,12 +230,10 @@ function runFrame() {
       let otherRobot = robotContainers[i ^ 1];
       let s = generateSenses(rc, otherRobot);
       let startTime = window.performance.now();
-      let output = rc.robot.run(s);
-      let speed = output[0];
-      let turn = output[1]
+      let turn = rc.robot.run(s);
       rc.elapsed += window.performance.now() - startTime;
-      let forward = Math.max(0, Math.min(1, speed - Math.abs(turn)));
       turn = Math.max(-1, Math.min(1.0, turn));
+      let forward = 1.0 - Math.abs(turn);
       rc.t += turn / 10.0;
       if (rc.t > Math.PI) {
         rc.t -= Math.PI * 2;

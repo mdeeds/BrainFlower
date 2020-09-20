@@ -17,9 +17,9 @@ class CircleBot {
 
   /**
    * @param {SensorState} s 
-   * @returns {number[]} - [ speed, turn ] 
+   * @returns {number} - turn 
    */
   run(s) {
-    return [1.0, 0.15];
+    return 0.15;
   }
 };

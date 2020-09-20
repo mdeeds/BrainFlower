@@ -19,19 +19,19 @@ class RudeBot {
    */
   run(s) {
     if (s.opponentAngle < -1) {
-      return [1.0, -0.8];
+      return -0.8;
     } else if (s.opponentAngle < -0.3) {
-      return [1.0, -0.5];
+      return -0.5;
     } else if (s.opponentAngle < -0.1) {
-      return [1.0, -0.1];
+      return -0.1;
     } else if (s.opponentAngle < 0.1) {
-      return [1.0, 0.0];
+      return 0.0;
     } else if (s.opponentAngle < 0.3) {
-      return [1.0, 0.1];
+      return 0.1;
     } else if (s.opponentAngle < 1) {
-      return [1.0, 0.5];
+      return 0.5;
     } else {
-      return [1.0, -0.8];
+      return -0.8;
     }
   }
 };
