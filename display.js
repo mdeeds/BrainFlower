@@ -9,10 +9,10 @@ function setup() {
   /** Add your robot here! */
   entries.push(new KeyBot());
   entries.push(new CircleBot());
-  entries.push(new MattBot2());
   entries.push(new CloseBot());
   entries.push(new RudeBot());
-  entries.push(new SquareSeeker());
+  entries.push(new SteveBot());
+  entries.push(new MattBot());
 
   let dt = 2 * Math.PI / entries.length;
   let t = 0;

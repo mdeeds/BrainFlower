@@ -22,10 +22,10 @@ class CloseBot {
    */
   run(s) {
     if (s.rightFlowerDistance < s.leftFlowerDistance) {
-      return [1.0, -0.4];
+      return -0.4;
     } else if (s.rightFlowerDistance > s.leftFlowerDistance) {
-      return [1.0, 0.4];
+      return 0.4;
     }
-    return [1.0, 0.1];
+    return 0.1;
   }
 };

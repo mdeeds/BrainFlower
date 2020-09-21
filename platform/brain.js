@@ -11,28 +11,34 @@ class Brain {
         this.loadOrCreate().then(() => {
             this.saveTimeout();
         });
+        this.totalLoss = 0;
+        this.lossObservations = 0;
     }
 
     async loadOrCreate() {
         try {
             this.model = await tf.loadLayersModel('indexeddb://' + this.name);
-            this.model.compile({optimizer: 'sgd', loss: 'meanSquaredError'});
             this.dirty = false;
             console.log("Model loaded.");
         } catch (e) {
             console.log(e);
             this.model = tf.sequential();
             this.model.add(tf.layers.dense({
-              inputShape: [kInputSize], units:7, activation: 'relu'}));
+              inputShape: [kInputSize], units:4, activation: 'tanh'}));
             this.model.add(tf.layers.dense({
-              units: kOutputSize, activation: 'sigmoid'}));
-            this.model.compile({optimizer: 'sgd', loss: 'meanSquaredError'});
+              units: kOutputSize, activation: 'linear'}));
             this.dirty = true;
             console.log("New model created.");
         }
+        this.model.compile({
+            optimizer: 'sgd',
+            loss: 'meanSquaredError'
+           });
     }
 
     saveTimeout() {
+        console.log("Mean loss: " + 
+          (this.totalLoss / this.lossObservations));
         this.maybeSave();
         setTimeout(Brain.prototype.saveTimeout.bind(this), 1000);
     }
@@ -76,7 +82,10 @@ class Brain {
         // TODO: add to the learning batch and start learning if it is not running.
         const ys = tf.tensor2d([y], [1, y.length]);
         const xs = tf.tensor2d([x], [1, x.length]);
-        await this.model.fit(xs, ys, {epochs: 1});
+        let result =
+          await this.model.fit(xs, ys, {epochs: 1});
+        this.totalLoss += result.history.loss[0];
+        ++this.lossObservations;
         this.dirty = true;
     }
 }

@@ -18,11 +18,11 @@ class SquareBot {
    */
   run(s) {
     if (s.distanceToWall < 150) {
-      return [1.0, -1];
+      return -1;
     } else if (s.rightDistanceToWall < 300) {
-      return [1.0, 0.2];
+      return 0.2;
     } else {
-      return [1.0, -0.1];
+      return -0.1;
     }
   }
 };

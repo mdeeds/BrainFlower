@@ -1,6 +1,5 @@
 class KeyBot {
   constructor() {
-    this.speed = 0;
     this.turn = 0;
     let body = document.getElementById('body');
     body.addEventListener('keydown', KeyBot.prototype.handleKey.bind(this));
@@ -37,6 +36,6 @@ class KeyBot {
    * @returns {number[]} - [ speed, turn ] 
    */
   run(s) {
-    return [this.speed, this.turn];
+    return this.turn;
   }
 }
