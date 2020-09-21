@@ -1,6 +1,4 @@
-
 var kMaxGames = 10;
-
 
 leftEntries = [];
 rightEntries = [];
@@ -20,6 +18,13 @@ function setup() {
   rightEntries.push(new SteveBot());
 
   leftEntries = rightEntries;
+
+  // Example code for parameter sweep:
+  // leftEntries.push(new SquareBot(190));
+  // leftEntries.push(new SquareBot(200));
+  // leftEntries.push(new SquareBot(210));
+  // leftEntries.push(new SquareBot(220));
+  // leftEntries.push(new SquareBot(230));
 }
 
 class GameResult {
@@ -31,14 +36,21 @@ class GameResult {
   }
 }
 
+function getName(robot) {
+  return robot.name || robot.constructor.name;
+}
+
+function getMatchKey(robotA, robotB) {
+  return  getName(robotA) + " vs. " + getName(robotB);
+}
+
 function addScore(containerA, containerB) {
-  let key = containerA.robot.constructor.name
-    + " vs. "
-    + containerB.robot.constructor.name;
+  let key = getMatchKey(containerA.robot, containerB.robot);
+  console.log(key);
 
   if (!matches.get(key)) {
     matches.set(key, new GameResult());
-    matches.get(key).robotName = containerA.robot.constructor.name;
+    matches.get(key).robotName = getName(containerA.robot);
   }
 
   let gr = matches.get(key);
@@ -55,9 +67,6 @@ var matches = new Map();
 
 function runOneGame(robotA, robotB) {
     rcs = setupGame(robotA, robotB);
-    let nameA = robotA.constructor.name;
-    let nameB = robotB.constructor.name;
-
     containerA = rcs[0];
     containerB = rcs[1];
 
@@ -71,13 +80,16 @@ function runOneGame(robotA, robotB) {
 function runGames() {
   let gameCount = 0;
   while (gameCount < kMaxGames) {
+    let playedMatches = new Set();
     for (let i = 0; i < leftEntries.length; ++i) {
-      for (let j = i + 1; j < rightEntries.length; ++j) {
+      for (let j = 0; j < rightEntries.length; ++j) {
         robotA = leftEntries[i];
         robotB = rightEntries[j];
-        if (robotA == robotB) {
+        let key = getMatchKey(robotA, robotB);
+        if (playedMatches.has(key)) {
           continue;
         }
+        playedMatches.add(key);
         runOneGame(robotA, robotB);
         ++gameCount;
         }
@@ -89,7 +101,7 @@ function sortedNames(entries) {
   let totalScore = new Map();
   let names = [];
   for (e of entries) {
-    let name = e.constructor.name;
+    let name = getName(e);
     names.push(name);
     totalScore.set(name, 0);
   }
