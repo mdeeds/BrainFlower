@@ -1,11 +1,8 @@
 class SquareBot {
-  constructor(x) {
+  constructor() {
     this.frontLimit = 150;
     this.rightLimit = 300;
-    if (x) {
-      this.name = "SquareBot:" + x;
-      this.rightLimit = x;
-    }
+
   }
 
   /**
@@ -27,11 +24,11 @@ class SquareBot {
    */
   run(s) {
     if (s.distanceToWall < this.frontLimit) {
-      return -1;
+      return 1;
     } else if (s.rightDistanceToWall < this.rightLimit) {
-      return -0.2;
+      return -0.5;
     } else {
-      return 0.1;
+      return 0.05;
     }
   }
 };
