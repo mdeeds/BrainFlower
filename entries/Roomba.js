@@ -27,14 +27,14 @@ class Roomba {
         
         if(this.onCource)
         {
-            if(s.leftDistanceToWall <=60)
+            if(s.leftDistanceToWall <= 70.7)
             {
-                this.newHeading = s.myHeading + 1.5+Math.random()/5;
+                this.newHeading = s.myHeading + 90 * (Math.random() + 0.5);
                 this.onCource = false;
             }
-            if(s.rightDistanceToWall <=60 || s.opponentDistance <= 120)
+            if(s.rightDistanceToWall <= 70.7 || s.opponentDistance <= 120)
             {
-                this.newHeading = s.myHeading - 1.5-Math.random()/5;
+                this.newHeading = s.myHeading - 90 * (Math.random() + 0.5);
                 this.onCource = false;
             }
             //console.log("new heading" + this.newHeading.toFixed(3));
@@ -42,20 +42,20 @@ class Roomba {
         else // off cource
         {
             var turn = this.newHeading-s.myHeading;
-            if (turn > Math.PI)
+            if (turn > 180)
             {
-                turn -= (2*Math.PI);
+                turn -= 360;
             }
-            if(turn < -Math.PI)
+            if(turn < -180)
             {
-                turn += (2*Math.PI);
+                turn += 360;
             }
-            if(Math.abs(turn) < 0.1)
+            if(Math.abs(turn) < 10)
             {
                 this.onCource = true;
             }
-            return[-1.0,turn]
+            return turn;
         }
-        return [0.5,Math.random()/20];
+        return Math.random() / 20;
     }
   };
