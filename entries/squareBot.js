@@ -1,4 +1,13 @@
 class SquareBot {
+  constructor(x) {
+    this.frontLimit = 150;
+    this.rightLimit = 300;
+    if (x) {
+      this.name = "SquareBot:" + x;
+      this.rightLimit = x;
+    }
+  }
+
   /**
    * Draws the SquareBot.
    * @param {Renderer} c 
@@ -17,12 +26,12 @@ class SquareBot {
    * @param {SensorState} s 
    */
   run(s) {
-    if (s.distanceToWall < 150) {
+    if (s.distanceToWall < this.frontLimit) {
       return -1;
-    } else if (s.rightDistanceToWall < 300) {
-      return 0.2;
+    } else if (s.rightDistanceToWall < this.rightLimit) {
+      return -0.2;
     } else {
-      return -0.1;
+      return 0.1;
     }
   }
 };
