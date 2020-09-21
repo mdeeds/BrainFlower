@@ -14,6 +14,7 @@ function setup() {
   addEntry(new LearnBot());
   addEntry(new SquareBot());
   addEntry(new SteveBot());
+  addEntry(new Roomba());
 
   leftEntryChoice = createSelect();
   leftEntryChoice.position(70, 10);
