@@ -16,6 +16,7 @@ function setup() {
   rightEntries.push(new CloseBot());
   rightEntries.push(new SquareBot());
   rightEntries.push(new SteveBot());
+  rightEntries.push(new Roomba());
 
   leftEntries = rightEntries;
 
