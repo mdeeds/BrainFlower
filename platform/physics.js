@@ -1,6 +1,8 @@
-// Robot and its position in the world.
-// x, y - position of the center of the robot.
-// t - angle of the robot (radians).  0 = rigth, PI/2 = up.
+/**
+ * Robot and its position in the world.
+ * x, y - position of the center of the robot.
+ * t - angle of the robot (radians).  0 = right, PI/2 = up.
+ */
 class RobotContainer {
   /**
    * 
