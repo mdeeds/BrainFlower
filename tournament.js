@@ -20,12 +20,12 @@ function setup() {
 
   leftEntries = rightEntries;
 
-  // Example code for parameter sweep:
-  // leftEntries.push(new SquareBot(190));
-  // leftEntries.push(new SquareBot(200));
-  // leftEntries.push(new SquareBot(210));
-  // leftEntries.push(new SquareBot(220));
-  // leftEntries.push(new SquareBot(230));
+  // // Example code for parameter sweep:
+  // for (let l of [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0]) {
+  //   for (let r of [-0.01, -0.1, -0.2, -0.3, -0.4, -0.5, -0.8, -1.0]) {
+  //     leftEntries.push(new MattBot(l, r));
+  //   }
+  // }
 }
 
 class GameResult {
