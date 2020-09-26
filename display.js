@@ -17,9 +17,9 @@ function setup() {
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
   for (let e of entries) {
-    let x = Math.cos(t) * 300 + kArenaSize/2;
-    let y = Math.sin(t) * 300 + kArenaSize/2;
-    let robotContainer = new RobotContainer(e, x, y, t + Math.PI/2);
+    let x = Math.cos(t) * 300 + kArenaSize / 2;
+    let y = Math.sin(t) * 300 + kArenaSize / 2;
+    let robotContainer = new RobotContainer(e, x, y, t + Math.PI / 2);
     let robotDisplay = new RobotDisplay(robotContainer);
     robotDisplays.push(robotDisplay);
     t += dt;

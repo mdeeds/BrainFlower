@@ -164,9 +164,9 @@ function playFrame() {
     stroke(color("black"));
     if (framesRemaining === 0) {
       textSize(200);
-      text("STOP", kArenaSize/2, 450);
+      text("STOP", kArenaSize / 2, 450);
     } else {
-      text(secondsRemaining.toFixed(0), kArenaSize/2, 600);
+      text(secondsRemaining.toFixed(0), kArenaSize / 2, 600);
     }
   }
 }

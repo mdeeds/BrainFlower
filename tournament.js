@@ -42,7 +42,7 @@ function getName(robot) {
 }
 
 function getMatchKey(robotA, robotB) {
-  return  getName(robotA) + " vs. " + getName(robotB);
+  return getName(robotA) + " vs. " + getName(robotB);
 }
 
 function addScore(containerA, containerB) {
@@ -67,15 +67,15 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
-    rcs = setupGame(robotA, robotB);
-    containerA = rcs[0];
-    containerB = rcs[1];
+  rcs = setupGame(robotA, robotB);
+  containerA = rcs[0];
+  containerB = rcs[1];
 
-    for (let i = 0; i < kFramesPerRound; ++i) {
-      runFrame();
-    }
-    addScore(containerA, containerB);
-    addScore(containerB, containerA);
+  for (let i = 0; i < kFramesPerRound; ++i) {
+    runFrame();
+  }
+  addScore(containerA, containerB);
+  addScore(containerB, containerA);
 }
 
 function runGames() {
@@ -93,7 +93,7 @@ function runGames() {
         playedMatches.add(key);
         runOneGame(robotA, robotB);
         ++gameCount;
-        }
+      }
     }
   }
 }
@@ -114,7 +114,7 @@ function sortedNames(entries) {
   }
 
   // Sort descending by score.  (b - a)
-  names.sort(function(a, b) { return totalScore.get(b) - totalScore.get(a); });
+  names.sort(function (a, b) { return totalScore.get(b) - totalScore.get(a); });
   return names;
 }
 
@@ -124,7 +124,7 @@ function renderTable(name, dataFn) {
   if (oldTable) {
     oldTable.parentElement.removeChild(oldTable);
   }
-  
+
   let leftNames = sortedNames(leftEntries);
   let rightNames = sortedNames(rightEntries);
   let table = document.createElement("table");
@@ -179,12 +179,12 @@ function renderTable(name, dataFn) {
 
 function runAndDisplay() {
   runGames();
-  renderTable("score", 
-    function(gr) {return gr.score; });
-  renderTable("wins", 
-    function(gr) {return gr.winCount; });
-  renderTable("thought", 
-    function(gr) {return gr.thoughts; });
+  renderTable("score",
+    function (gr) { return gr.score; });
+  renderTable("wins",
+    function (gr) { return gr.winCount; });
+  renderTable("thought",
+    function (gr) { return gr.thoughts; });
 }
 
 
