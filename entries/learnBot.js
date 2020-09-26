@@ -6,7 +6,7 @@ class LearnBot {
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
     this.learning = false;
 
-    this.referenceBot = new MattBot();
+    this.referenceBot = new CircleBot();
   }
   /**
    * Draws the LearnBot.
@@ -26,7 +26,7 @@ class LearnBot {
   handleKey(e) {
     if (e.type === 'keydown') {
       if (e.code === 'KeyA') {
-        this.learning = false;    
+        this.learning = false;
       } else if (e.code === 'KeyL') {
         this.learning = true;
       }
@@ -40,11 +40,11 @@ class LearnBot {
   run(s) {
     let input = s.asArray();
     if (this.learning) {
-      let referenceArray = this.referenceBot.run(s);
-      this.brain.train(input, referenceArray);
-      return referenceArray;
+      let turn = this.referenceBot.run(s);
+      this.brain.train(input, [turn]);
+      return turn;
     } else {
-      return this.brain.infer(input)[1];
-    }  
+      return this.brain.infer(input)[0];
+    }
   }
 };
