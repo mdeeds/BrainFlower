@@ -56,12 +56,12 @@ class SvgContext {
 
         this.stroke = "#000";
         this.line(parent, offsetX + 30, 0,
-          offsetX + 30, shape[0] * 15 + 15);
+            offsetX + 30, shape[0] * 15 + 15);
 
         let i = 0;
         for (let d0 = 0; d0 < shape[0]; ++d0) {
             this.setFillForWeight(data[i]);
-            let c = this.circle(parent, offsetX + 30, d0 * 15 + 30  , 5);
+            let c = this.circle(parent, offsetX + 30, d0 * 15 + 30, 5);
             c.setAttribute("weight", data[i]);
             ++i;
         }
@@ -75,21 +75,21 @@ class SvgContext {
 
         this.stroke = "#000";
         for (let i = 0; i < shape[0]; ++i) {
-            this.line(parent, i * 15 + 30, 0, 
-              i*15+30, shape[1] * 15 + 15);
+            this.line(parent, i * 15 + 30, 0,
+                i * 15 + 30, shape[1] * 15 + 15);
         }
 
         for (let i = 0; i < shape[1]; ++i) {
             this.line(parent, 30, i * 15 + 30,
-              shape[0] * 15 + 60, i*15+30);
+                shape[0] * 15 + 60, i * 15 + 30);
         }
 
         let i = 0;
         for (let d0 = 0; d0 < shape[0]; ++d0) {
             for (let d1 = 0; d1 < shape[1]; ++d1) {
                 this.setFillForWeight(data[i]);
-                let c = this.circle(parent, 
-                offsetX + d0 * 15 + 30, d1 * 15 + 30  , 5);
+                let c = this.circle(parent,
+                    offsetX + d0 * 15 + 30, d1 * 15 + 30, 5);
                 c.setAttribute("weight", data[i]);
                 ++i;
             }
@@ -143,7 +143,7 @@ function getModel() {
     model.compile({
         optimizer: 'sgd',
         loss: 'meanSquaredError'
-       });
+    });
     return model;
 }
 
@@ -168,18 +168,16 @@ function setup() {
             console.log(m);
             let div = document.createElement("div");
             div.innerText = m;
-            body.appendChild(div);   
+            body.appendChild(div);
             div.addEventListener("click",
-              function(e) {
-tf.loadLayersModel(m)
-.then(model => {
-                  ctx.renderModel(model);
-});
-        }.bind(ctx, m));
+                function (e) {
+                    tf.loadLayersModel(m)
+                        .then(model => {
+                            ctx.renderModel(model);
+                        });
+                }.bind(ctx, m));
         }
     });
-    
-        
 }
 
 function draw() {
