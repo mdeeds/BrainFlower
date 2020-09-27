@@ -131,20 +131,33 @@ class SvgContext {
   }
 }
 
-function getModel() {
-  let model = tf.sequential();
-  model.add(tf.layers.dense({
-    inputShape: [9], units: 4, activation: 'tanh'
-  }));
-  model.add(tf.layers.dense({
-    units: 1, activation: 'linear'
-  }));
+var botUnderTest;
+var ctx;
 
-  model.compile({
-    optimizer: 'sgd',
-    loss: 'meanSquaredError'
+function show() {
+  let model = botUnderTest.getModel();
+  ctx.renderModel(model);
+}
+
+function collect() {
+  setupGame(botUnderTest, new CircleBot());
+  for (let i = 0; i < kFramesPerRound; ++i) {
+    runFrame();
+  }
+}
+
+function train() {
+  let ioExamples = botUnderTest.getExamples();
+  let input = ioExamples[0];
+  let output = ioExamples[1];
+  let model = botUnderTest.getModel();
+  console.log("Staring train: " + input.shape);
+  model.fit(input, output, { epochs: 1 }).then(()=>{
+    console.log("Done training: " + input.shape);
+    botUnderTest.brain.dirty = true;
+    show();
   });
-  return model;
+  show();
 }
 
 function setup() {
@@ -154,14 +167,13 @@ function setup() {
     "http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("width", 800);
-  svg.setAttribute("height", 800);
+  svg.setAttribute("height", 400);
   svg.setAttribute("viewbox", "0 0 100 100")
   body.appendChild(svg);
 
-  let ctx = new SvgContext(svg);
+  ctx = new SvgContext(svg);
 
-  let model = getModel();
-  ctx.renderModel(model);
+  botUnderTest = new LearnBot(new MattBot(), true, true);
 
   tf.io.listModels().then(models => {
     for (let m of Object.keys(models)) {
@@ -175,9 +187,23 @@ function setup() {
             .then(model => {
               ctx.renderModel(model);
             });
-        }.bind(ctx, m));
+        }.bind(m));
     }
   });
+
+  let startButton = createButton("Show");
+  startButton.size(60, 40);
+  startButton.mousePressed(show);
+  {
+    let button = createButton("Collect");
+    button.size(60, 40);
+    button.mousePressed(collect);
+  }
+  {
+    let button = createButton("Train");
+    button.size(60, 40);
+    button.mousePressed(train);
+  }
 }
 
 function draw() {

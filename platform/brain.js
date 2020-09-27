@@ -39,7 +39,8 @@ class Brain {
       console.log("New model created.");
     }
     this.model.compile({
-      optimizer: 'sgd',
+      //optimizer: 'sgd',
+      optimizer: tf.train.adam(),
       loss: 'meanSquaredError'
     });
   }

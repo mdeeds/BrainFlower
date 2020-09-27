@@ -1,12 +1,15 @@
 class LearnBot {
-  constructor() {
+  constructor(referenceBot, recordExamples, alwaysLearning) {
     this.brain = new Brain("LearnBot");
 
     let body = document.getElementById('body');
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
-    this.learning = false;
-
-    this.referenceBot = new CircleBot();
+    this.learning = !!alwaysLearning;
+    this.alwaysLearning = !!alwaysLearning;
+    this.referenceBot = referenceBot || new CircleBot();
+    this.recordExamples = !!recordExamples;
+    this.observedInputs = [];
+    this.observedOutputs = [];
   }
   /**
    * Draws the LearnBot.
@@ -24,6 +27,9 @@ class LearnBot {
   }
 
   handleKey(e) {
+    if (this.alwaysLearning) {
+      return;
+    }
     if (e.type === 'keydown') {
       if (e.code === 'KeyA') {
         this.learning = false;
@@ -34,6 +40,26 @@ class LearnBot {
   }
 
   /**
+   * @returns {Tensor[]} an array of two Tensors representing the 
+   * output from the reference robot.
+   */
+  getExamples() {
+    let N = this.observedInputs.length;
+    console.assert(N == this.observedOutputs.length);
+    let inputTensor = tf.tensor2d(this.observedInputs, [N, kInputSize]);
+    let outputTensor = tf.tensor2d(this.observedOutputs, [N, kOutputSize]);
+    return [inputTensor, outputTensor];
+  }
+
+  /**
+   * 
+   * @returns {tf.Model} model 
+   */
+  getModel() {
+    return this.brain.model;
+  }
+
+  /**
    * @param {SensorState} s 
    * @returns {number[]} - [ speed, turn ] 
    */
@@ -41,7 +67,11 @@ class LearnBot {
     let input = s.asArray();
     if (this.learning) {
       let turn = this.referenceBot.run(s);
-      this.brain.train(input, [turn]);
+      // this.brain.train(input, [turn]);
+      if (this.recordExamples) {
+        this.observedInputs.push(input);
+        this.observedOutputs.push([turn]);
+      }
       return turn;
     } else {
       return this.brain.infer(input)[0];
