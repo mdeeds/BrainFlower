@@ -27,9 +27,13 @@ class Brain {
       this.model.add(tf.layers.dense({
         inputShape: [kInputSize],
         units: 4,
-        activation: 'tanh',
+        activation: 'linear',
         kernelRegularizer: 'l1l2',
       }));
+      this.model.add(tf.layers.dense({
+        units: 1,
+        activation: 'tanh',
+      }))
       this.model.add(tf.layers.dense({
         units: kOutputSize,
         activation: 'linear',

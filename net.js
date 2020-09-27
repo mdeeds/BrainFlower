@@ -2,9 +2,20 @@
 class SvgContext {
   constructor(svg) {
     this.svg = svg;
+    this.clear();
+  }
+
+  clear() {
     this.stroke = "black";
     this.fill = "white";
+    this.svg.innerHTML = "";
+    this.weightBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    this.weightBox.setAttribute("x", 0);
+    this.weightBox.setAttribute("y", 50);
+    this.weightBox.innerHTML = "w";
+    this.svg.appendChild(this.weightBox);
   }
+
   line(parent, x1, y1, x2, y2) {
     let l = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -32,21 +43,28 @@ class SvgContext {
   }
 
   setFillForWeight(weight) {
-    if (weight > 2.0) {
+    if (weight > 1.0) {
       this.fill = "#000";
       this.stroke = "#000"
-    } else if (weight < -2.0) {
+    } else if (weight < -1.0) {
       this.fill = "#fff";
       this.stroke = "#000"
     } else {
-      let a = 255 * (Math.abs(weight) / 2.0);
-      // let b = 255 * (-weight / 4.0 + 0.5);
-      let b = (weight > 0) ? 255 : 0;
-      let ch = Math.round(b).toString(16);
-      let cha = Math.round(a).toString(16);
+      let a = Math.round(255 * (Math.abs(weight) / 1.0));
+      let ch = (weight > 0) ? '00' : 'ff';
+      let cha = Math.round(a).toString(16).padStart(2, '0');
       this.fill = "#" + ch + ch + ch + cha;
       this.stroke = "#000000" + cha;
     }
+  }
+
+  addCircle(parent, x, y, weight) {
+    this.setFillForWeight(weight);
+    let c = this.circle(parent, x, y, 5);
+    c.setAttribute("weight", weight);
+    c.addEventListener("mouseover", function() {
+      this.weightBox.innerHTML = weight;
+    }.bind(this, weight));
   }
 
   renderWeights1(parent, weights, offsetX) {
@@ -60,9 +78,8 @@ class SvgContext {
 
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
-      this.setFillForWeight(data[i]);
-      let c = this.circle(parent, offsetX + 30, d0 * 15 + 30, 5);
-      c.setAttribute("weight", data[i]);
+      let r0 = shape[0] - d0 - 1;
+      this.addCircle(parent, offsetX + 30, r0 * 15 + 30, data[i]);
       ++i;
     }
     return 60;
@@ -87,10 +104,8 @@ class SvgContext {
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
-        this.setFillForWeight(data[i]);
-        let c = this.circle(parent,
-          offsetX + d0 * 15 + 30, d1 * 15 + 30, 5);
-        c.setAttribute("weight", data[i]);
+        let r1 = shape[1] - d1 - 1;
+        this.addCircle(parent, offsetX + d0 * 15 + 30, r1 * 15 + 30, data[i]);
         ++i;
       }
     }
@@ -106,7 +121,7 @@ class SvgContext {
   }
 
   renderModel(model) {
-    this.svg.innerHTML = "";
+    this.clear();
     let x = 0;
     let lastName = "";
     let g;
@@ -116,12 +131,9 @@ class SvgContext {
       if (namePrefix != lastName) {
         lastName = namePrefix;
         offsetX = 0;
-        g = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "g");
+        g = document.createElementNS("http://www.w3.org/2000/svg", "g");
         g.setAttribute("transform",
-          "translate(" + x + " 200)" +
-          "rotate(-45 0 0) ");
+          "translate(" + x + " 200)" + "rotate(-45 0 0) ");
         x += 250;
       }
       this.svg.appendChild(g);
@@ -140,6 +152,7 @@ function show() {
 }
 
 function collect() {
+  show();
   setupGame(botUnderTest, new CircleBot());
   for (let i = 0; i < kFramesPerRound; ++i) {
     runFrame();
@@ -147,17 +160,17 @@ function collect() {
 }
 
 function train() {
+  show();
   let ioExamples = botUnderTest.getExamples();
   let input = ioExamples[0];
   let output = ioExamples[1];
   let model = botUnderTest.getModel();
   console.log("Staring train: " + input.shape);
-  model.fit(input, output, { epochs: 1 }).then(()=>{
+  model.fit(input, output, { epochs: 1 }).then(() => {
     console.log("Done training: " + input.shape);
     botUnderTest.brain.dirty = true;
     show();
   });
-  show();
 }
 
 function setup() {
