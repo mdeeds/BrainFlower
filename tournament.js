@@ -1,27 +1,63 @@
-
 var kMaxGames = 10;
+
+leftEntries = [];
+rightEntries = [];
+
+function setup() {
+  tf.setBackend('cpu');
+
+  startButton = createButton("Run");
+  startButton.size(60, 40);
+  startButton.mousePressed(runAndDisplay);
+
+  rightEntries.push(new CircleBot());
+  rightEntries.push(new MattBot());
+  rightEntries.push(new RudeBot());
+  rightEntries.push(new CloseBot());
+  rightEntries.push(new SquareBot());
+  rightEntries.push(new SteveBot());
+  rightEntries.push(new Roomba());
+
+  leftEntries = rightEntries;
+
+  // // Example code for parameter sweep:
+  // for (let l of [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0]) {
+  //   for (let r of [-0.01, -0.1, -0.2, -0.3, -0.4, -0.5, -0.8, -1.0]) {
+  //     leftEntries.push(new MattBot(l, r));
+  //   }
+  // }
+}
 
 class GameResult {
   constructor() {
+    this.robotName = "";
     this.score = 0;
     this.winCount = 0;
     this.thoughts = 0;
   }
 }
 
+function getName(robot) {
+  return robot.name || robot.constructor.name;
+}
+
+function getMatchKey(robotA, robotB) {
+  return getName(robotA) + " vs. " + getName(robotB);
+}
+
 function addScore(containerA, containerB) {
-  let key = containerA.robot.constructor.name
-    + " vs. "
-    + containerB.robot.constructor.name;
+  let key = getMatchKey(containerA.robot, containerB.robot);
+  console.log(key);
 
   if (!matches.get(key)) {
     matches.set(key, new GameResult());
+    matches.get(key).robotName = getName(containerA.robot);
   }
 
   let gr = matches.get(key);
   gr.score += containerA.score;
   gr.winCount += (containerA.score > containerB.score) ? 1 : 0;
-  gr.thoughts += containerA.thoughts;
+  gr.thoughts += containerA.elapsed;
 }
 
 /**
@@ -31,80 +67,97 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
-    rcs = setupGame(robotA, robotB);
-    let nameA = robotA.constructor.name;
-    let nameB = robotB.constructor.name;
+  rcs = setupGame(robotA, robotB);
+  containerA = rcs[0];
+  containerB = rcs[1];
 
-    containerA = rcs[0];
-    containerB = rcs[1];
-
-    for (let i = 0; i < kFramesPerRound; ++i) {
-      runFrame();
-    }
-    addScore(containerA, containerB);
-    addScore(containerB, containerA);
+  for (let i = 0; i < kFramesPerRound; ++i) {
+    runFrame();
+  }
+  addScore(containerA, containerB);
+  addScore(containerB, containerA);
 }
-
-entries = [];
 
 function runGames() {
-  let startTime= window.performance.now();
   let gameCount = 0;
   while (gameCount < kMaxGames) {
-    for (let i = 0; i < entries.length; ++i) {
-        for (let j = i + 1; j < entries.length; ++j) {
-            console.log("i,j: " + i + "," + j);
-        robotA = entries[i];
-        robotB = entries[j];
+    let playedMatches = new Set();
+    for (let i = 0; i < leftEntries.length; ++i) {
+      for (let j = 0; j < rightEntries.length; ++j) {
+        robotA = leftEntries[i];
+        robotB = rightEntries[j];
+        let key = getMatchKey(robotA, robotB);
+        if (playedMatches.has(key)) {
+          continue;
+        }
+        playedMatches.add(key);
         runOneGame(robotA, robotB);
         ++gameCount;
-        }
+      }
     }
   }
-  let elapsed = window.performance.now() - startTime;
-  createDiv("Game count: " + gameCount.toFixed(0));
-  createDiv("Time per game: " 
-    + (elapsed / gameCount).toFixed(3)
-    + " ms");
 }
 
-function renderTable(cols, a) {
-  let oldTable = document.getElementById("tab");
-  if (oldTable) {
-    oldTable.parentElement.remove(oldTable);
-  }
-  
+function sortedNames(entries) {
+  let totalScore = new Map();
   let names = [];
   for (e of entries) {
-    names.push(e.constructor.name);
+    let name = getName(e);
+    names.push(name);
+    totalScore.set(name, 0);
+  }
+  for (gr of matches.values()) {
+    if (!totalScore.has(gr.robotName)) {
+      totalScore.set(gr.robotName, 0);
+    }
+    totalScore.set(gr.robotName, totalScore.get(gr.robotName) + gr.score);
   }
 
+  // Sort descending by score.  (b - a)
+  names.sort(function (a, b) { return totalScore.get(b) - totalScore.get(a); });
+  return names;
+}
 
+function renderTable(name, dataFn) {
+  let id = "tab" + name;
+  let oldTable = document.getElementById(id);
+  if (oldTable) {
+    oldTable.parentElement.removeChild(oldTable);
+  }
+
+  let leftNames = sortedNames(leftEntries);
+  let rightNames = sortedNames(rightEntries);
   let table = document.createElement("table");
-  table.id = "tab";
+  table.id = id;
   {
     let tr = document.createElement("tr");
     {
-      let td = document.createElement("td");
+      let td = document.createElement("th");
       tr.appendChild(td);
-      td.innerText = "vs.";
+      td.innerText = name;
     }
     table.appendChild(tr);
-    for (let n of names) {
-      let td = document.createElement("td");
+    for (let n of rightNames) {
+      let td = document.createElement("th");
       tr.appendChild(td);
       td.innerText = n;
     }
+    {
+      let td = document.createElement("th");
+      td.innerText = "total";
+      tr.appendChild(td);
+    }
   }
 
-  for (n1 of names) {
+  for (n1 of leftNames) {
     let tr = document.createElement("tr");
     table.appendChild(tr);
-    let td = document.createElement("td");
+    let td = document.createElement("th");
     td.innerText = n1;
     tr.appendChild(td);
     table.appendChild(tr);
-    for (n2 of names) {
+    let total = 0;
+    for (n2 of rightNames) {
       td = document.createElement("td");
       tr.appendChild(td);
       if (n1 == n2) {
@@ -112,31 +165,26 @@ function renderTable(cols, a) {
       } else {
         let key = n1 + " vs. " + n2;
         let gr = matches.get(key);
-        td.innerText = gr.score;
+        td.innerText = dataFn(gr).toFixed(0);
+        total += dataFn(gr);
       }
     }
+    td = document.createElement("td");
+    tr.appendChild(td);
+    td.innerText = total.toFixed(0);
   }
   let b = document.getElementById("body");
   b.appendChild(table);
 }
 
-function setup() {
-  tf.setBackend('cpu');
-  let startTime = window.performance.now();
-  entries.push(new CircleBot());
-  entries.push(new MattBot2());
-  entries.push(new RudeBot());
-  entries.push(new CloseBot());
-  entries.push(new LearnBot());
-  entries.push(new SquareBot());
-
+function runAndDisplay() {
   runGames();
-  renderTable();
-
-  // for (let name of scores.keys()) {
-  //     createDiv(name + ": " + scores.get(name) + 
-  //     " wins: " + winCount.get(name) +
-  //     " thinking: " + thoughts.get(name).toFixed(2));
-  // };
+  renderTable("score",
+    function (gr) { return gr.score; });
+  renderTable("wins",
+    function (gr) { return gr.winCount; });
+  renderTable("thought",
+    function (gr) { return gr.thoughts; });
 }
+
 

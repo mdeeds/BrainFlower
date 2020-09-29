@@ -1,6 +1,8 @@
-// Robot and its position in the world.
-// x, y - position of the center of the robot.
-// t - angle of the robot (radians).  0 = rigth, PI/2 = up.
+/**
+ * Robot and its position in the world.
+ * x, y - position of the center of the robot.
+ * t - angle of the robot (radians).  0 = right, PI/2 = up.
+ */
 class RobotContainer {
   /**
    * 
@@ -33,7 +35,7 @@ class RobotContainer {
   collide(other) {
     let dx = other.x - this.x;
     let dy = other.y - this.y;
-    let separation = Math.sqrt(dx*dx + dy*dy);
+    let separation = Math.sqrt(dx * dx + dy * dy);
     if (separation > 100) {
       return;
     }
@@ -74,12 +76,12 @@ class RobotContainer {
    * Update the robots position.  Call this after applying movement to newx and newy.
    */
   update() {
-    if (this.newx < 50 || this.newy < 50 || 
-      this.newx > kArenaSize -50 || 
+    if (this.newx < 50 || this.newy < 50 ||
+      this.newx > kArenaSize - 50 ||
       this.newy > kArenaSize - 50) {
-        if (wallSound) {
-          wallSound.play();
-        }
+      if (wallSound) {
+        wallSound.play();
+      }
     }
     this.newx = Math.max(50, Math.min(kArenaSize - 50, this.newx));
     this.newy = Math.max(50, Math.min(kArenaSize - 50, this.newy));
@@ -89,7 +91,7 @@ class RobotContainer {
 };
 
 // Returns the dot product of t1 and t2.
-dotAngles = function(t1, t2) {
+dotAngles = function (t1, t2) {
   let dt = t2 - t1;
   if (dt < -Math.PI) {
     dt += 2 * Math.PI;
@@ -100,7 +102,7 @@ dotAngles = function(t1, t2) {
   return Math.cos(dt);
 }
 
-dotRay = function(t1, dx, dy) {
+dotRay = function (t1, dx, dy) {
   let t2 = Math.atan2(dy, dx);
   return dotAngles(t1, t2);
 }

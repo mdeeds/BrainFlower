@@ -1,17 +1,21 @@
 class LearnBot {
-  constructor() {
-    this.model = tf.sequential();
-    this.model.add(tf.layers.dense({
-      inputShape: [kInputSize], units:7, activation: 'relu'}));
-    this.model.add(tf.layers.dense({
-      units: kOutputSize, activation: 'sigmoid'}));
-    this.model.compile({optimizer: 'sgd', loss: 'meanSquaredError'});
+  constructor(referenceBot, recordExamples, alwaysLearning) {
+    this.brain = new Brain("LearnBot");
+
     let body = document.getElementById('body');
     body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
-    this.learning = false;
-
-    this.referenceBot = new CircleBot();
+    this.learning = !!alwaysLearning;
+    this.alwaysLearning = !!alwaysLearning;
+    this.referenceBot = referenceBot || new CircleBot();
+    this.recordExamples = !!recordExamples;
+    this.observedInputs = [];
+    this.observedOutputs = [];
   }
+
+  setReference(referenceBot) {
+    this.referenceBot = referenceBot;
+  }
+
   /**
    * Draws the LearnBot.
    * @param {Renderer} c 
@@ -28,13 +32,36 @@ class LearnBot {
   }
 
   handleKey(e) {
+    if (this.alwaysLearning) {
+      return;
+    }
     if (e.type === 'keydown') {
       if (e.code === 'KeyA') {
-        this.learning = false;    
+        this.learning = false;
       } else if (e.code === 'KeyL') {
         this.learning = true;
       }
     }
+  }
+
+  /**
+   * @returns {Tensor[]} an array of two Tensors representing the 
+   * output from the reference robot.
+   */
+  getExamples() {
+    let N = this.observedInputs.length;
+    console.assert(N == this.observedOutputs.length);
+    let inputTensor = tf.tensor2d(this.observedInputs, [N, kInputSize]);
+    let outputTensor = tf.tensor2d(this.observedOutputs, [N, kOutputSize]);
+    return [inputTensor, outputTensor];
+  }
+
+  /**
+   * 
+   * @returns {tf.Model} model 
+   */
+  getModel() {
+    return this.brain.model;
   }
 
   /**
@@ -44,22 +71,15 @@ class LearnBot {
   run(s) {
     let input = s.asArray();
     if (this.learning) {
-      let referenceArray = this.referenceBot.run(s);
-      this.learn(input, referenceArray);
-      return referenceArray;
+      let turn = this.referenceBot.run(s);
+      // this.brain.train(input, [turn]);
+      if (this.recordExamples) {
+        this.observedInputs.push(input);
+        this.observedOutputs.push([turn]);
+      }
+      return turn;
     } else {
-      let outputTensor = 
-        this.model.predict(tf.tensor2d([input], [1, kInputSize]));
-      let output = outputTensor.dataSync();
-      return output;
-    }  
-    return result;
-  }
-
-  async learn(input, referenceArray) {
-      const ys = tf.tensor2d(
-        [referenceArray], [1, kOutputSize]);
-      const xs = tf.tensor2d([input], [1, kInputSize]);
-      await this.model.fit(xs, ys, {epochs: 1});
+      return this.brain.infer(input)[0];
+    }
   }
 };

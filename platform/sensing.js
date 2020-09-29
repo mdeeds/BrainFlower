@@ -2,15 +2,15 @@
 // May be modified to indicate intention of movement.
 
 kInputSize = 9;
-kOutputSize = 2;
+kOutputSize = 1;
 
 /**
- * Describes the current state of the world as percieved by the robot.
+ * Describes the current state of the world as perceived by the robot.
  * May be modified to indicate intention of movement.
  */
 class SensorState {
   constructor() {
-    /** @member {number} - Number of flowers to the left. */  
+    /** @member {number} - Number of flowers to the left. */
     this.leftFlowers = 0;
     /** @member {number} - Number of flowers to the right. */
     this.rightFlowers = 0;
@@ -21,7 +21,7 @@ class SensorState {
 
     /** @member {number} - Distance to the oponent. */
     this.opponentDistance = 0;
-    /** @member {number} - Angle to the opponent. */
+    /** @member {number} - Angle from current heading to the opponent in degrees. */
     this.opponentAngle = 0;
 
     /** @member {number} - Distance to wall ahead. */
@@ -35,7 +35,7 @@ class SensorState {
     this.myScore = 0;
     /** @member {number} - The opponent's current score. */
     this.opponentScore = 0;
-    /** @member {number} - My absolute heading (right = 0). */
+    /** @member {number} - My absolute heading (right = 0), down = 90 degrees. */
     this.myHeading = 0;
     /** @member {number} - The opponent's current heading. */
     this.opponentHeading = 0;

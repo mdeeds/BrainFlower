@@ -24,3 +24,17 @@ button {
   background: black;
   border-style: outset solid lightgreen;
 }
+
+table {
+  border-collapse: collapse;
+  margin: 26px;
+}
+
+th {
+  font-weight: bold;
+}
+
+th, td {
+ border: solid darkslategray 0.5px;
+ text-align: center;
+}

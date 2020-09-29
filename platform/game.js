@@ -13,14 +13,14 @@ var hitSound = false;
  * @param {RobotContainer} rc 
  * @returns {SensorState}
  */
-function generateSenses(rc, otherRobot)  {
+function generateSenses(rc, otherRobot) {
   let state = new SensorState();
   state.leftFlowerDistance = 1200;
   state.rightFlowerDistance = 1200;
   for (let f of flowers) {
     let dy = f.y - rc.y;
     let dx = f.x - rc.x;
-    let distance = Math.sqrt(dx*dx + dy*dy);
+    let distance = Math.sqrt(dx * dx + dy * dy);
     let t = Math.atan2(dy, dx);
     let dt = t - rc.t;
     if (dt < -Math.PI) {
@@ -30,14 +30,14 @@ function generateSenses(rc, otherRobot)  {
     }
     if (dt < Math.PI / 4 && dt > -Math.PI / 12) {
       state.leftFlowers++;
-      state.leftFlowerDistance = 
+      state.leftFlowerDistance =
         Math.min(state.leftFlowerDistance, distance);
     }
     if (dt < Math.PI / 12 && dt > -Math.PI / 4) {
       state.rightFlowers++;
       state.rightFlowerDistance =
         Math.min(state.rightFlowerDistance, distance);
-    } 
+    }
   }
   {
     // Other robot
@@ -50,9 +50,9 @@ function generateSenses(rc, otherRobot)  {
     } else if (t > Math.PI) {
       t -= 2 * Math.PI;
     }
-    state.opponentAngle = t;
+    state.opponentAngle = t * 180 / Math.PI;
     state.opponentDistance = distance;
-    state.opponentHeading = otherRobot.t;
+    state.opponentHeading = otherRobot.t * 180 / Math.PI;
     state.opponentScore = otherRobot.score;
   }
 
@@ -65,18 +65,18 @@ function generateSenses(rc, otherRobot)  {
     state.rightDistanceToWall = findClosestWall(
       new Ray(rc.x, rc.y, rc.t + Math.PI / 4));
   }
-  state.myHeading = rc.t;
+  state.myHeading = rc.t * 180 / Math.PI;
   state.myScore = rc.score;
   return state;
 }
 
-findClosestWall = function(robotRay) {
+findClosestWall = function (robotRay) {
   // This should be a static const.
   const walls = [
-    new Ray(0,0,0),
-    new Ray(0,0,-Math.PI/2),
+    new Ray(0, 0, 0),
+    new Ray(0, 0, -Math.PI / 2),
     new Ray(kArenaSize, kArenaSize, Math.PI),
-    new Ray(kArenaSize, kArenaSize, Math.PI/2),
+    new Ray(kArenaSize, kArenaSize, Math.PI / 2),
   ]
   let closestWall = 2 * kArenaSize;
   for (let w of walls) {
@@ -99,7 +99,7 @@ class Ray {
 /**
  * 
  */
-getDistanceToLine = function(r1, r2) {
+getDistanceToLine = function (r1, r2) {
   let x1 = r1.x;
   let y1 = r1.y;
   let t1 = r1.t;
@@ -113,7 +113,7 @@ getDistanceToLine = function(r1, r2) {
   let cos1 = Math.cos(t1);
   if (Math.abs(cos1) < 0.001) {
     return getDistanceToLine(
-      y1, x1, Math.PI / 4 - t1, 
+      y1, x1, Math.PI / 4 - t1,
       y2, x2, Math.PI / 4 - t2);
   }
   // p1 = (x1, y1); p2 = (x2, y2)
@@ -161,7 +161,7 @@ function checkFlower(f) {
   let overlappingRobot = null;
   let bestDistance2 = 2500;
   for (let rc of robotContainers) {
-    let d2 = distance2(f.x, f.y, rc.x, rc.y); 
+    let d2 = distance2(f.x, f.y, rc.x, rc.y);
     if (d2 < 2500) {
       overlappingRobot = rc;
       bestDistance2 = d2;
@@ -176,7 +176,7 @@ function checkFlower(f) {
       flowerSound.play();
     }
     flowers.delete(f);
-    if (Math.random() < 0.5) {
+    if (Math.random() < 0.8) {
       addRandomFlower();
     }
     return false;
@@ -203,7 +203,7 @@ function startRobot(robot, x, y, t) {
  * @param {RobotContainer} left 
  * @param {RobotContainer} right 
  */
-function setupGame(left, right){
+function setupGame(left, right) {
   robotContainers.length = 0;
   flowers.clear();
 
@@ -215,47 +215,45 @@ function setupGame(left, right){
     addRandomFlower();
   }
 
-  return [ leftContainer, rightContainer ];
+  return [leftContainer, rightContainer];
 }
 
 /**
  * Runs the robots and physics simulation without any draw operations.
  */
 function runFrame() {
-    if (Math.random() < 0.005) {
-      addRandomFlower();
+  if (Math.random() < 0.005) {
+    addRandomFlower();
+  }
+  for (let i of [0, 1]) {
+    let rc = robotContainers[i];
+    let otherRobot = robotContainers[i ^ 1];
+    let s = generateSenses(rc, otherRobot);
+    let startTime = window.performance.now();
+    let turn = rc.robot.run(s);
+    rc.elapsed += window.performance.now() - startTime;
+    turn = Math.max(-1, Math.min(1.0, turn));
+    let forward = 1.0 - Math.abs(turn);
+    rc.t += turn / 10.0;
+    if (rc.t > Math.PI) {
+      rc.t -= Math.PI * 2;
+    } else if (rc.t < -Math.PI) {
+      rc.t += Math.PI * 2;
     }
-    for (let i of [0, 1]) {
-      let rc = robotContainers[i];
-      let otherRobot = robotContainers[i ^ 1];
-      let s = generateSenses(rc, otherRobot);
-      let startTime = window.performance.now();
-      let output = rc.robot.run(s);
-      let speed = output[0];
-      let turn = output[1]
-      rc.elapsed += window.performance.now() - startTime;
-      let forward = Math.max(0, Math.min(1, speed - Math.abs(turn)));
-      turn = Math.max(-1, Math.min(1.0, turn));
-      rc.t += turn / 10.0;
-      if (rc.t > Math.PI) {
-        rc.t -= Math.PI * 2;
-      } else if (rc.t < -Math.PI) {
-        rc.t += Math.PI * 2;
+    rc.forward(forward * 5);
+  }
+  for (let r1 of robotContainers) {
+    for (let r2 of robotContainers) {
+      if (r1 != r2) {
+        r1.collide(r2);
       }
-      rc.forward(forward * 5);
-    }
-    for (let r1 of robotContainers) {
-      for (let r2 of robotContainers) {
-        if (r1 != r2) {
-          r1.collide(r2);
-        }
-      }
-    }
-    for (let r of robotContainers) {
-      r.update();
-    }
-    for (let f of flowers) {
-      checkFlower(f);
     }
   }
-  
+  for (let r of robotContainers) {
+    r.update();
+  }
+  for (let f of flowers) {
+    checkFlower(f);
+  }
+}
+
