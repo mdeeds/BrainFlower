@@ -18,7 +18,7 @@ class CloseBot {
 
   /**
    * @param {SensorState} s 
-   * @returns {number[]} - [ speed, turn ] 
+   * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
     if (s.rightFlowerDistance < s.leftFlowerDistance) {
