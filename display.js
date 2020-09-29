@@ -13,6 +13,7 @@ function setup() {
   entries.push(new CloseBot());
   entries.push(new RudeBot());
 
+  entries.push(new Mooo());
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
   for (let e of entries) {
