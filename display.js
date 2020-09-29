@@ -12,7 +12,7 @@ function setup() {
   entries.push(new MattBot2());
   entries.push(new CloseBot());
   entries.push(new RudeBot());
-
+  entries.push(new Kili());
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
   for (let e of entries) {
