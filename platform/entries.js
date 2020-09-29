@@ -1,6 +1,11 @@
 var entryMap = new Map();
 var match;
 
+function addEntry(robot) {
+  let name = robot.constructor.name;
+  entryMap.set(name, robot);
+}
+
 function buildEntryMap() {
   addEntry(new KeyBot());
   addEntry(new CircleBot());
@@ -43,8 +48,8 @@ class Match {
   }
 
   remove() {
-    leftEntryChoice.remove();
-    rightEntryChoice.remove();
+    this.leftEntryChoice.remove();
+    this.rightEntryChoice.remove();
   }
 
   /**
@@ -75,10 +80,10 @@ class Match {
     console.log("Change");
     if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
       console.log("Same");
-      if (leftEntryChoice.elt == e.target) {
-        this.setToOtherValue(rightEntryChoice, leftEntryChoice);
+      if (this.leftEntryChoice.elt == e.target) {
+        this.setToOtherValue(this.rightEntryChoice, this.leftEntryChoice);
       } else {
-        this.setToOtherValue(leftEntryChoice, rightEntryChoice);
+        this.setToOtherValue(this.leftEntryChoice, this.rightEntryChoice);
       }
     }
   }

@@ -49,11 +49,6 @@ function startGame() {
   }
 }
 
-function addEntry(robot) {
-  let name = robot.constructor.name;
-  entryMap.set(name, robot);
-}
-
 var angle = 0;
 
 function playFrame() {
