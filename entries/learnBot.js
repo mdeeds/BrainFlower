@@ -11,6 +11,11 @@ class LearnBot {
     this.observedInputs = [];
     this.observedOutputs = [];
   }
+
+  setReference(referenceBot) {
+    this.referenceBot = referenceBot;
+  }
+
   /**
    * Draws the LearnBot.
    * @param {Renderer} c 

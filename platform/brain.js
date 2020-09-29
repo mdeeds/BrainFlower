@@ -1,30 +1,3 @@
-
-class Regularizer1 {
-  /**
-   * 
-   * @param {tf.Tensor} x
-   * @returns {tf.Scalar} 
-   */
-  apply(x) {
-    let regularization = tf.sum(
-      tf.mul(tf.scalar(0.01),
-        tf.relu(tf.sub(tf.abs(x), tf.scalar(0.1)))));
-    return regularization.asScalar();
-  }
-
-  getClassName() {
-    return this.className;
-  }
-
-  getConfig() {
-    return {};
-  }
-
-  static className = 'Regularizer1';
-};
-
-tf.serialization.registerClass(Regularizer1);
-
 class Brain {
   /**
    * 
@@ -42,18 +15,18 @@ class Brain {
     this.lossObservations = 0;
   }
 
-  async loadOrCreate() {
+  async loadOrCreate(modelName) {
+    let name = modelName || this.name;
     try {
-      this.model = await tf.loadLayersModel(
-        'indexeddb://xx' + this.name);
+      this.model = await tf.loadLayersModel('indexeddb://' + name);
       this.dirty = false;
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
 
-      const input = tf.input({shape: [kInputSize]});
+      const input = tf.input({ shape: [kInputSize] });
       const firstLayer = tf.layers.dense({
-        inputShape: [kInputSize], units: 4,  activation: 'tanh',
+        inputShape: [kInputSize], units: 4, activation: 'tanh',
         kernelRegularizer: 'l1l2',
       });
       const secondLayer = tf.layers.dense({
@@ -61,7 +34,7 @@ class Brain {
       })
       const output = secondLayer.apply(firstLayer.apply(input));
 
-      this.model = tf.model({inputs: input, outputs: output});
+      this.model = tf.model({ inputs: input, outputs: output });
 
       this.dirty = true;
       console.log("New model created.");
