@@ -7,7 +7,7 @@ class CircleBot {
     c.noStroke();
     c.fill(color(240, 255, 34));
     c.ellipse(50, 50, 95, 95);
-    c.stroke(color(0,0,0));
+    c.stroke(color(0, 0, 0));
     c.fill(color(255, 255, 200));
     c.ellipse(80, 50, 20, 20);
     c.ellipse(80, 50, 15, 15);
@@ -17,9 +17,9 @@ class CircleBot {
 
   /**
    * @param {SensorState} s 
-   * @returns {number[]} - [ speed, turn ] 
+   * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    return [1.0, 0.15];
+    return 0.15;
   }
 };

@@ -7,7 +7,7 @@ class RudeBot {
     c.noStroke();
     c.fill(color(20, 0, 30));
     c.ellipse(50, 50, 100, 100);
-    c.stroke(color(255,0,0));
+    c.stroke(color(255, 0, 0));
     c.strokeWeight(8);
     c.ellipse(60, 50, 80, 80);
     c.ellipse(65, 50, 60, 60);
@@ -15,23 +15,23 @@ class RudeBot {
 
   /**
    * @param {SensorState} s 
-   * @returns {number[]} - [ speed, turn ] 
+   * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.opponentAngle < -1) {
-      return [1.0, -0.8];
-    } else if (s.opponentAngle < -0.3) {
-      return [1.0, -0.5];
-    } else if (s.opponentAngle < -0.1) {
-      return [1.0, -0.1];
-    } else if (s.opponentAngle < 0.1) {
-      return [1.0, 0.0];
-    } else if (s.opponentAngle < 0.3) {
-      return [1.0, 0.1];
-    } else if (s.opponentAngle < 1) {
-      return [1.0, 0.5];
+    if (s.opponentAngle < -60) {
+      return -0.8;
+    } else if (s.opponentAngle < -10) {
+      return -0.5;
+    } else if (s.opponentAngle < -5) {
+      return -0.1;
+    } else if (s.opponentAngle < 5) {
+      return 0.0;
+    } else if (s.opponentAngle < 10) {
+      return 0.1;
+    } else if (s.opponentAngle < 60) {
+      return 0.5;
     } else {
-      return [1.0, -0.8];
+      return -0.8;
     }
   }
 };
