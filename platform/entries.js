@@ -41,9 +41,9 @@ class Match {
    */
   getEntry(i) {
     if (i == 0) {
-      return this.leftEntryChoice.value();
+      return entryMap.get(this.leftEntryChoice.value());
     } else {
-      return this.rightEntryChoice.value();
+      return entryMap.get(this.rightEntryChoice.value());
     }
   }
 
@@ -58,7 +58,7 @@ class Match {
    */
   populateChoice(choice) {
     for (let label of entryMap.keys()) {
-      choice.option(label, entryMap.get(label));
+      choice.option(label);
     }
     choice.tabindex = "-1";
   }
