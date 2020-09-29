@@ -1,28 +1,14 @@
 var leftEntryChoice;
 var rightEntryChoice;
 
-let entryMap = new Map();
-
 function setup() {
   tf.setBackend('cpu');
-  addEntry(new KeyBot());
-  addEntry(new CircleBot());
-  addEntry(new KeyBot2());
-  addEntry(new MattBot2());
-  addEntry(new RudeBot());
-  addEntry(new CloseBot());
-  addEntry(new LearnBot());
-  addEntry(new SquareBot());
+  [leftEntryChoice, rightEntryChoice] = buildEntryMap();
 
-  leftEntryChoice = createSelect();
   leftEntryChoice.position(70, 10);
   leftEntryChoice.size(380, 25);
-
-  rightEntryChoice = createSelect();
   rightEntryChoice.position(470, 10);
   rightEntryChoice.size(380, 25);
-
-  match = new Match(leftEntryChoice, rightEntryChoice);
 
   createCanvas(kArenaSize, kArenaSize);
 
@@ -32,71 +18,6 @@ function setup() {
   startButton.mousePressed(startGame);
 }
 
-class Match {
-  constructor(leftEntryChoice, rightEntryChoice) {
-    this.leftEntryChoice = leftEntryChoice;
-    this.rightEntryChoice = rightEntryChoice;
-    this.populateChoice(this.leftEntryChoice);
-    this.populateChoice(this.rightEntryChoice);
-    this.setToOtherValue(rightEntryChoice, leftEntryChoice);
-    this.leftEntryChoice.changed(this.handleChange.bind(this));
-    this.rightEntryChoice.changed(this.handleChange.bind(this));
-  }
-
-  /**
-   * 
-   * @param {number} i
-   * @returns {RobotContainer} 
-   */
-  getEntry(i) {
-    if (i == 0) {
-      return entryMap.get(this.leftEntryChoice.value());
-    } else {
-      return entryMap.get(this.rightEntryChoice.value());
-    }
-  }
-
-  remove() {
-    leftEntryChoice.remove();
-    rightEntryChoice.remove();
-  }
-
-  /**
-   * 
-   * @param {Element} choice 
-   */
-  populateChoice(choice) {
-    for (let label of entryMap.keys()) {
-      choice.option(label);
-    }
-    choice.tabindex = "-1";
-  }
-
-  setToOtherValue(choiceToChange, choiceToKeep) {
-    for (let label of entryMap.keys()) {
-      if (label != choiceToKeep.value()) {
-        choiceToChange.elt.value = label;
-        break;
-      }
-    }
-  }
-
-  /**
-   * 
-   * @param {Event} e 
-   */
-  handleChange(e) {
-    console.log("Change");
-    if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
-      console.log("Same");
-      if (leftEntryChoice.elt == e.target) {
-        this.setToOtherValue(rightEntryChoice, leftEntryChoice);
-      } else {
-        this.setToOtherValue(leftEntryChoice, rightEntryChoice);
-      }
-    }
-  }
-}
 
 var started = false;
 var startButton;
@@ -110,6 +31,9 @@ function loadSound(path) {
 }
 
 function startGame() {
+  music = loadSound("sfx/Music.mp3");
+  music.volume = 0.5;
+  music.play();
   flowerSound = loadSound("sfx/Flower.mp3");
   wallSound = loadSound("sfx/Wall.mp3");
   hitSound = loadSound("sfx/Hit.mp3");
@@ -123,11 +47,6 @@ function startGame() {
   for (let rc of robotContainers) {
     robotDisplays.push(new RobotDisplay(rc));
   }
-}
-
-function addEntry(robot) {
-  let name = robot.constructor.name;
-  entryMap.set(name, robot);
 }
 
 var angle = 0;
@@ -159,9 +78,9 @@ function playFrame() {
     stroke(color("black"));
     if (framesRemaining === 0) {
       textSize(200);
-      text("STOP", kArenaSize/2, 450);
+      text("STOP", kArenaSize / 2, 450);
     } else {
-      text(secondsRemaining.toFixed(0), kArenaSize/2, 600);
+      text(secondsRemaining.toFixed(0), kArenaSize / 2, 600);
     }
   }
 }
