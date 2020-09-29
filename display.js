@@ -6,7 +6,7 @@ var robotDisplays = [];
 function setup() {
   createCanvas(kArenaSize, kArenaSize);
 
-  /** Add your robot here! */
+  entries.push(new monsterbot());
   entries.push(new KeyBot());
   entries.push(new CircleBot());
   entries.push(new MattBot2());
