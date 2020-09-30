@@ -1,8 +1,12 @@
 var entryMap = new Map();
 var match;
 
+function robotName(robot) {
+  return robot.name || robot.constructor.name;
+}
+
 function addEntry(robot) {
-  let name = robot.constructor.name;
+  let name = robotName(robot);
   entryMap.set(name, robot);
 }
 
