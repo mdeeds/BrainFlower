@@ -7,15 +7,19 @@ class MattBot {
    * @param {number} left 
    * @param {number} right 
    */
-  constructor(left, right) {
-    this.left = left || 0.3;
-    this.right = right || -0.4;
-    if (typeof right == "undefined") {
+  constructor(left, right, hardTurn) {
+    this.left = left || 0.2;
+    this.right = right || -0.3;
+    this.hardTurn = hardTurn || 1.0;
+
+    if (typeof hardTurn == "undefined") {
       this.name = "MattBot";
     } else {
       this.name =
-        "MatBot:" + this.left.toFixed(2)
-        + ":" + this.right.toFixed(2);
+        "MattBot:"
+        + left.toFixed(2) + ":"
+        + right.toFixed(2) + ":"
+        + hardTurn.toFixed(2);
     }
   }
 
@@ -33,10 +37,13 @@ class MattBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.leftFlowers > s.rightFlowers) {
-      return this.left;
-    } else {
+    if (s.leftFlowers == 0 && s.rightFlowers == 0) {
+      return this.hardTurn;
+    }
+    if (s.rightFlowers > s.leftFlowers) {
       return this.right;
+    } else {
+      return this.left;
     }
   }
 }
