@@ -17,6 +17,9 @@ function buildEntryMap() {
   addEntry(new SteveBot());
   addEntry(new Roomba());
   addEntry(new MattBot());
+  addEntry(new monsterbot());
+  addEntry(new Mooo());
+  addEntry(new Kili());
   let leftEntryChoice = createSelect();
   let rightEntryChoice = createSelect();
   match = new Match(leftEntryChoice, rightEntryChoice);
