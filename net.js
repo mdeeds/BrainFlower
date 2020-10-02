@@ -58,8 +58,7 @@ class SvgContext {
 
   line(parent, x1, y1, x2, y2) {
     let l = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "line");
+      "http://www.w3.org/2000/svg", "line");
     l.setAttribute('x1', x1);
     l.setAttribute('y1', y1);
     l.setAttribute('x2', x2);
@@ -67,6 +66,20 @@ class SvgContext {
     l.setAttribute('stroke', this.stroke);
     parent.appendChild(l);
     return l;
+  }
+
+  path(parent, x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
+    let p = document.createElementNS(
+      "http://www.w3.org/2000/svg", "path");
+    p.setAttribute('d', 
+      "M " + x1 + " " + y1 +
+      "C " + cx1 + " " + cy1 +
+      " " + cx2 + " " + cy2 +
+      " " + x2 + " " + y2);
+    p.setAttribute('stroke', this.stroke);
+    p.setAttribute('fill', "none");
+    parent.appendChild(p);
+    return p;
   }
 
   circle(parent, cx, cy, r) {
@@ -162,9 +175,17 @@ class SvgContext {
 
     // Outputs
     for (let i = 0; i < shape[1]; ++i) {
-      this.line(parent,
-        offsetX + 30, offsetY + i * 15 + 30,
-        offsetX + shape[0] * 15 + 60, offsetY + i * 15 + 30);
+      let j = (shape[1] - i - 1)
+      let x0 = offsetX + 30;
+      let y0 = offsetY + i * 15 + 30;
+      let x1 = offsetX + shape[0] * 15 + 50;
+      let y1 = offsetY + i * 15 + 30;
+      let x2 = x1 + 95 + (j * 15);
+      let y2 = offsetY;
+      this.line(parent, x0, y0, x1, y1);
+      this.path(parent, x1, y1, x1 + 40, y1, 
+        x2, y2 - 50 - j * 20, x2, y2);
+      // this.path(parent,)
     }
 
     let i = 0;
