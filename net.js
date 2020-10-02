@@ -232,8 +232,6 @@ class SvgContext {
 var botUnderTest;
 var ctx;
 var repeatBox;
-var referenceSelector;
-var opponentSelector;
 var match;
 
 function show() {
@@ -243,7 +241,9 @@ function show() {
 
 function collect() {
   show();
-  botUnderTest.setReference(match.getEntry(0));
+  let referenceBot = match.getEntry(0);
+  botUnderTest.setReference(referenceBot);
+  console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
     setupGame(botUnderTest, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
