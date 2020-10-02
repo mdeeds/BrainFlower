@@ -30,10 +30,10 @@ class Wire {
 
   setDestination(x, y) {
     for (let p of this.paths) {
-    p.setAttribute("d", "M " + this.x0 + " " + this.y0
-      + " C " + this.x0 + " " + (this.y0 + 100)
-      + " " + x + " " + (y + 100)
-      + " " + x + " " + y);
+      p.setAttribute("d", "M " + this.x0 + " " + this.y0
+        + " C " + this.x0 + " " + (this.y0 + 100)
+        + " " + x + " " + (y + 100)
+        + " " + x + " " + y);
     }
   }
 }
@@ -42,7 +42,7 @@ class SvgContext {
   constructor(svg) {
     this.svg = svg;
     this.clear();
-    this.wire = new Wire(0,0);
+    this.wire = new Wire(0, 0);
   }
 
   clear() {
@@ -125,19 +125,21 @@ class SvgContext {
     }.bind(this));
   }
 
-  renderWeights1(parent, weights, offsetX) {
+  renderWeights1(parent, weights, offsetX, offsetY) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
 
     this.stroke = "#000";
     // Input
-    this.line(parent, offsetX + 30, 0,
-      offsetX + 30, shape[0] * 15 + 15);
+    this.line(parent,
+      offsetX + 30, offsetY + 0,
+      offsetX + 30, offsetY + shape[0] * 15 + 15);
 
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       let r0 = shape[0] - d0 - 1;
-      this.addCircle(parent, offsetX + 30, r0 * 15 + 30, data[i]);
+      this.addCircle(parent,
+        offsetX + 30, offsetY + r0 * 15 + 30, data[i]);
       ++i;
     }
     return 60;
@@ -188,24 +190,20 @@ class SvgContext {
 
   renderModel(model) {
     this.clear();
-    let x = 0;
-    let lastName = "";
     let g;
     let offsetX = 0;
-    let offsetY = 0;
-    let totalWidth = 0;
+    let offsetY = 80;
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.wire.addTo(g);
 
     for (let l of model.layers) {
       console.log("Layer: " + l.name);
-      offsetY += totalWidth;
       for (let w of l.weights) {
         let width = this.renderWeights(g, w, offsetX, offsetY);
         offsetX += width;
-        totalWidth += width;
       }
+      offsetX += 50;
     }
   }
 }
@@ -252,7 +250,7 @@ function setup() {
   let l;
   let r;
   [l, r] = buildEntryMap();
- 
+
   let svg = document.createElementNS(
     "http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
