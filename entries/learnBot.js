@@ -3,7 +3,7 @@ class LearnBot {
     this.brain = new Brain("LearnBot");
 
     let body = document.getElementById('body');
-    body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
+    // body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
     this.learning = !!alwaysLearning;
     this.alwaysLearning = !!alwaysLearning;
     this.referenceBot = referenceBot || new CircleBot();
