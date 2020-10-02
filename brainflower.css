@@ -38,3 +38,8 @@ th, td {
  border: solid darkslategray 0.5px;
  text-align: center;
 }
+
+svg {
+  background: white;
+  border: solid 8px lightgreen;
+}
