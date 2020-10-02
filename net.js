@@ -134,7 +134,7 @@ class SvgContext {
   addTestPoint(parent, x, y) {
     let d = this.diamond(parent, x, y);
     d.addEventListener("mouseover", function () {
-      this.wire.setDestination(x, y);
+      this.wire.setDestination(x + 5, y);
     }.bind(this));
   }
 
@@ -152,7 +152,7 @@ class SvgContext {
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15 + 30, data[i]);
+        offsetX + 30, offsetY + r0 * 15, data[i]);
       ++i;
     }
     return 60;
@@ -167,7 +167,8 @@ class SvgContext {
     this.fill = "#fff";
     // Inputs
     for (let i = 0; i < shape[0]; ++i) {
-      this.addTestPoint(parent, offsetX + i * 15 + 30, offsetY + 0);
+      this.addTestPoint(parent, offsetX + i * 15 + 30, 
+        offsetY + shape[1] * 15 + 15);
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
         offsetX + i * 15 + 30, offsetY + shape[1] * 15 + 15);
@@ -177,24 +178,25 @@ class SvgContext {
     for (let i = 0; i < shape[1]; ++i) {
       let j = (shape[1] - i - 1)
       let x0 = offsetX + 30;
-      let y0 = offsetY + i * 15 + 30;
+      let y0 = offsetY + i * 15;
       let x1 = offsetX + shape[0] * 15 + 50;
-      let y1 = offsetY + i * 15 + 30;
-      let x2 = x1 + 95 + (j * 15);
-      let y2 = offsetY;
+      let y1 = offsetY + i * 15;
+      let x2 = x1 + 95 + (i * 15);
+      let y2 = offsetY + 30;
       this.line(parent, x0, y0, x1, y1);
       this.path(parent, x1, y1, x1 + 40, y1, 
-        x2, y2 - 50 - j * 20, x2, y2);
+        x2, y2 + 50 + i * 20, x2, y2);
       // this.path(parent,)
     }
 
+    // Weights;
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
         let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
-          offsetY + r1 * 15 + 30, data[i]);
+          offsetY + r1 * 15, data[i]);
         ++i;
       }
     }
