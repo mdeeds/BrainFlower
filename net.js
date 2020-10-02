@@ -1,10 +1,48 @@
 const kLayerSpacing = 250;
 const kRoot2 = Math.sqrt(2);
 
+class Wire {
+  /**
+   * 
+   * @param {number} destinationX 
+   * @param {number} destinationY 
+   */
+  constructor(destinationX, destinationY) {
+    this.x0 = destinationX;
+    this.y0 = destinationY;
+    this.paths = [];
+    for (let i = 0; i < 2; ++i) {
+      let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      p.setAttribute("fill", "none");
+      p.setAttribute("stroke-width", 4);
+      this.paths.push(p);
+    }
+    this.paths[0].setAttribute("stroke", "green");
+    this.paths[1].setAttribute("stroke-dasharray", "4 7");
+    this.paths[1].setAttribute("stroke", "LightGreen");
+  }
+
+  addTo(parent) {
+    for (let p of this.paths) {
+      parent.appendChild(p);
+    }
+  }
+
+  setDestination(x, y) {
+    for (let p of this.paths) {
+    p.setAttribute("d", "M " + this.x0 + " " + this.y0
+      + " C " + this.x0 + " " + (this.y0 + 100)
+      + " " + x + " " + (y + 100)
+      + " " + x + " " + y);
+    }
+  }
+}
+
 class SvgContext {
   constructor(svg) {
     this.svg = svg;
     this.clear();
+    this.wire = new Wire(0,0);
   }
 
   clear() {
@@ -44,6 +82,17 @@ class SvgContext {
     return c;
   }
 
+  diamond(parent, x, y) {
+    let p = document.createElementNS(
+      "http://www.w3.org/2000/svg", "path");
+    p.setAttribute('d', "M " + x + " " + y
+      + " l 6 6 l 6 -6 l -6 -6 l -6 6");
+    p.setAttribute('stroke', this.stroke);
+    p.setAttribute('fill', this.fill);
+    parent.appendChild(p);
+    return p;
+  }
+
   setFillForWeight(weight) {
     if (weight > 1.0) {
       this.fill = "#000";
@@ -69,11 +118,19 @@ class SvgContext {
     }.bind(this, weight));
   }
 
+  addTestPoint(parent, x, y) {
+    let d = this.diamond(parent, x, y);
+    d.addEventListener("mouseover", function () {
+      this.wire.setDestination(x, y);
+    }.bind(this));
+  }
+
   renderWeights1(parent, weights, offsetX) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
 
     this.stroke = "#000";
+    // Input
     this.line(parent, offsetX + 30, 0,
       offsetX + 30, shape[0] * 15 + 15);
 
@@ -92,14 +149,18 @@ class SvgContext {
     console.log(shape);
 
     this.stroke = "#000";
+    this.fill = "#fff";
+    // Inputs
     for (let i = 0; i < shape[0]; ++i) {
-      this.line(parent, 
+      this.addTestPoint(parent, offsetX + i * 15 + 30, offsetY + 0);
+      this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
         offsetX + i * 15 + 30, offsetY + shape[1] * 15 + 15);
     }
 
+    // Outputs
     for (let i = 0; i < shape[1]; ++i) {
-      this.line(parent, 
+      this.line(parent,
         offsetX + 30, offsetY + i * 15 + 30,
         offsetX + shape[0] * 15 + 60, offsetY + i * 15 + 30);
     }
@@ -108,8 +169,8 @@ class SvgContext {
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
         let r1 = shape[1] - d1 - 1;
-        this.addCircle(parent, 
-          offsetX + d0 * 15 + 30, 
+        this.addCircle(parent,
+          offsetX + d0 * 15 + 30,
           offsetY + r1 * 15 + 30, data[i]);
         ++i;
       }
@@ -134,9 +195,9 @@ class SvgContext {
     let offsetY = 0;
     let totalWidth = 0;
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    g.setAttribute("transform",
-      "translate(" + x + " 200)" + "rotate(-45 0 0) ");
     this.svg.appendChild(g);
+    this.wire.addTo(g);
+
     for (let l of model.layers) {
       console.log("Layer: " + l.name);
       offsetY += totalWidth;
@@ -154,6 +215,7 @@ var ctx;
 var repeatBox;
 var referenceSelector;
 var opponentSelector;
+var match;
 
 function show() {
   let model = botUnderTest.getModel();
@@ -162,9 +224,9 @@ function show() {
 
 function collect() {
   show();
-  botUnderTest.setReference(referenceSelector.value);
+  botUnderTest.setReference(match.getEntry(0));
   for (let i = 0; i < repeatBox.value(); ++i) {
-    setupGame(botUnderTest, opponentSelector.value);
+    setupGame(botUnderTest, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
       runFrame();
     }
@@ -187,7 +249,10 @@ function train() {
 
 function setup() {
   let body = document.getElementById("body");
-
+  let l;
+  let r;
+  [l, r] = buildEntryMap();
+ 
   let svg = document.createElementNS(
     "http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -198,7 +263,7 @@ function setup() {
 
   ctx = new SvgContext(svg);
 
-  botUnderTest = new LearnBot(new MattBot(), true, true);
+  botUnderTest = new LearnBot(match.getEntry(0), true, true);
 
   let modelNameBox = document.createElement("div");
   modelNameBox.innerText = botUnderTest.brain.name;
@@ -234,21 +299,10 @@ function setup() {
     button.mousePressed(train);
   }
   repeatBox = createSelect();
-  repeatBox.size(60,30);
+  repeatBox.size(60, 30);
   repeatBox.option("1x", 1);
   repeatBox.option("10x", 10);
   repeatBox.option("100x", 100);
-
-  [referenceSelector, opponentSelector] = buildEntryMap();
-
-  let learnFromDiv = document.createElement("div");
-  learnFromDiv.innerText = "Learn from: ";
-  learnFromDiv.appendChild(referenceSelector.elt);
-  body.appendChild(learnFromDiv);
-  let opponentDiv = document.createElement("div");
-  opponentDiv.innerText = "Opponent: ";
-  opponentDiv.appendChild(opponentSelector.elt);
-  body.appendChild(opponentDiv);
 }
 
 function draw() {
