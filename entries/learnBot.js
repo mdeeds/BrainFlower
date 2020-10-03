@@ -84,7 +84,7 @@ class LearnBot {
   }
   reset() {
     this.brain.reset();
-    this.observedInputs = null;
-    this.observedOutputs = null;
+    this.observedInputs = [];
+    this.observedOutputs = [];
   }
 };
