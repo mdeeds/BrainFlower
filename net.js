@@ -336,6 +336,10 @@ function train() {
   });
 }
 
+function resetBrain() {
+  botUnderTest.brain.reset();
+}
+
 function setup() {
   let body = document.getElementById("body");
   let l;
@@ -392,6 +396,11 @@ function setup() {
   repeatBox.option("1x", 1);
   repeatBox.option("10x", 10);
   repeatBox.option("100x", 100);
+  {
+    let button = createButton("Reset");
+    button.size(60, 30);
+    button.mousePressed(resetBrain);
+  }
 }
 
 function draw() {
