@@ -20,6 +20,9 @@ class Wire {
     this.paths[0].setAttribute("stroke", "green");
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", "LightGreen");
+    this.dragging = false;
+    this.paths[1].addEventListener("mousedown",
+      this.handleMouseDown.bind(this));
   }
 
   addTo(parent) {
@@ -36,6 +39,46 @@ class Wire {
         + " " + x + " " + y);
     }
   }
+
+  handleDrag() {
+    if (this.dragging) {
+      this.setDestination(ctx.mouseX, ctx.mouseY);
+      setTimeout(this.handleDrag.bind(this), 5);
+    }
+  }
+
+  handleMouseDown(e) {
+    this.dragging = true;
+    setTimeout(this.handleDrag.bind(this));
+  }
+}
+
+class Oscope {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.body = document.createElementNS(
+      "http://www.w3.org/2000/svg", "rect");
+    this.body.setAttribute("x", this.x);
+    this.body.setAttribute("y", this.y);
+    this.body.setAttribute("width", 150);
+    this.body.setAttribute("height", 180);
+    this.body.setAttribute("fill", "PapayaWhip");
+    this.body.setAttribute("stroke", "brown");
+    this.body.setAttribute("stroke-width", 9);
+
+    this.xWire = new Wire(this.x + 50, this.y + 150);
+    this.xWire.setDestination(this.x + 50, this.y + 150);
+    this.yWire = new Wire(this.x + 100, this.y + 150);
+    this.yWire.setDestination(this.x + 100, this.y + 150);
+  }
+
+  addTo(parent) {
+    parent.appendChild(this.body);
+    this.xWire.addTo(parent);
+    this.yWire.addTo(parent);
+  }
+
 }
 
 class SvgContext {
@@ -43,6 +86,14 @@ class SvgContext {
     this.svg = svg;
     this.clear();
     this.wire = new Wire(0, 0);
+    this.oscope = new Oscope(610, 20);
+    this.mouseX = 0;
+    this.mouseY = 0;
+    svg.addEventListener("mouseover",
+      function (e) {
+        this.mouseX = e.offsetX;
+        this.mouseY = e.offsetY;
+      }.bind(this));
   }
 
   clear() {
@@ -71,7 +122,7 @@ class SvgContext {
   path(parent, x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
     let p = document.createElementNS(
       "http://www.w3.org/2000/svg", "path");
-    p.setAttribute('d', 
+    p.setAttribute('d',
       "M " + x1 + " " + y1 +
       "C " + cx1 + " " + cy1 +
       " " + cx2 + " " + cy2 +
@@ -167,7 +218,7 @@ class SvgContext {
     this.fill = "#fff";
     // Inputs
     for (let i = 0; i < shape[0]; ++i) {
-      this.addTestPoint(parent, offsetX + i * 15 + 30, 
+      this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
@@ -184,7 +235,7 @@ class SvgContext {
       let x2 = x1 + 95 + (i * 15);
       let y2 = offsetY + 30;
       this.line(parent, x0, y0, x1, y1);
-      this.path(parent, x1, y1, x1 + 40, y1, 
+      this.path(parent, x1, y1, x1 + 40, y1,
         x2, y2 + 50 + i * 20, x2, y2);
       // this.path(parent,)
     }
@@ -219,6 +270,7 @@ class SvgContext {
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.wire.addTo(g);
+    this.oscope.addTo(g);
 
     for (let l of model.layers) {
       console.log("Layer: " + l.name);
