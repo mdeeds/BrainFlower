@@ -220,6 +220,8 @@ function setupGame(left, right) {
 
 /**
  * Runs the robots and physics simulation without any draw operations.
+ * TODO: reutrn the sensor state for two robots and
+ * the outputs from both robots.
  */
 function runFrame() {
   if (Math.random() < 0.005) {
@@ -228,8 +230,10 @@ function runFrame() {
   for (let i of [0, 1]) {
     let rc = robotContainers[i];
     let otherRobot = robotContainers[i ^ 1];
+    // TODO: Grab this
     let s = generateSenses(rc, otherRobot);
     let startTime = window.performance.now();
+    // TODO: Grab this too
     let turn = rc.robot.run(s);
     rc.elapsed += window.performance.now() - startTime;
     turn = Math.max(-1, Math.min(1.0, turn));

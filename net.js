@@ -25,6 +25,10 @@ class Wire {
       this.handleMouseDown.bind(this));
   }
 
+  addDragHandlers(elemnt) {
+    Element.addEventListener()
+  }
+
   addTo(parent) {
     for (let p of this.paths) {
       parent.appendChild(p);
@@ -61,16 +65,16 @@ class Oscope {
       "http://www.w3.org/2000/svg", "rect");
     this.body.setAttribute("x", this.x);
     this.body.setAttribute("y", this.y);
-    this.body.setAttribute("width", 150);
-    this.body.setAttribute("height", 180);
+    this.body.setAttribute("width", 220);
+    this.body.setAttribute("height", 350);
     this.body.setAttribute("fill", "PapayaWhip");
     this.body.setAttribute("stroke", "brown");
     this.body.setAttribute("stroke-width", 9);
 
-    this.xWire = new Wire(this.x + 50, this.y + 150);
-    this.xWire.setDestination(this.x + 50, this.y + 150);
-    this.yWire = new Wire(this.x + 100, this.y + 150);
-    this.yWire.setDestination(this.x + 100, this.y + 150);
+    this.xWire = new Wire(this.x + 25, this.y + 150);
+    this.xWire.setDestination(this.x + 50, this.y + 200);
+    this.yWire = new Wire(this.x + 25, this.y + 250);
+    this.yWire.setDestination(this.x + 100, this.y + 250);
   }
 
   addTo(parent) {
@@ -86,7 +90,7 @@ class SvgContext {
     this.svg = svg;
     this.clear();
     this.wire = new Wire(0, 0);
-    this.oscope = new Oscope(610, 20);
+    this.oscope = new Oscope(600, 20);
     this.mouseX = 0;
     this.mouseY = 0;
     svg.addEventListener("mouseover",
@@ -103,8 +107,16 @@ class SvgContext {
     this.weightBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
     this.weightBox.setAttribute("x", 0);
     this.weightBox.setAttribute("y", 50);
-    this.weightBox.innerHTML = "w";
+    this.weightBox.innerHTML = "";
     this.svg.appendChild(this.weightBox);
+    let bg = document.createElementNS(
+      "http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", 0);
+    bg.setAttribute("y", 0);
+    bg.setAttribute("width", 800);
+    bg.setAttribute("height", 400);
+    bg.setAttribute("fill", "Honeydew")
+    this.svg.appendChild(bg);
   }
 
   line(parent, x1, y1, x2, y2) {
@@ -266,7 +278,7 @@ class SvgContext {
     this.clear();
     let g;
     let offsetX = 0;
-    let offsetY = 80;
+    let offsetY = 220;
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.wire.addTo(g);
@@ -301,13 +313,17 @@ function collect() {
   for (let i = 0; i < repeatBox.value(); ++i) {
     setupGame(botUnderTest, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
+      // TODO: Get the data from the frame and store it
       runFrame();
     }
+    // TODO: determine win, and store appropriately
   }
 }
 
 function train() {
   show();
+  // TODO: Use the values that we stored in colect,
+  // Don't get them from botUnderTest.
   let ioExamples = botUnderTest.getExamples();
   let input = ioExamples[0];
   let output = ioExamples[1];
