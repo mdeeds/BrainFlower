@@ -1,3 +1,93 @@
+class BrainSpec {
+  /**
+   * Creates a brain specification from options
+   *   layers - an array of integers the sizes of  the layers.
+   *   activations - array of strings: activation functions for each layer
+   *     plus one activation for the output layer.
+   *   optimizer - name of the optimizer: 'sgd' or 'adam'
+   *   simplify - boolean : activates model regularization.
+   *   
+   * @param {Object} options 
+   */
+  constructor(options) {
+    options ||= {};
+    this.options = options;
+    if (!("layers" in options)) {
+      options.layers = [4];
+    }
+    if (!("activations" in options)) {
+      options.activations ||= ["tanh", "linear"];
+    }
+    if (!("optimizer" in options)) {
+      options.optimizer || "adam";
+    }
+  }
+
+  /**
+   * Creates a model from the BrainSpec.
+   */
+  createModel() {
+    log.assert(
+      this.options.layers.length + 1 == this.options.activation.length);
+    let newModel = tf.tidy(() => {
+      const input = tf.input({ shape: [kInputSize] });
+      let previousLayerSize = kInputSize;
+      let layerIndex = 0;
+      let previousLayer = input;
+      for (let layerSize of this.options.layers) {
+        let layerOptions = {
+          inputShape: [previousLayerSize],
+          units: layerSize,
+          activation: this.options.activation[layerIndex],
+        }
+        if (this.options.simplify) {
+          layerOptions.kernelRegularizer = 'l1l2';
+        }
+        const layer = tf.layers.dense(layerOptions);
+        previousLayer.apply(layer);
+        previousLayer = layer;
+      }
+      let outputOptions = {
+        units: kOutputSize,
+        activation: this.options.activations[
+          this.options.activations.length - 1],
+      }
+      if (this.options.simplify) {
+        outputOptions.kernelRegularizer = 'l1l2';
+      }
+      const outputLayer = tf.layers.dense(outputOptions);
+      const output = outputLayer.apply(previousLayer);
+      this.model = tf.model({ inputs: input, outputs: output });
+    });
+    return newModel;
+  }
+
+  /**
+   * Copies weights from `modelIn` into `modelOut` if they are the same
+   * shape. 
+   */
+  copyWeights(modelIn, modelOut) {
+    // TODO
+  }
+
+  /**
+   * Compiles the model with the optimizer from the specification.
+   * @param {tf.Model} model 
+   */
+  compile(model) {
+    let compileOptions = {
+      loss: 'meanSquaredError'
+    };
+    if (this.options.optimizer == "adam") {
+      compileOptions.optimizer = tf.train.adam();
+    } else {
+      compileOptions.optimizer = this.options.optimizer;
+    }
+    model.compile(compileOptions);
+  }
+
+}
+
 class Brain {
   /**
    * 
@@ -14,6 +104,8 @@ class Brain {
   }
 
   async loadOrCreate(modelName) {
+    const brainSpec = new BrainSpec();
+
     let name = modelName || this.name;
     try {
       this.model = await tf.loadLayersModel('indexeddb://' + name);
