@@ -267,6 +267,7 @@ function train() {
 }
 
 function resetBrain() {
+  botUnderTest.brain.reset();
 }
 
 function setup() {

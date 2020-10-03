@@ -23,27 +23,39 @@ class Brain {
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
-
-      const input = tf.input({ shape: [kInputSize] });
-      const firstLayer = tf.layers.dense({
-        inputShape: [kInputSize], units: 4, activation: 'tanh',
-        kernelRegularizer: 'l1l2',
-      });
-      const secondLayer = tf.layers.dense({
-        units: kOutputSize, activation: 'linear', kernelRegularizer: 'l1l2',
-      })
-      const output = secondLayer.apply(firstLayer.apply(input));
-
-      this.model = tf.model({ inputs: input, outputs: output });
-
-      this.dirty = true;
-      console.log("New model created.");
+      this.createModel();
     }
+    this.compileModel();
+  }
+
+  compileModel() {
     this.model.compile({
       //optimizer: 'sgd',
       optimizer: tf.train.adam(),
       loss: 'meanSquaredError'
     });
+  }
+
+  createModel(e) {
+    const input= tf.input({ shape: [kInputSize] });
+    const firstLayer = tf.layers.dense({
+      inputShape: [kInputSize], units: 4, activation: 'tanh',
+      kernelRegularizer: 'l1l2',
+    });
+    const secondLayer = tf.layers.dense({
+      units: kOutputSize, activation: 'linear', kernelRegularizer: 'l1l2',
+    });
+    const output = secondLayer.apply(firstLayer.apply(input));
+
+    this.model = tf.model({ inputs: input, outputs: output });
+
+    this.dirty = true;
+    console.log("New model created.");
+  }
+
+  reset() {
+    this.createModel();
+    this.compileModel();
   }
 
   saveTimeout() {
@@ -60,6 +72,9 @@ class Brain {
         console.log("Saving model.");
       });
     }
+  }
+  resetModel123() {
+    this.model.res
   }
 
   /**
