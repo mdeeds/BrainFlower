@@ -20,6 +20,13 @@ class Wire {
     this.paths[0].setAttribute("stroke", "green");
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", "LightGreen");
+    this.dragging = false;
+    this.paths[1].addEventListener("mousedown",
+      this.handleMouseDown.bind(this));
+  }
+
+  addDragHandlers(elemnt) {
+    Element.addEventListener()
   }
 
   addTo(parent) {
@@ -36,6 +43,46 @@ class Wire {
         + " " + x + " " + y);
     }
   }
+
+  handleDrag() {
+    if (this.dragging) {
+      this.setDestination(ctx.mouseX, ctx.mouseY);
+      setTimeout(this.handleDrag.bind(this), 5);
+    }
+  }
+
+  handleMouseDown(e) {
+    this.dragging = true;
+    setTimeout(this.handleDrag.bind(this));
+  }
+}
+
+class Oscope {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.body = document.createElementNS(
+      "http://www.w3.org/2000/svg", "rect");
+    this.body.setAttribute("x", this.x);
+    this.body.setAttribute("y", this.y);
+    this.body.setAttribute("width", 220);
+    this.body.setAttribute("height", 350);
+    this.body.setAttribute("fill", "PapayaWhip");
+    this.body.setAttribute("stroke", "brown");
+    this.body.setAttribute("stroke-width", 9);
+
+    this.xWire = new Wire(this.x + 25, this.y + 150);
+    this.xWire.setDestination(this.x + 50, this.y + 200);
+    this.yWire = new Wire(this.x + 25, this.y + 250);
+    this.yWire.setDestination(this.x + 100, this.y + 250);
+  }
+
+  addTo(parent) {
+    parent.appendChild(this.body);
+    this.xWire.addTo(parent);
+    this.yWire.addTo(parent);
+  }
+
 }
 
 class SvgContext {
@@ -43,6 +90,14 @@ class SvgContext {
     this.svg = svg;
     this.clear();
     this.wire = new Wire(0, 0);
+    this.oscope = new Oscope(600, 20);
+    this.mouseX = 0;
+    this.mouseY = 0;
+    svg.addEventListener("mouseover",
+      function (e) {
+        this.mouseX = e.offsetX;
+        this.mouseY = e.offsetY;
+      }.bind(this));
   }
 
   clear() {
@@ -52,8 +107,16 @@ class SvgContext {
     this.weightBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
     this.weightBox.setAttribute("x", 0);
     this.weightBox.setAttribute("y", 50);
-    this.weightBox.innerHTML = "w";
+    this.weightBox.innerHTML = "";
     this.svg.appendChild(this.weightBox);
+    let bg = document.createElementNS(
+      "http://www.w3.org/2000/svg", "rect");
+    bg.setAttribute("x", 0);
+    bg.setAttribute("y", 0);
+    bg.setAttribute("width", 800);
+    bg.setAttribute("height", 400);
+    bg.setAttribute("fill", "Honeydew")
+    this.svg.appendChild(bg);
   }
 
   line(parent, x1, y1, x2, y2) {
@@ -71,7 +134,7 @@ class SvgContext {
   path(parent, x1, y1, cx1, cy1, cx2, cy2, x2, y2) {
     let p = document.createElementNS(
       "http://www.w3.org/2000/svg", "path");
-    p.setAttribute('d', 
+    p.setAttribute('d',
       "M " + x1 + " " + y1 +
       "C " + cx1 + " " + cy1 +
       " " + cx2 + " " + cy2 +
@@ -134,7 +197,7 @@ class SvgContext {
   addTestPoint(parent, x, y) {
     let d = this.diamond(parent, x, y);
     d.addEventListener("mouseover", function () {
-      this.wire.setDestination(x, y);
+      this.wire.setDestination(x + 5, y);
     }.bind(this));
   }
 
@@ -152,7 +215,7 @@ class SvgContext {
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15 + 30, data[i]);
+        offsetX + 30, offsetY + r0 * 15, data[i]);
       ++i;
     }
     return 60;
@@ -167,7 +230,8 @@ class SvgContext {
     this.fill = "#fff";
     // Inputs
     for (let i = 0; i < shape[0]; ++i) {
-      this.addTestPoint(parent, offsetX + i * 15 + 30, offsetY + 0);
+      this.addTestPoint(parent, offsetX + i * 15 + 30,
+        offsetY + shape[1] * 15 + 15);
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
         offsetX + i * 15 + 30, offsetY + shape[1] * 15 + 15);
@@ -177,24 +241,25 @@ class SvgContext {
     for (let i = 0; i < shape[1]; ++i) {
       let j = (shape[1] - i - 1)
       let x0 = offsetX + 30;
-      let y0 = offsetY + i * 15 + 30;
+      let y0 = offsetY + i * 15;
       let x1 = offsetX + shape[0] * 15 + 50;
-      let y1 = offsetY + i * 15 + 30;
-      let x2 = x1 + 95 + (j * 15);
-      let y2 = offsetY;
+      let y1 = offsetY + i * 15;
+      let x2 = x1 + 95 + (i * 15);
+      let y2 = offsetY + 30;
       this.line(parent, x0, y0, x1, y1);
-      this.path(parent, x1, y1, x1 + 40, y1, 
-        x2, y2 - 50 - j * 20, x2, y2);
+      this.path(parent, x1, y1, x1 + 40, y1,
+        x2, y2 + 50 + i * 20, x2, y2);
       // this.path(parent,)
     }
 
+    // Weights;
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
         let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
-          offsetY + r1 * 15 + 30, data[i]);
+          offsetY + r1 * 15, data[i]);
         ++i;
       }
     }
@@ -213,10 +278,11 @@ class SvgContext {
     this.clear();
     let g;
     let offsetX = 0;
-    let offsetY = 80;
+    let offsetY = 220;
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.wire.addTo(g);
+    this.oscope.addTo(g);
 
     for (let l of model.layers) {
       console.log("Layer: " + l.name);
@@ -232,8 +298,6 @@ class SvgContext {
 var botUnderTest;
 var ctx;
 var repeatBox;
-var referenceSelector;
-var opponentSelector;
 var match;
 
 function show() {
@@ -243,17 +307,23 @@ function show() {
 
 function collect() {
   show();
-  botUnderTest.setReference(match.getEntry(0));
+  let referenceBot = match.getEntry(0);
+  botUnderTest.setReference(referenceBot);
+  console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
     setupGame(botUnderTest, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
+      // TODO: Get the data from the frame and store it
       runFrame();
     }
+    // TODO: determine win, and store appropriately
   }
 }
 
 function train() {
   show();
+  // TODO: Use the values that we stored in colect,
+  // Don't get them from botUnderTest.
   let ioExamples = botUnderTest.getExamples();
   let input = ioExamples[0];
   let output = ioExamples[1];

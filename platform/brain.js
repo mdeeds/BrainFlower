@@ -11,8 +11,6 @@ class Brain {
     this.loadOrCreate().then(() => {
       this.saveTimeout();
     });
-    this.totalLoss = 0;
-    this.lossObservations = 0;
   }
 
   async loadOrCreate(modelName) {
@@ -59,8 +57,6 @@ class Brain {
   }
 
   saveTimeout() {
-    console.log("Mean loss: " +
-      (this.totalLoss / this.lossObservations));
     this.maybeSave();
     setTimeout(Brain.prototype.saveTimeout.bind(this), 1000);
   }
@@ -109,8 +105,6 @@ class Brain {
     const xs = tf.tensor2d([x], [1, x.length]);
     let result =
       await this.model.fit(xs, ys, { epochs: 1 });
-    this.totalLoss += result.history.loss[0];
-    ++this.lossObservations;
     this.dirty = true;
   }
 }
