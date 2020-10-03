@@ -82,4 +82,9 @@ class LearnBot {
       return this.brain.infer(input)[0];
     }
   }
+  reset() {
+    this.brain.reset();
+    this.observedInputs = [];
+    this.observedOutputs = [];
+  }
 };

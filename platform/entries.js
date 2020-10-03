@@ -84,7 +84,7 @@ class Match {
    * @param {Event} e 
    */
   handleChange(e) {
-    console.log("Change");
+    console.log("Changed to " + this.leftEntryChoice.value() + " and " +this.rightEntryChoice.value());
     if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
       console.log("Same");
       if (this.leftEntryChoice.elt == e.target) {
