@@ -333,6 +333,7 @@ function collect() {
       let frameState = runFrame();
       trainingData.push(new TrainingExample(frameState));
     }
+    counters.increment("Games collected");
     // TODO: determine win, and store appropriately
   }
   show();
@@ -362,7 +363,8 @@ function train() {
   let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
   let weightTensor = tf.tensor1d(weights, 'float32');
   let model = botUnderTest.getModel();
-  console.log("Staring train: " + input.shape);
+  console.log("Staring train");
+  counters.incrementBy("Train games", input.length / kFramesPerRound);
   model.fit(inputTensor, outputTensor,
     {
       epochs: repeatBox.value(),
@@ -371,7 +373,7 @@ function train() {
     })
     .then(() => {
       trainingDiv.remove();
-      console.log("Done training: " + input.shape);
+      console.log("Done training");
       botUnderTest.brain.setDirty();
       show();
     });
@@ -380,6 +382,38 @@ function train() {
 function resetBrain() {
   botUnderTest.brain.reset();
   show();
+}
+
+var counters;
+
+class CounterSet {
+  constructor() {
+    this.map = new Map();
+    this.div = document.createElement("div");
+  }
+  addTo(parent) {
+    parent.appendChild(this.div);
+    this.render();
+  }
+  incrementBy(counter, step) {
+    if (this.map.has(counter)) {
+      this.map.set(counter, this.map.get(counter) + step);
+    } else {
+      this.map.set(counter, step);
+    }
+    this.render();
+  }
+  increment(counter) {
+    this.incrementBy(counter, 1);
+  }
+  render() {
+    this.div.innerHTML = "";
+    for (let k of this.map.keys()) {
+      let d = document.createElement("div");
+      d.innerText = k + ": " + this.map.get(k);
+      this.div.appendChild(d);
+    }
+  }
 }
 
 function setup() {
@@ -456,6 +490,8 @@ function setup() {
     button.size(60, 30);
     button.mousePressed(resetBrain);
   }
+  counters = new CounterSet();
+  counters.addTo(body);
 }
 
 function draw() {
