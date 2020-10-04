@@ -135,7 +135,7 @@ class Brain {
   }
 
   reset() {
-    this.createModel();
+    this.model = this.createModel();
     this.compileModel();
   }
 
