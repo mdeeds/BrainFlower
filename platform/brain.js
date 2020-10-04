@@ -19,16 +19,20 @@ class BrainSpec {
       options.activations ||= ["tanh", "linear"];
     }
     if (!("optimizer" in options)) {
-      options.optimizer || "adam";
+      options.optimizer ||= "adam";
+    }
+    if (!("simplify" in options)) {
+      options.simplify = true;
     }
   }
 
   /**
    * Creates a model from the BrainSpec.
+   * @returns {tf.Model} - a new model created from the spec.
    */
   createModel() {
-    log.assert(
-      this.options.layers.length + 1 == this.options.activation.length);
+    console.assert(
+      this.options.layers.length + 1 == this.options.activations.length);
     let newModel = tf.tidy(() => {
       const input = tf.input({ shape: [kInputSize] });
       let previousLayerSize = kInputSize;
@@ -38,14 +42,14 @@ class BrainSpec {
         let layerOptions = {
           inputShape: [previousLayerSize],
           units: layerSize,
-          activation: this.options.activation[layerIndex],
+          activation: this.options.activations[layerIndex],
         }
         if (this.options.simplify) {
           layerOptions.kernelRegularizer = 'l1l2';
         }
+        console.log("New layer: " + JSON.stringify(layerOptions));
         const layer = tf.layers.dense(layerOptions);
-        previousLayer.apply(layer);
-        previousLayer = layer;
+        previousLayer = layer.apply(previousLayer);
       }
       let outputOptions = {
         units: kOutputSize,
@@ -55,9 +59,11 @@ class BrainSpec {
       if (this.options.simplify) {
         outputOptions.kernelRegularizer = 'l1l2';
       }
+      console.log("Output: " + JSON.stringify(outputOptions));
       const outputLayer = tf.layers.dense(outputOptions);
       const output = outputLayer.apply(previousLayer);
-      this.model = tf.model({ inputs: input, outputs: output });
+      let model = tf.model({ inputs: input, outputs: output });
+      return model;
     });
     return newModel;
   }
@@ -85,7 +91,6 @@ class BrainSpec {
     }
     model.compile(compileOptions);
   }
-
 }
 
 class Brain {
@@ -101,11 +106,10 @@ class Brain {
     this.loadOrCreate().then(() => {
       this.saveTimeout();
     });
+    this.brainSpec = new BrainSpec();
   }
 
   async loadOrCreate(modelName) {
-    const brainSpec = new BrainSpec();
-
     let name = modelName || this.name;
     try {
       this.model = await tf.loadLayersModel('indexeddb://' + name);
@@ -113,34 +117,21 @@ class Brain {
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
-      this.createModel();
+      this.model = this.createModel();
     }
     this.compileModel();
   }
 
   compileModel() {
-    this.model.compile({
-      //optimizer: 'sgd',
-      optimizer: tf.train.adam(),
-      loss: 'meanSquaredError'
-    });
+    this.brainSpec.compile(this.model);
   }
 
   createModel(e) {
-    const input= tf.input({ shape: [kInputSize] });
-    const firstLayer = tf.layers.dense({
-      inputShape: [kInputSize], units: 4, activation: 'tanh',
-      kernelRegularizer: 'l1l2',
-    });
-    const secondLayer = tf.layers.dense({
-      units: kOutputSize, activation: 'linear', kernelRegularizer: 'l1l2',
-    });
-    const output = secondLayer.apply(firstLayer.apply(input));
-
-    this.model = tf.model({ inputs: input, outputs: output });
-
+    const input = tf.input({ shape: [kInputSize] });
+    let model = this.brainSpec.createModel();
     this.dirty = true;
     console.log("New model created.");
+    return model;
   }
 
   reset() {
