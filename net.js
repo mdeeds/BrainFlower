@@ -331,7 +331,7 @@ function train() {
   console.log("Staring train: " + input.shape);
   model.fit(input, output, { epochs: repeatBox.value() }).then(() => {
     console.log("Done training: " + input.shape);
-    botUnderTest.brain.dirty = true;
+    botUnderTest.brain.setDirty();
     show();
   });
 }
@@ -343,7 +343,7 @@ function resetBrain() {
 
 function setup() {
   let body = document.getElementById("body");
-  
+
   let l;
   let r;
   [l, r] = buildEntryMap();

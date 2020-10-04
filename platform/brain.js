@@ -103,10 +103,9 @@ class Brain {
   constructor(name) {
     console.log("New Brain.");
     this.name = name;
-    this.loadOrCreate().then(() => {
-      this.saveTimeout();
-    });
+    this.loadOrCreate();
     this.brainSpec = new BrainSpec();
+    this.lastSave = 0;
   }
 
   async loadOrCreate(modelName) {
@@ -129,7 +128,7 @@ class Brain {
   createModel(e) {
     const input = tf.input({ shape: [kInputSize] });
     let model = this.brainSpec.createModel();
-    this.dirty = true;
+    this.setDirty();
     console.log("New model created.");
     return model;
   }
@@ -137,23 +136,31 @@ class Brain {
   reset() {
     this.model = this.createModel();
     this.compileModel();
-    this.dirty = true;
+    this.setDirty();
   }
 
-  saveTimeout() {
-    this.maybeSave();
-    setTimeout(Brain.prototype.saveTimeout.bind(this), 1000);
+  setDirty() {
+    this.dirty = true;
+    if (window.performance.now() - this.lastSave > 1000) {
+      console.log("Immediate save.");
+      this.maybeSave();
+      this.lastSave = window.performance.now();
+    } else {
+      console.log("Postponing save.");
+      setTimeout(Brain.prototype.maybeSave.bind(this), 1000);
+    }
   }
 
   maybeSave() {
     if (this.dirty) {
       this.model.save('indexeddb://' + this.name).then(() => {
         this.dirty = false;
-        console.log("Saving model.");
+        this.lastSave = window.performance.now();
+        console.log("Model saved.");
       });
     }
   }
-  
+
   /**
    * 
    * @param {number[]} x
@@ -186,6 +193,6 @@ class Brain {
     const xs = tf.tensor2d([x], [1, x.length]);
     let result =
       await this.model.fit(xs, ys, { epochs: 1 });
-    this.dirty = true;
+    this.setDirty();
   }
 }
