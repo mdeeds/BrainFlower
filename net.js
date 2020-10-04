@@ -257,7 +257,7 @@ class SvgContext {
         let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
-          offsetY + r1 * 15, data[i]);
+          offsetY + d1 * 15, data[i]);
         ++i;
       }
     }
@@ -283,7 +283,10 @@ class SvgContext {
     this.oscope.addTo(g);
 
     for (let l of model.layers) {
-      console.log("Layer: " + l.name);
+      if (l.weights.length == 0) {
+        continue;
+      }
+      console.log("Layer: " + l.name + " +" + offsetX);
       for (let w of l.weights) {
         let width = this.renderWeights(g, w, offsetX, offsetY);
         offsetX += width;
@@ -355,7 +358,7 @@ function setup() {
   {
     let l;
     let r;
-    [l, r] = buildEntryMap();
+    [l, r] = buildEntryMap(["KeyBot", "LearnBot", "KeyBot2"]);
     let ldiv = document.createElement("div");
     ldiv.innerHTML = "Learn from: ";
     ldiv.appendChild(l.elt);

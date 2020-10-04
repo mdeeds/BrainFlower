@@ -10,7 +10,11 @@ function addEntry(robot) {
   entryMap.set(name, robot);
 }
 
-function buildEntryMap() {
+/**
+ * 
+ * @param {string[]} blockList 
+ */
+function buildEntryMap(blockList) {
   addEntry(new KeyBot());
   addEntry(new CircleBot());
   addEntry(new KeyBot2());
@@ -24,6 +28,9 @@ function buildEntryMap() {
   addEntry(new monsterbot());
   addEntry(new Mooo());
   addEntry(new Kili());
+  for (n of blockList) {
+    entryMap.delete(n);
+  }
   let leftEntryChoice = createSelect();
   let rightEntryChoice = createSelect();
   match = new Match(leftEntryChoice, rightEntryChoice);
