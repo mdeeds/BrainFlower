@@ -153,10 +153,7 @@ class Brain {
       });
     }
   }
-  resetModel123() {
-    this.model.res
-  }
-
+  
   /**
    * 
    * @param {number[]} x
