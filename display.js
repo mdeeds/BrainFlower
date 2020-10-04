@@ -14,6 +14,7 @@ function setup() {
   entries.push(new Kili());
   entries.push(new SteveBot());
   entries.push(new MattBot());
+  entries.push(new tinyBot());
 
   entries.push(new Mooo());
   let dt = 2 * Math.PI / entries.length;
