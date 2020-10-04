@@ -303,6 +303,15 @@ class SvgContext {
   }
 }
 
+class TrainingExample {
+  constructor(frameState) {
+    this.frameState = frameState;
+    // training.js:1190 Uncaught (in promise) Error: sample weight is not supported yet.
+    // SO SAD!
+    this.weight = 1.0;
+  }
+}
+
 var botUnderTest;
 var ctx;
 var repeatBox;
@@ -322,7 +331,7 @@ function collect() {
     setupGame(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
       let frameState = runFrame();
-      trainingData.push(frameState);
+      trainingData.push(new TrainingExample(frameState));
     }
     // TODO: determine win, and store appropriately
   }
@@ -336,20 +345,28 @@ function train() {
   // Don't get them from botUnderTest.
   let input = [];
   let output = [];
-  for (f of trainingData) {
-    input.push(f.leftSensorArray);
-    output.push([f.leftTurn]);
+  let weights = [];
+  for (ex of trainingData) {
+    input.push(ex.frameState.leftSensorArray);
+    output.push([ex.frameState.leftTurn]);
+    weights.push(ex.weight);
   }
   // TODO: Divide this into smaller batches and provide updates.
   let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
   let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
+  let weightTensor = tf.tensor1d(weights, 'float32');
   let model = botUnderTest.getModel();
   console.log("Staring train: " + input.shape);
-  model.fit(inputTensor, outputTensor, { epochs: repeatBox.value() }).then(() => {
-    console.log("Done training: " + input.shape);
-    botUnderTest.brain.setDirty();
-    show();
-  });
+  model.fit(inputTensor, outputTensor,
+    {
+      epochs: repeatBox.value(),
+      //sampleWeight: weightTensor
+    })
+    .then(() => {
+      console.log("Done training: " + input.shape);
+      botUnderTest.brain.setDirty();
+      show();
+    });
 }
 
 function resetBrain() {
