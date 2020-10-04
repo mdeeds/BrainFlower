@@ -64,7 +64,7 @@ class Oscope {
     this.y = y;
     this.body = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.body.setAttribute("transform", "translate(" + this.x + " " + this.y + ")");
-    
+
     let img = document.createElementNS("http://www.w3.org/2000/svg", "image");
     img.setAttribute("href", "img/oscope.png");
     this.body.appendChild(img);
@@ -348,11 +348,23 @@ function resetBrain() {
 }
 
 function setup() {
+  for (c of document.getElementsByTagName("canvas")) {
+    c.parentElement.removeChild(c);
+  }
   let body = document.getElementById("body");
-
-  let l;
-  let r;
-  [l, r] = buildEntryMap();
+  {
+    let l;
+    let r;
+    [l, r] = buildEntryMap();
+    let ldiv = document.createElement("div");
+    ldiv.innerHTML = "Learn from: ";
+    ldiv.appendChild(l.elt);
+    body.appendChild(ldiv);
+    let rdiv = document.createElement("div");
+    rdiv.innerHTML = "Play against: ";
+    rdiv.appendChild(r.elt);
+    body.appendChild(rdiv);
+  }
 
   let svg = document.createElementNS(
     "http://www.w3.org/2000/svg", "svg");
