@@ -334,8 +334,6 @@ function train() {
     botUnderTest.brain.dirty = true;
     show();
   });
-  show();
-  console.log("Done training.");
 }
 
 function resetBrain() {
@@ -345,6 +343,7 @@ function resetBrain() {
 
 function setup() {
   let body = document.getElementById("body");
+  
   let l;
   let r;
   [l, r] = buildEntryMap();
