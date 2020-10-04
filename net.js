@@ -102,11 +102,6 @@ class SvgContext {
     this.stroke = "black";
     this.fill = "white";
     this.svg.innerHTML = "";
-    this.weightBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    this.weightBox.setAttribute("x", 0);
-    this.weightBox.setAttribute("y", 50);
-    this.weightBox.innerHTML = "";
-    this.svg.appendChild(this.weightBox);
     let bg = document.createElementNS(
       "http://www.w3.org/2000/svg", "rect");
     bg.setAttribute("x", 0);
@@ -115,6 +110,11 @@ class SvgContext {
     bg.setAttribute("height", 500);
     bg.setAttribute("fill", "Honeydew")
     this.svg.appendChild(bg);
+    this.weightBox = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    this.weightBox.setAttribute("x", 0);
+    this.weightBox.setAttribute("y", 50);
+    this.weightBox.innerHTML = "";
+    this.svg.appendChild(this.weightBox);
   }
 
   line(parent, x1, y1, x2, y2) {
