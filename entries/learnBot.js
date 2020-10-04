@@ -18,18 +18,6 @@ class LearnBot {
     c.ellipse(60, 50, 80, 80);
   }
 
-  // /**
-  //  * @returns {Tensor[]} an array of two Tensors representing the 
-  //  * output from the reference robot.
-  //  */
-  // getExamples() {
-  //   let N = this.observedInputs.length;
-  //   console.assert(N == this.observedOutputs.length);
-  //   let inputTensor = tf.tensor2d(this.observedInputs, [N, kInputSize]);
-  //   let outputTensor = tf.tensor2d(this.observedOutputs, [N, kOutputSize]);
-  //   return [inputTensor, outputTensor];
-  // }
-
   /**
    * 
    * @returns {tf.Model} model 
