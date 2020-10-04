@@ -297,6 +297,7 @@ var botUnderTest;
 var ctx;
 var repeatBox;
 var match;
+var trainingData = [];
 
 function show() {
   let model = botUnderTest.getModel();
@@ -306,13 +307,12 @@ function show() {
 function collect() {
   show();
   let referenceBot = match.getEntry(0);
-  botUnderTest.setReference(referenceBot);
   console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
-    setupGame(botUnderTest, match.getEntry(1));
+    setupGame(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
-      // TODO: Get the data from the frame and store it
-      runFrame();
+      let frameState = runFrame();
+      trainingData.push(frameState);
     }
     // TODO: determine win, and store appropriately
   }
@@ -324,12 +324,18 @@ function train() {
   show();
   // TODO: Use the values that we stored in colect,
   // Don't get them from botUnderTest.
-  let ioExamples = botUnderTest.getExamples();
-  let input = ioExamples[0];
-  let output = ioExamples[1];
+  let input = [];
+  let output = [];
+  for (f of trainingData) {
+    input.push(f.leftSensorArray);
+    output.push([f.leftTurn]);
+  }
+  // TODO: Divide this into smaller batches and provide updates.
+  let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
+  let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
   let model = botUnderTest.getModel();
   console.log("Staring train: " + input.shape);
-  model.fit(input, output, { epochs: repeatBox.value() }).then(() => {
+  model.fit(inputTensor, outputTensor, { epochs: repeatBox.value() }).then(() => {
     console.log("Done training: " + input.shape);
     botUnderTest.brain.setDirty();
     show();
@@ -358,7 +364,7 @@ function setup() {
 
   ctx = new SvgContext(svg);
 
-  botUnderTest = new LearnBot(match.getEntry(0), true, true);
+  botUnderTest = new LearnBot(match.getEntry(0));
 
   let modelNameBox = document.createElement("div");
   modelNameBox.innerText = botUnderTest.brain.name;

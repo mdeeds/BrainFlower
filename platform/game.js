@@ -218,6 +218,15 @@ function setupGame(left, right) {
   return [leftContainer, rightContainer];
 }
 
+class FrameState {
+  constructor() {
+    this.leftSensorArray = [];
+    this.leftTurn = 0;
+    this.rightSensorArray = [];
+    this.rightTurn = 0;
+  }
+}
+
 /**
  * Runs the robots and physics simulation without any draw operations.
  * TODO: reutrn the sensor state for two robots and
@@ -227,14 +236,23 @@ function runFrame() {
   if (Math.random() < 0.005) {
     addRandomFlower();
   }
+  let frameState = new FrameState();
   for (let i of [0, 1]) {
     let rc = robotContainers[i];
     let otherRobot = robotContainers[i ^ 1];
-    // TODO: Grab this
     let s = generateSenses(rc, otherRobot);
+    if (i == 0) {
+      frameState.leftSensorArray = s.asArray();
+    } else {
+      frameState.rightSensorArray = s.asArray();
+    }
     let startTime = window.performance.now();
-    // TODO: Grab this too
     let turn = rc.robot.run(s);
+    if (i == 0) {
+      frameState.leftTurn = turn;
+    } else {
+      frameState.rightTurn = turn;
+    }
     rc.elapsed += window.performance.now() - startTime;
     turn = Math.max(-1, Math.min(1.0, turn));
     let forward = 1.0 - Math.abs(turn);
@@ -259,5 +277,6 @@ function runFrame() {
   for (let f of flowers) {
     checkFlower(f);
   }
+  return frameState;
 }
 
