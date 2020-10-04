@@ -7,7 +7,7 @@ class Wire {
    * @param {number} destinationX 
    * @param {number} destinationY 
    */
-  constructor(destinationX, destinationY) {
+  constructor(destinationX, destinationY, color1, color2) {
     this.x0 = destinationX;
     this.y0 = destinationY;
     this.paths = [];
@@ -17,9 +17,9 @@ class Wire {
       p.setAttribute("stroke-width", 4);
       this.paths.push(p);
     }
-    this.paths[0].setAttribute("stroke", "green");
+    this.paths[0].setAttribute("stroke", color1);
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
-    this.paths[1].setAttribute("stroke", "LightGreen");
+    this.paths[1].setAttribute("stroke", color2);
     this.dragging = false;
     this.paths[1].addEventListener("mousedown",
       this.handleMouseDown.bind(this));
@@ -69,9 +69,9 @@ class Oscope {
     img.setAttribute("href", "img/oscope.png");
     this.body.appendChild(img);
 
-    this.xWire = new Wire(this.x + 50, this.y + 410);
-    this.aWire = new Wire(this.x + 140, this.y + 410);
-    this.bWire = new Wire(this.x + 230, this.y + 410);
+    this.xWire = new Wire(this.x + 50, this.y + 410, "Yellow", "Chocolate");
+    this.aWire = new Wire(this.x + 140, this.y + 410, "RoyalBlue", "MidnightBlue");
+    this.bWire = new Wire(this.x + 230, this.y + 410, "Orchid", "Indigo");
   }
 
   addTo(parent) {
