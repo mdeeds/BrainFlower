@@ -1,13 +1,8 @@
 class LearnBot {
-  constructor() {
+  constructor(referenceBot) {
     this.brain = new Brain("LearnBot");
-
-    let body = document.getElementById('body');
-    body.addEventListener('keydown', LearnBot.prototype.handleKey.bind(this));
-    this.learning = false;
-
-    this.referenceBot = new MattBot();
   }
+
   /**
    * Draws the LearnBot.
    * @param {Renderer} c 
@@ -23,14 +18,12 @@ class LearnBot {
     c.ellipse(60, 50, 80, 80);
   }
 
-  handleKey(e) {
-    if (e.type === 'keydown') {
-      if (e.code === 'KeyA') {
-        this.learning = false;    
-      } else if (e.code === 'KeyL') {
-        this.learning = true;
-      }
-    }
+  /**
+   * 
+   * @returns {tf.Model} model 
+   */
+  getModel() {
+    return this.brain.model;
   }
 
   /**
@@ -39,12 +32,6 @@ class LearnBot {
    */
   run(s) {
     let input = s.asArray();
-    if (this.learning) {
-      let referenceArray = this.referenceBot.run(s);
-      this.brain.train(input, referenceArray);
-      return referenceArray;
-    } else {
-      return this.brain.infer(input)[1];
-    }  
+    return this.brain.infer(input)[0];
   }
 };

@@ -8,19 +8,9 @@ class MattBot {
    * @param {number} right 
    */
   constructor(left, right, hardTurn) {
-    this.left = left || 0.1;
-    this.right = right || -0.4;
-    this.hardTurn = hardTurn || -0.9;
-
-    if (typeof hardTurn == "undefined") {
-      this.name = "MattBot";
-    } else {
-      this.name =
-        "MattBot:"
-        + this.left.toFixed(2) + ":"
-        + this.right.toFixed(2) + ":"
-        + this.hardTurn.toFixed(2);
-    }
+    this.left = left || 0.2;
+    this.right = right || -0.3;
+    this.hardTurn = hardTurn || 1.0;
   }
 
   draw(c) {

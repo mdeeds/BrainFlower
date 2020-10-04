@@ -21,6 +21,7 @@ class SquareBot {
 
   /**
    * @param {SensorState} s 
+   * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
     if (s.distanceToWall < this.frontLimit) {

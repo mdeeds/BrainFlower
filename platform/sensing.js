@@ -2,7 +2,7 @@
 // May be modified to indicate intention of movement.
 
 kInputSize = 9;
-kOutputSize = 2;
+kOutputSize = 1;
 
 /**
  * Describes the current state of the world as perceived by the robot.
@@ -10,7 +10,7 @@ kOutputSize = 2;
  */
 class SensorState {
   constructor() {
-    /** @member {number} - Number of flowers to the left. */  
+    /** @member {number} - Number of flowers to the left. */
     this.leftFlowers = 0;
     /** @member {number} - Number of flowers to the right. */
     this.rightFlowers = 0;
