@@ -13,7 +13,7 @@ function setup() {
   entries.push(new RudeBot());
   entries.push(new SteveBot());
   entries.push(new MattBot());
-
+  entries.push(new littlebot());
   let dt = 2 * Math.PI / entries.length;
   let t = 0;
   for (let e of entries) {
