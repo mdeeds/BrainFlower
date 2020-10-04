@@ -23,6 +23,7 @@ class Wire {
     this.dragging = false;
     this.paths[1].addEventListener("mousedown",
       this.handleMouseDown.bind(this));
+    this.setDestination(destinationX, destinationY);
   }
 
   addDragHandlers(elemnt) {
@@ -61,26 +62,23 @@ class Oscope {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.body = document.createElementNS(
-      "http://www.w3.org/2000/svg", "rect");
-    this.body.setAttribute("x", this.x);
-    this.body.setAttribute("y", this.y);
-    this.body.setAttribute("width", 220);
-    this.body.setAttribute("height", 350);
-    this.body.setAttribute("fill", "PapayaWhip");
-    this.body.setAttribute("stroke", "brown");
-    this.body.setAttribute("stroke-width", 9);
+    this.body = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    this.body.setAttribute("transform", "translate(" + this.x + " " + this.y + ")");
+    
+    let img = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    img.setAttribute("href", "img/oscope.png");
+    this.body.appendChild(img);
 
-    this.xWire = new Wire(this.x + 25, this.y + 150);
-    this.xWire.setDestination(this.x + 50, this.y + 200);
-    this.yWire = new Wire(this.x + 25, this.y + 250);
-    this.yWire.setDestination(this.x + 100, this.y + 250);
+    this.xWire = new Wire(this.x + 50, this.y + 410);
+    this.aWire = new Wire(this.x + 140, this.y + 410);
+    this.bWire = new Wire(this.x + 230, this.y + 410);
   }
 
   addTo(parent) {
     parent.appendChild(this.body);
     this.xWire.addTo(parent);
-    this.yWire.addTo(parent);
+    this.aWire.addTo(parent);
+    this.bWire.addTo(parent);
   }
 
 }
@@ -90,7 +88,7 @@ class SvgContext {
     this.svg = svg;
     this.clear();
     this.wire = new Wire(0, 0);
-    this.oscope = new Oscope(600, 20);
+    this.oscope = new Oscope(500, 0);
     this.mouseX = 0;
     this.mouseY = 0;
     svg.addEventListener("mouseover",
@@ -114,7 +112,7 @@ class SvgContext {
     bg.setAttribute("x", 0);
     bg.setAttribute("y", 0);
     bg.setAttribute("width", 800);
-    bg.setAttribute("height", 400);
+    bg.setAttribute("height", 500);
     bg.setAttribute("fill", "Honeydew")
     this.svg.appendChild(bg);
   }
@@ -350,7 +348,7 @@ function setup() {
     "http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   svg.setAttribute("width", 800);
-  svg.setAttribute("height", 400);
+  svg.setAttribute("height", 500);
   svg.setAttribute("viewbox", "0 0 100 100")
   body.appendChild(svg);
 
