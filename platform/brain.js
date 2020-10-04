@@ -137,6 +137,7 @@ class Brain {
   reset() {
     this.model = this.createModel();
     this.compileModel();
+    this.dirty = true;
   }
 
   saveTimeout() {
