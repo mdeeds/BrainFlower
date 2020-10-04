@@ -28,8 +28,10 @@ function buildEntryMap(blockList) {
   addEntry(new monsterbot());
   addEntry(new Mooo());
   addEntry(new Kili());
-  for (n of blockList) {
-    entryMap.delete(n);
+  if (blockList) {
+    for (n of blockList) {
+      entryMap.delete(n);
+    }
   }
   let leftEntryChoice = createSelect();
   let rightEntryChoice = createSelect();
@@ -91,7 +93,7 @@ class Match {
    * @param {Event} e 
    */
   handleChange(e) {
-    console.log("Changed to " + this.leftEntryChoice.value() + " and " +this.rightEntryChoice.value());
+    console.log("Changed to " + this.leftEntryChoice.value() + " and " + this.rightEntryChoice.value());
     if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
       console.log("Same");
       if (this.leftEntryChoice.elt == e.target) {
