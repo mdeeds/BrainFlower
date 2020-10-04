@@ -316,6 +316,8 @@ function collect() {
     }
     // TODO: determine win, and store appropriately
   }
+  show();
+  console.log("Done collecting.");
 }
 
 function train() {
@@ -332,6 +334,8 @@ function train() {
     botUnderTest.brain.dirty = true;
     show();
   });
+  show();
+  console.log("Done training.");
 }
 
 function resetBrain() {
