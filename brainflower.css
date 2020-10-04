@@ -43,3 +43,21 @@ svg {
   background: white;
   border: solid 8px lightgreen;
 }
+
+.draggable {
+  cursor: move;
+}
+
+.status {
+  width: calc(100vw - 100px);
+  height: 50vh;
+  font-size: 120px;
+  position:  absolute;
+  left: 0px;
+  top: 25vh;
+  background: darkgreen;
+  border: lightgreen;
+  border-width: 50px;
+  border-style: inset;
+  text-align: center;
+}
