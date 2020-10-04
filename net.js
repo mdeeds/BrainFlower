@@ -21,8 +21,12 @@ class Wire {
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", color2);
     this.dragging = false;
-    this.paths[1].addEventListener("mousedown",
-      this.handleMouseDown.bind(this));
+    this.tip = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    this.tip.setAttribute("width", 3);
+    this.tip.setAttribute("height", 35);
+    this.tip.setAttribute("transform", "translate(-1, -1)");
+    this.tip.setAttribute("fill", color2);
+    this.tip.addEventListener("mousedown", this.handleMouseDown.bind(this));
     this.setDestination(destinationX, destinationY);
   }
 
@@ -34,15 +38,18 @@ class Wire {
     for (let p of this.paths) {
       parent.appendChild(p);
     }
+    parent.appendChild(this.tip);
   }
 
   setDestination(x, y) {
     for (let p of this.paths) {
       p.setAttribute("d", "M " + this.x0 + " " + this.y0
         + " C " + this.x0 + " " + (this.y0 + 100)
-        + " " + x + " " + (y + 100)
-        + " " + x + " " + y);
+        + " " + x + " " + (y + 135)
+        + " " + x + " " + (y + 35));
     }
+    this.tip.setAttribute("x", x);
+    this.tip.setAttribute("y", y);
   }
 
   handleDrag() {
