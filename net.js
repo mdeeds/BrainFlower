@@ -341,6 +341,12 @@ function collect() {
 
 function train() {
   show();
+  let trainingDiv = document.createElement("div");
+  trainingDiv.innerHTML = "Training...";
+  trainingDiv.classList.add("status");
+  let body = document.getElementById("body");
+  body.appendChild(trainingDiv);
+
   // TODO: Use the values that we stored in colect,
   // Don't get them from botUnderTest.
   let input = [];
@@ -360,9 +366,11 @@ function train() {
   model.fit(inputTensor, outputTensor,
     {
       epochs: repeatBox.value(),
+      shuffle: true,
       //sampleWeight: weightTensor
     })
     .then(() => {
+      trainingDiv.remove();
       console.log("Done training: " + input.shape);
       botUnderTest.brain.setDirty();
       show();
