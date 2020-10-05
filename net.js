@@ -1,13 +1,55 @@
 const kLayerSpacing = 250;
 const kRoot2 = Math.sqrt(2);
 
+class TestPoint {
+  constructor(element, dataCallback) {
+    this.element = element;
+    this.dataCallback = dataCallback;
+    let bb = element.getBoundingClientRect();
+    this.x = bb.x;
+    this.y = bb.y;
+  }
+}
+
+class TestPointCollection {
+  constructor() {
+    this.testPoints = [];
+  }
+
+  add(element, dataCallback) {
+    this.testPoints.push(new TestPoint(element, dataCallback));
+  }
+
+  getClosestPoint(element) {
+    let bb = element.getBoundingClientRect();
+    let x = bb.x;
+    let y = bb.y;
+    let closestR2 = 400;
+    let closest = null;
+    for (let tp of this.testPoints) {
+      let dx = tp.x - x;
+      let dy = tp.y - y;
+      let r2 = (dx * dx) + (dy * dy);
+      if (r2 < closestR2) {
+        closestR2 = r2;
+        closest = tp;
+      }
+    }
+    if (closest) {
+      return closest;
+    }
+    return null;
+  }
+
+}
+
 class Wire {
   /**
    * 
    * @param {number} destinationX 
    * @param {number} destinationY 
    */
-  constructor(destinationX, destinationY, color1, color2) {
+  constructor(destinationX, destinationY, color1, color2, oscope) {
     this.x0 = destinationX;
     this.y0 = destinationY;
     this.paths = [];
@@ -29,6 +71,8 @@ class Wire {
     this.setDestination(destinationX, destinationY);
 
     this.dragging = false;
+    this.dataCallback = null;
+    this.oscope = oscope;
   }
 
   addDragHandlers(element) {
@@ -74,6 +118,17 @@ class Wire {
     }
     this.tip.setAttribute("cx", x);
     this.tip.setAttribute("cy", y);
+    if (testPoints) {
+      let tp = testPoints.getClosestPoint(this.tip);
+      if (tp) {
+        if (this.dataCallback != tp.dataCallback) {
+          this.dataCallback = tp.dataCallback;
+          this.oscope.showData();
+        }
+      } else {
+        this.dataCallback = null;
+      }
+    }
   }
 }
 
@@ -89,18 +144,10 @@ class Oscope {
     img.setAttribute("width", 300);
     this.body.appendChild(img);
 
-    this.xWire = new Wire(this.x + 46, this.y + 420, "Yellow", "Chocolate");
-    this.aWire = new Wire(this.x + 158, this.y + 420, "RoyalBlue", "MidnightBlue");
-    this.bWire = new Wire(this.x + 225, this.y + 420, "Orchid", "Indigo");
+    this.xWire = new Wire(this.x + 46, this.y + 420, "Yellow", "Chocolate", this);
+    this.aWire = new Wire(this.x + 158, this.y + 420, "RoyalBlue", "MidnightBlue", this);
+    this.bWire = new Wire(this.x + 225, this.y + 420, "Orchid", "Indigo", this);
 
-    this.xData = [];
-    this.aData = [];
-    this.bData = [];
-    for (let x = -2; x < 2.0; x += 0.1) {
-      this.xData.push(x);
-      this.aData.push(Math.sin(x));
-      this.bData.push(Math.cos(x));
-    } 
     this.displayGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.displayGroup.setAttribute("transform",
       "translate(" + (this.x + 150) + " " + (this.y + 142) + ") scale(0.55)");
@@ -117,7 +164,7 @@ class Oscope {
   }
 
   showSeries(xs, series, color) {
-    for (let i = 0; i < this.xData.length; ++i) {
+    for (let i = 0; i < xs.length; ++i) {
       let x = xs[i];
       let y = series[i];
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -136,10 +183,17 @@ class Oscope {
     axes.setAttribute("stroke", "LightGreen");
     axes.setAttribute("stroke-width", 0.5);
     this.displayGroup.appendChild(axes);
-    this.showSeries(this.xData, this.aData, "RoyalBlue");
-    this.showSeries(this.xData, this.bData, "Orchid");
+    if (this.xWire.dataCallback) {
+      if (this.aWire.dataCallback) {
+        this.showSeries(this.xWire.dataCallback(), this.aWire.dataCallback(),
+          "RoyalBlue");
+      }
+      if (this.bWire.dataCallback) {
+        this.showSeries(this.xWire.dataCallback(), this.bWire.dataCallback(),
+          "Orchid");
+      }
+    }
   }
-
 }
 
 class SvgContext {
@@ -252,6 +306,7 @@ class SvgContext {
 
   addTestPoint(parent, x, y) {
     let d = this.diamond(parent, x, y);
+    testPoints.add(d, function () { return [Math.random()]; });
   }
 
   renderWeights1(parent, weights, offsetX, offsetY) {
@@ -364,6 +419,7 @@ var ctx;
 var repeatBox;
 var match;
 var trainingData = [];
+var testPoints;
 
 function show() {
   let model = botUnderTest.getModel();
@@ -544,6 +600,8 @@ function setup() {
   }
   counters = new CounterSet();
   counters.addTo(body);
+
+  testPoints = new TestPointCollection();
 }
 
 function draw() {
