@@ -333,7 +333,7 @@ function collect() {
       let frameState = runFrame();
       trainingData.push(new TrainingExample(frameState));
     }
-    counters.increment("Games collected");
+    counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
   show();
@@ -381,6 +381,7 @@ function train() {
 
 function resetBrain() {
   botUnderTest.brain.reset();
+  counters.set("Train games", 0);
   show();
 }
 
@@ -393,6 +394,10 @@ class CounterSet {
   }
   addTo(parent) {
     parent.appendChild(this.div);
+    this.render();
+  }
+  set(counter, value) {
+    this.map.set(counter, value);
     this.render();
   }
   incrementBy(counter, step) {
