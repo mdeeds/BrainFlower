@@ -21,17 +21,41 @@ class Wire {
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", color2);
     this.dragging = false;
-    this.tip = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    this.tip.setAttribute("width", 3);
-    this.tip.setAttribute("height", 35);
-    this.tip.setAttribute("transform", "translate(-1, -1)");
+    this.tip = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    this.tip.setAttribute("r", 10);
+    this.tip.setAttribute("transform", "translate(-5, -5)");
     this.tip.setAttribute("fill", color2);
-    this.tip.addEventListener("mousedown", this.handleMouseDown.bind(this));
+    this.addDragHandlers(this.tip);
     this.setDestination(destinationX, destinationY);
+
+    this.dragging = false;
   }
 
-  addDragHandlers(elemnt) {
-    Element.addEventListener()
+  addDragHandlers(element) {
+    element.addEventListener("mousedown", this.dragStart.bind(this));
+    element.addEventListener("mousemove", this.drag.bind(this));
+    element.addEventListener("mouseleave", this.dragEnd.bind(this));
+    element.addEventListener("mouseup", this.dragEnd.bind(this));
+    element.classList.add("draggable");
+  }
+
+  dragStart(e) {
+    this.dragging = true;
+  }
+
+  drag(e) {
+    if (!this.dragging) {
+      return;
+    }
+    let dx = e.movementX;
+    let dy = e.movementY;
+    let newX = parseFloat(this.tip.getAttribute("cx")) + dx;
+    let newY = parseFloat(this.tip.getAttribute("cy")) + dy;
+    this.setDestination(newX, newY);
+  }
+
+  dragEnd(e) {
+    this.dragging = false;
   }
 
   addTo(parent) {
@@ -45,23 +69,11 @@ class Wire {
     for (let p of this.paths) {
       p.setAttribute("d", "M " + this.x0 + " " + this.y0
         + " C " + this.x0 + " " + (this.y0 + 100)
-        + " " + x + " " + (y + 135)
-        + " " + x + " " + (y + 35));
+        + " " + x + " " + (y + 110)
+        + " " + x + " " + (y + 10));
     }
-    this.tip.setAttribute("x", x);
-    this.tip.setAttribute("y", y);
-  }
-
-  handleDrag() {
-    if (this.dragging) {
-      this.setDestination(ctx.mouseX, ctx.mouseY);
-      setTimeout(this.handleDrag.bind(this), 5);
-    }
-  }
-
-  handleMouseDown(e) {
-    this.dragging = true;
-    setTimeout(this.handleDrag.bind(this));
+    this.tip.setAttribute("cx", x);
+    this.tip.setAttribute("cy", y);
   }
 }
 
