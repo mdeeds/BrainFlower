@@ -91,6 +91,20 @@ class Oscope {
     this.xWire = new Wire(this.x + 50, this.y + 410, "Yellow", "Chocolate");
     this.aWire = new Wire(this.x + 140, this.y + 410, "RoyalBlue", "MidnightBlue");
     this.bWire = new Wire(this.x + 230, this.y + 410, "Orchid", "Indigo");
+
+    this.xData = [];
+    this.aData = [];
+    this.bData = [];
+    for (let x = -2; x < 2.0; x += 0.1) {
+      this.xData.push(x);
+      this.aData.push(Math.sin(x));
+      this.bData.push(Math.cos(x));
+    } 
+    this.displayGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    this.displayGroup.setAttribute("transform",
+      "translate(" + (this.x + 150) + " " + (this.y + 142) + ") scale(0.55)");
+
+    this.showData();
   }
 
   addTo(parent) {
@@ -98,6 +112,31 @@ class Oscope {
     this.xWire.addTo(parent);
     this.aWire.addTo(parent);
     this.bWire.addTo(parent);
+    parent.appendChild(this.displayGroup);
+  }
+
+  showSeries(xs, series, color) {
+    for (let i = 0; i < this.xData.length; ++i) {
+      let x = xs[i];
+      let y = series[i];
+      let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("fill", color);
+      dot.setAttribute("cx", 100 * x);
+      dot.setAttribute("cy", 100 * -y);
+      dot.setAttribute("r", 5);
+      this.displayGroup.appendChild(dot);
+    }
+  }
+
+  showData() {
+    this.displayGroup.innerHTML = "";
+    let axes = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    axes.setAttribute("d", "M -200 0 L 200 0 M 0 -200 L 0 200");
+    axes.setAttribute("stroke", "LightGreen");
+    axes.setAttribute("stroke-width", 0.5);
+    this.displayGroup.appendChild(axes);
+    this.showSeries(this.xData, this.aData, "RoyalBlue");
+    this.showSeries(this.xData, this.bData, "Orchid");
   }
 
 }
