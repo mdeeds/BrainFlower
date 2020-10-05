@@ -85,12 +85,13 @@ class Oscope {
     this.body.setAttribute("transform", "translate(" + this.x + " " + this.y + ")");
 
     let img = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    img.setAttribute("href", "img/oscope.png");
+    img.setAttribute("href", "img/O-Scope.png");
+    img.setAttribute("width", 300);
     this.body.appendChild(img);
 
-    this.xWire = new Wire(this.x + 50, this.y + 410, "Yellow", "Chocolate");
-    this.aWire = new Wire(this.x + 140, this.y + 410, "RoyalBlue", "MidnightBlue");
-    this.bWire = new Wire(this.x + 230, this.y + 410, "Orchid", "Indigo");
+    this.xWire = new Wire(this.x + 46, this.y + 420, "Yellow", "Chocolate");
+    this.aWire = new Wire(this.x + 158, this.y + 420, "RoyalBlue", "MidnightBlue");
+    this.bWire = new Wire(this.x + 225, this.y + 420, "Orchid", "Indigo");
 
     this.xData = [];
     this.aData = [];
@@ -145,7 +146,6 @@ class SvgContext {
   constructor(svg) {
     this.svg = svg;
     this.clear();
-    this.wire = new Wire(0, 0);
     this.oscope = new Oscope(500, 0);
     this.mouseX = 0;
     this.mouseY = 0;
@@ -252,9 +252,6 @@ class SvgContext {
 
   addTestPoint(parent, x, y) {
     let d = this.diamond(parent, x, y);
-    d.addEventListener("mouseover", function () {
-      this.wire.setDestination(x + 5, y);
-    }.bind(this));
   }
 
   renderWeights1(parent, weights, offsetX, offsetY) {
@@ -337,7 +334,6 @@ class SvgContext {
     let offsetY = 220;
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
-    this.wire.addTo(g);
     this.oscope.addTo(g);
 
     for (let l of model.layers) {
