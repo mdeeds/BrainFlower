@@ -2,7 +2,7 @@
 class monsterbot {
     draw (c) {
         c.strokeWeight(8);
-        c.fill(color("Gold"));
+        c.fill(color("Azure"));
         c.ellipse(50, 50, 50, 100);
         c.ellipse (30, 30, 30, 30);
         c.rect (50, 50, 50, 50);
