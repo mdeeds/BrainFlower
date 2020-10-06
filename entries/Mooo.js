@@ -29,11 +29,11 @@ class Mooo  {
     } else if (s.opponentAngle < -10) {
       return -0.7;
     } else if (s.opponentAngle < -5) {
-      return -0.2;
+      return -0.7;
     } else if (s.opponentAngle < 5) {
-      return 0.2;
+      return 0.7;
     } else if (s.opponentAngle < 10) {
-      return 0.3;
+      return 0.7;
     } else if (s.opponentAngle < 60) {
       return 0.7;
     } else {
