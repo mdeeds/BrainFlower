@@ -306,7 +306,7 @@ class SvgContext {
 
   addTestPoint(parent, x, y) {
     let d = this.diamond(parent, x, y);
-    testPoints.add(d, function () { return [Math.random()]; });
+    return d;
   }
 
   renderWeights1(parent, weights, offsetX, offsetY) {
@@ -329,7 +329,14 @@ class SvgContext {
     return 60;
   }
 
-  renderWeights2(parent, weights, offsetX, offsetY) {
+  buildDataCallback(model, layer, index) {
+    return function () { 
+      if (!modelEval) { return [0]; }
+      return modelEval.getArray(layer, index); 
+    }.bind(model, layer, index);
+  }
+
+  renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
     console.log(shape);
@@ -338,8 +345,10 @@ class SvgContext {
     this.fill = "#fff";
     // Inputs
     for (let i = 0; i < shape[0]; ++i) {
-      this.addTestPoint(parent, offsetX + i * 15 + 30,
+      let tp = this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
+      testPoints.add(tp, this.buildDataCallback(model, layer, i));
+
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
         offsetX + i * 15 + 30, offsetY + shape[1] * 15 + 15);
@@ -374,11 +383,11 @@ class SvgContext {
     return shape[0] * 15 + 5;
   }
 
-  renderWeights(parent, weights, offsetX, offsetY) {
+  renderWeights(parent, weights, offsetX, offsetY, model, layer) {
     if (weights.shape.length == 1) {
       return this.renderWeights1(parent, weights, offsetX, offsetY);
     } else if (weights.shape.length == 2) {
-      return this.renderWeights2(parent, weights, offsetX, offsetY);
+      return this.renderWeights2(parent, weights, offsetX, offsetY, model, layer);
     }
   }
 
@@ -397,7 +406,7 @@ class SvgContext {
       }
       console.log("Layer: " + l.name + " +" + offsetX);
       for (let w of l.weights) {
-        let width = this.renderWeights(g, w, offsetX, offsetY);
+        let width = this.renderWeights(g, w, offsetX, offsetY, model, l);
         offsetX += width;
       }
       offsetX += 50;
@@ -420,6 +429,7 @@ var repeatBox;
 var match;
 var trainingData = [];
 var testPoints;
+var modelEval = null;
 
 function show() {
   let model = botUnderTest.getModel();
@@ -439,20 +449,12 @@ function collect() {
     counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
+  modelEval = new ModelEvaluation(botUnderTest.brain.model);
   show();
   console.log("Done collecting.");
 }
 
-function train() {
-  show();
-  let trainingDiv = document.createElement("div");
-  trainingDiv.innerHTML = "Training...";
-  trainingDiv.classList.add("status");
-  let body = document.getElementById("body");
-  body.appendChild(trainingDiv);
-
-  // TODO: Use the values that we stored in colect,
-  // Don't get them from botUnderTest.
+function getInputOutputTensors() {
   let input = [];
   let output = [];
   let weights = [];
@@ -465,9 +467,54 @@ function train() {
   let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
   let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
   let weightTensor = tf.tensor1d(weights, 'float32');
+
+  return [inputTensor, outputTensor, weightTensor];
+}
+
+class ModelEvaluation {
+  constructor(model) {
+    this.layerMap = new Map();
+
+    let inputTensor, outputTensor, weightTensor;
+    [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
+
+    for (let l of model.layers) {
+      let smallerModel = tf.model(
+        {
+          inputs: model.inputs,
+          outputs: l.input
+        });
+      let prediction = smallerModel.predict(inputTensor)
+      this.layerMap.set(l, prediction.dataSync());
+    }
+  }
+  getArray(layer, index) {
+    let data = this.layerMap.get(layer);
+    if (!data) {
+      return [0];
+    }
+    let stride = layer.input.shape[1];
+    let result = [];
+    for (let i = index; i < data.length; i += stride) {
+      result.push(data[i]);
+    }
+    return result;
+  }
+}
+
+function train() {
+  show();
+  let trainingDiv = document.createElement("div");
+  trainingDiv.innerHTML = "Training...";
+  trainingDiv.classList.add("status");
+  let body = document.getElementById("body");
+  body.appendChild(trainingDiv);
+  let inputTensor, outputTensor, weightTensor;
+  [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
+
   let model = botUnderTest.getModel();
   console.log("Staring train");
-  counters.incrementBy("Train games", input.length / kFramesPerRound);
+  counters.incrementBy("Train games", trainingData.length / kFramesPerRound);
   model.fit(inputTensor, outputTensor,
     {
       epochs: repeatBox.value(),
@@ -478,6 +525,7 @@ function train() {
       trainingDiv.remove();
       console.log("Done training");
       botUnderTest.brain.setDirty();
+      modelEval = new ModelEvaluation(botUnderTest.brain.model);
       show();
     });
 }
@@ -485,6 +533,7 @@ function train() {
 function resetBrain() {
   botUnderTest.brain.reset();
   counters.set("Train games", 0);
+  modelEval = new ModelEvaluation(botUnderTest.brain.model);
   show();
 }
 
