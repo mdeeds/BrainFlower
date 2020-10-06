@@ -21,7 +21,7 @@ class SteveBot {
    */
   run(s) {
     if (s.leftFlowers == 0 && s.rightFlowers == 0) {
-      return 1.5;
+      return 1.0;
     }
     if (s.leftFlowerDistance == s.rightFlowerDistance) {
       return 0.0;

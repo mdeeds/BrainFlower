@@ -17,28 +17,15 @@ class Mooo  {
         c.ellipse(65, 50, 60, 60);
         c.fill(color("red"))
         c.stroke(color("red"))
-        c.ellipse(70 , 50, 20, 20);}
-        
-        handleKey(e) {
-            if (e.type === 'keydown') {
-              if (e.code === 'ArrowRight') {
-                this.turn = 1.0;
-              } else if (e.code === 'ArrowLeft') {
-                this.turn = -1.0;
-              } else if (e.code === 'ArrowUp') {
-                this.speed = 5.0;
-              }
-            } else if (e.type === 'keyup') {
-              if (e.code === 'ArrowRight' || e.code === 'ArrowLeft') {
-                this.turn = 0;
-              } else if (e.code === 'ArrowUp') {
-                this.speed = 0;
-              }
-            }
-          }
-
-
-
+        c.ellipse(70 , 50, 20, 20);
+      }
+  /**
+   * @param {SensorState} s 
+   * @returns {number} - Turn rate [-1 to 1]
+   */
+    run(s) {
+      return 0;
+    }
 
 
 }

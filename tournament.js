@@ -6,17 +6,18 @@ rightEntries = [];
 function setup() {
   tf.setBackend('cpu');
 
+  buildEntryMap();
+
   startButton = createButton("Run");
   startButton.size(60, 40);
   startButton.mousePressed(runAndDisplay);
 
-  rightEntries.push(new CircleBot());
-  rightEntries.push(new MattBot());
-  rightEntries.push(new RudeBot());
-  rightEntries.push(new CloseBot());
-  rightEntries.push(new SquareBot());
-  rightEntries.push(new SteveBot());
-  rightEntries.push(new Roomba());
+  let blockList = ["LearnBot", "KeyBot", "KeyBot2"];
+  for (r of entryMap.values()) {
+    if (!blockList.includes(r.constructor.name)) {
+      rightEntries.push(r);
+    }
+  }
 
   leftEntries = rightEntries;
 

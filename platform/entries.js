@@ -1,12 +1,20 @@
 var entryMap = new Map();
 var match;
 
+function robotName(robot) {
+  return robot.name || robot.constructor.name;
+}
+
 function addEntry(robot) {
-  let name = robot.constructor.name;
+  let name = robotName(robot);
   entryMap.set(name, robot);
 }
 
-function buildEntryMap() {
+/**
+ * 
+ * @param {string[]} blockList 
+ */
+function buildEntryMap(blockList) {
   addEntry(new KeyBot());
   addEntry(new CircleBot());
   addEntry(new KeyBot2());
@@ -17,6 +25,14 @@ function buildEntryMap() {
   addEntry(new SteveBot());
   addEntry(new Roomba());
   addEntry(new MattBot());
+  addEntry(new monsterbot());
+  addEntry(new Mooo());
+  addEntry(new Kili());
+  if (blockList) {
+    for (n of blockList) {
+      entryMap.delete(n);
+    }
+  }
   let leftEntryChoice = createSelect();
   let rightEntryChoice = createSelect();
   match = new Match(leftEntryChoice, rightEntryChoice);
@@ -77,7 +93,7 @@ class Match {
    * @param {Event} e 
    */
   handleChange(e) {
-    console.log("Change");
+    console.log("Changed to " + this.leftEntryChoice.value() + " and " + this.rightEntryChoice.value());
     if (this.leftEntryChoice.value() == this.rightEntryChoice.value()) {
       console.log("Same");
       if (this.leftEntryChoice.elt == e.target) {

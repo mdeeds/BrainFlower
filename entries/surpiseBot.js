@@ -6,4 +6,13 @@ class Kili {
         c.fill(color("DarkOrange"));
         c.arc(50, 50, 80, 80, radians(21.5), radians(360 - 21.5));
     }
+
+  /**
+   * @param {SensorState} s 
+   * @returns {number} - Turn rate [-1 to 1]
+   */
+  run(s) {
+    return 0;
+  }
+
 }
