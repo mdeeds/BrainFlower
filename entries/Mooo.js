@@ -25,7 +25,7 @@ class Mooo  {
    */
   run(s) {
     if (s.opponentAngle < -60) {
-      return -0.8;
+      return -0.80;
     } else if (s.opponentAngle < -10) {
       return -0.100;
     } else if (s.opponentAngle < -5) {
@@ -37,7 +37,7 @@ class Mooo  {
     } else if (s.opponentAngle < 60) {
       return 0.100;
     } else {
-      return -0.10;
+      return -0.50;
     }
   }  
 }
