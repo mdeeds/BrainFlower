@@ -23,9 +23,21 @@ class Mooo  {
    * @param {SensorState} s 
    * @returns {number} - Turn rate [-1 to 1]
    */
-    run(s) {
-      return 0;
+  run(s) {
+    if (s.opponentAngle < -60) {
+      return -0.7;
+    } else if (s.opponentAngle < -10) {
+      return -0.6;
+    } else if (s.opponentAngle < -5) {
+      return -0.1;
+    } else if (s.opponentAngle < 5) {
+      return 0.1;
+    } else if (s.opponentAngle < 10) {
+      return 0.2;
+    } else if (s.opponentAngle < 60) {
+      return 0.6;
+    } else {
+      return -0.9;
     }
-
-
+  }  
 }
