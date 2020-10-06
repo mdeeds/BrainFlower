@@ -27,15 +27,15 @@ class Mooo  {
     if (s.opponentAngle < -60) {
       return -0.80;
     } else if (s.opponentAngle < -10) {
-      return -0.100;
+      return -0.900;
     } else if (s.opponentAngle < -5) {
-      return -0.100;
+      return -0.900;
     } else if (s.opponentAngle < 5) {
-      return 0.100;
+      return 0.900;
     } else if (s.opponentAngle < 10) {
-      return 0.100;
+      return 0.900;
     } else if (s.opponentAngle < 60) {
-      return 0.100;
+      return 0.900;
     } else {
       return -0.50;
     }
