@@ -54,7 +54,7 @@ svg {
   font-size: 120px;
   position:  absolute;
   left: 0px;
-  top: 25vh;
+  top: calc(25vh - 50px);
   background: darkgreen;
   border: lightgreen;
   border-width: 50px;
