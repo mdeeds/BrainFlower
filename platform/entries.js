@@ -28,6 +28,7 @@ function buildEntryMap(blockList) {
   addEntry(new monsterbot());
   addEntry(new Mooo());
   addEntry(new Kili());
+  addEntry(new littlebot());
   if (blockList) {
     for (n of blockList) {
       entryMap.delete(n);
