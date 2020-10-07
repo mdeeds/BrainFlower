@@ -19,14 +19,26 @@ function setup() {
     }
   }
 
-  leftEntries = rightEntries;
+  let sweep = true;
 
-  // // Example code for parameter sweep:
-  // for (let l of [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0]) {
-  //   for (let r of [-0.01, -0.1, -0.2, -0.3, -0.4, -0.5, -0.8, -1.0]) {
-  //     leftEntries.push(new MattBot(l, r));
-  //   }
-  // }
+  if (!sweep) {
+    leftEntries = rightEntries;
+  } else {
+    let robotUnderTest = MattBot;
+    for (let a1 of [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0]) {
+      for (let a2 of [-0.01, -0.1, -0.2, -0.3, -0.4, -0.5, -0.8, -1.0]) {
+        for (let a3 of [ null ]) {
+          let name = robotUnderTest.name;
+          name += (a1 ? ":" + a1.toFixed(2) : "");
+          name += (a2 ? ":" + a2.toFixed(2) : "");
+          name += (a3 ? ":" + a3.toFixed(2) : "");
+          let entry = new robotUnderTest.prototype.constructor(a1, a2, a3);
+          entry.name = name;
+          leftEntries.push(entry);
+        }
+      }
+    }
+  }
 }
 
 class GameResult {

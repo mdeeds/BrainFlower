@@ -11,16 +11,6 @@ class MattBot {
     this.left = left || 0.1;
     this.right = right || -0.4;
     this.hardTurn = hardTurn || -0.9;
-
-    if (typeof hardTurn == "undefined") {
-      this.name = "MattBot";
-    } else {
-      this.name =
-        "MattBot:"
-        + this.left.toFixed(2) + ":"
-        + this.right.toFixed(2) + ":"
-        + this.hardTurn.toFixed(2);
-    }
   }
 
   draw(c) {
