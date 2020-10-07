@@ -19,7 +19,7 @@ function setup() {
     }
   }
 
-  let sweep = true;
+  let sweep = false;
 
   if (!sweep) {
     leftEntries = rightEntries;
