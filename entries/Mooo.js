@@ -25,7 +25,7 @@ class Mooo  {
    /****/
   run(s) {
     if (s.opponentAngle < -60) {
-      return -1;
+      return 0;
     } else if (s.opponentAngle < -20) {
       return -1000000000000000000000000000000000000;
     } else if (s.opponentAngle < -10) {
