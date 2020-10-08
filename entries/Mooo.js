@@ -19,13 +19,13 @@ class Mooo  {
         c.stroke(color("red"))
         c.ellipse(70 , 50, 20, 20);
       }
-  /**
-   * @param {SensorState} s 
-   * @returns {number} - Turn rate [-1 to 1]
-   */
+  
+    /*@param {SensorState} s 
+    /*@returns {number} - Turn rate [-2 to 2]
+   /****/
   run(s) {
     if (s.opponentAngle < -60) {
-      return -0.80;
+      return -1;
     } else if (s.opponentAngle < -20) {
       return -1000000000000000000000000000000000000;
     } else if (s.opponentAngle < -10) {
@@ -37,7 +37,7 @@ class Mooo  {
     } else if (s.opponentAngle < 120) {
       return 1000000000000000000000000000000000000;
     } else {
-      return -0.50;
+      return -1;
     }
   }  
 }
