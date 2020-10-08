@@ -247,7 +247,15 @@ function runFrame() {
       frameState.rightSensorArray = s.asArray();
     }
     let startTime = window.performance.now();
-    let turn = rc.robot.run(s);
+    let turn = 0.0;
+    try {
+      turn = rc.robot.run(s);
+    } catch (e) {
+      turn = 0.0;
+    }
+    if (typeof turn != "number") {
+      turn = 0.0;
+    }
     if (i == 0) {
       frameState.leftTurn = turn;
     } else {
