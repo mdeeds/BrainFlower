@@ -37,7 +37,7 @@ class Mooo  {
     } else if (s.opponentAngle < 120) {
       return 1000000000000000000000000000000000000;
     } else {
-      return -1;
+      return 0;
     }
   }  
 }
