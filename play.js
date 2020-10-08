@@ -54,15 +54,16 @@ var angle = 0;
 function playFrame() {
   runFrame();
   background("DarkSeaGreen");
-  let x = 50;
+  let x = 100;
   for (let r of robotDisplays) {
     r.draw();
     let rc = r.robotContainer;
+    textAlign(CENTER);
     textSize(24);
     noStroke();
     fill(color("Black"))
-    text(rc.score.toFixed(0), x, 30);
-    x += 650;
+    text(rc.robot.constructor.name + ": " + rc.score.toFixed(0), x, 30);
+    x += 600;
   }
   for (let f of flowers) {
     f.draw();
