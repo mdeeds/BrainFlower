@@ -1,5 +1,7 @@
 var leftEntryChoice;
 var rightEntryChoice;
+var game;
+var testMode = false;
 
 function setup() {
   tf.setBackend('cpu');
@@ -43,16 +45,16 @@ function startGame() {
   let left = match.getEntry(0);
   let right = match.getEntry(1);
   match.remove();
-  robotContainers = setupGame(left, right);
-  for (let rc of robotContainers) {
-    robotDisplays.push(new RobotDisplay(rc));
-  }
+  game = new Game(left, right, { noFlowers: testMode });
+
+  robotDisplays.push(new RobotDisplay(game.leftContainer));
+  robotDisplays.push(new RobotDisplay(game.rightContainer));
 }
 
 var angle = 0;
 
 function playFrame() {
-  runFrame();
+  game.runFrame();
   background("DarkSeaGreen");
   let x = 100;
   for (let r of robotDisplays) {
@@ -65,9 +67,7 @@ function playFrame() {
     text(rc.robot.constructor.name + ": " + rc.score.toFixed(0), x, 30);
     x += 600;
   }
-  for (let f of flowers) {
-    f.draw();
-  }
+  game.drawFlowers();
 
   let framesRemaining = kFramesPerRound - frameNumber;
   let secondsRemaining = framesRemaining / 60.0;
@@ -103,6 +103,15 @@ function draw() {
     ++frameNumber;
     if (frameNumber <= kFramesPerRound) {
       playFrame();
+    }
+  }
+}
+
+function mouseClicked() {
+  if (testMode) {
+    if (mouseX >= 0 && mouseX < kArenaSize &&
+      mouseY >= 0 && mouseY < kArenaSize) {
+      game.addFlower(mouseX, mouseY);
     }
   }
 }

@@ -80,9 +80,9 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
-  rcs = setupGame(robotA, robotB);
-  containerA = rcs[0];
-  containerB = rcs[1];
+  let game = new Game(robotA, robotB);
+  containerA = game.leftContainer;
+  containerB = game.rightContainer;
 
   for (let i = 0; i < kFramesPerRound; ++i) {
     runFrame();

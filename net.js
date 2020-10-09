@@ -441,7 +441,7 @@ function collect() {
   let referenceBot = match.getEntry(0);
   console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
-    setupGame(referenceBot, match.getEntry(1));
+    game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
       let frameState = runFrame();
       trainingData.push(new TrainingExample(frameState));
