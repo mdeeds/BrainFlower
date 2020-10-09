@@ -132,9 +132,11 @@ class Game {
       try {
         turn = rc.robot.run(s);
       } catch (e) {
+        console.log("Broken robot: " + e.message);
         turn = 0.0;
       }
       if (typeof turn != "number") {
+        console.log("Broken robot: run must always return a number.");
         turn = 0.0;
       }
       if (i == 0) {
