@@ -16,6 +16,9 @@ class FrameState {
 
 class Game {
   constructor(left, right, options) {
+    if (typeof options === "undefined") {
+      options = {};
+    }
     this.options = options;
     this.flowers = new Set();
     this.robotContainers = [];

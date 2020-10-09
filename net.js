@@ -1,6 +1,15 @@
 const kLayerSpacing = 250;
 const kRoot2 = Math.sqrt(2);
 
+var botUnderTest;
+var ctx;
+var repeatBox;
+var match;
+var trainingData = [];
+var testPoints;
+var modelEval = null;
+var game = null;
+
 class TestPoint {
   constructor(element, dataCallback) {
     this.element = element;
@@ -423,14 +432,6 @@ class TrainingExample {
   }
 }
 
-var botUnderTest;
-var ctx;
-var repeatBox;
-var match;
-var trainingData = [];
-var testPoints;
-var modelEval = null;
-
 function show() {
   let model = botUnderTest.getModel();
   ctx.renderModel(model);
@@ -443,7 +444,7 @@ function collect() {
   for (let i = 0; i < repeatBox.value(); ++i) {
     game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
-      let frameState = runFrame();
+      let frameState = game.runFrame();
       trainingData.push(new TrainingExample(frameState));
     }
     counters.set("Games collected", trainingData.length / kFramesPerRound);
