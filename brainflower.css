@@ -61,3 +61,8 @@ svg {
   border-style: inset;
   text-align: center;
 }
+
+.biggest {
+  width: calc(min(95vw - 50px, 95vh - 50px));;
+  height: calc(min(95vw - 50px, 90vh - 50px));
+}

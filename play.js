@@ -18,6 +18,12 @@ function setup() {
   startButton.size(60, 40);
   startButton.position(kArenaSize / 2 - 25 + 50, 200);
   startButton.mousePressed(startGame);
+
+   for (c of document.getElementsByTagName("canvas")) {
+     c.classList.add("biggest");
+     c.style.setProperty("width", null);
+     c.style.setProperty("height", null);     
+   }
 }
 
 
