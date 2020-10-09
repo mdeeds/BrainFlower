@@ -4,6 +4,9 @@ var game;
 var testMode = false;
 
 function setup() {
+  let p = window.getURLParams();
+  testMode = !!p.test;
+
   tf.setBackend('cpu');
   [leftEntryChoice, rightEntryChoice] = buildEntryMap();
 
