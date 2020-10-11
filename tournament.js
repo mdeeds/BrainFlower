@@ -85,7 +85,7 @@ function runOneGame(robotA, robotB) {
   containerB = game.rightContainer;
 
   for (let i = 0; i < kFramesPerRound; ++i) {
-    runFrame();
+    game.runFrame();
   }
   addScore(containerA, containerB);
   addScore(containerB, containerA);
