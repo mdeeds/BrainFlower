@@ -48,6 +48,12 @@ svg {
   cursor: move;
 }
 
+.tipDiv {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
 .status {
   width: calc(100vw - 100px);
   height: 50vh;

@@ -71,18 +71,17 @@ class Wire {
     this.paths[0].setAttribute("stroke", color1);
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", color2);
-    this.dragging = false;
     this.tip = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     this.tip.setAttribute("r", 10);
     this.tip.setAttribute("transform", "translate(-5, -5)");
     this.tip.setAttribute("fill", color2);
 
     this.tipDiv = document.createElement("div");
-    this.tipDiv.innerHTML = "TIP";
     this.tipDiv.classList.add("draggable");
     this.tipDiv.classList.add("tipDiv");
+    this.tipDiv.draggable = true;
 
-    this.addDragHandlers(this.tip);
+    this.addDragHandlers(this.tipDiv);
     this.setDestination(destinationX, destinationY);
 
     this.dragging = false;
@@ -91,14 +90,14 @@ class Wire {
   }
 
   addDragHandlers(element) {
-    element.addEventListener("mousedown", this.dragStart.bind(this));
-    element.addEventListener("mousemove", this.drag.bind(this));
-    element.addEventListener("mouseleave", this.dragEnd.bind(this));
-    element.addEventListener("mouseup", this.dragEnd.bind(this));
+    element.addEventListener("dragstart", this.dragStart.bind(this));
+    element.addEventListener("drag", this.drag.bind(this));
+    element.addEventListener("dragend", this.dragEnd.bind(this));
     element.classList.add("draggable");
   }
 
   dragStart(e) {
+    console.log("Drag start");
     this.dragging = true;
   }
 
@@ -106,14 +105,22 @@ class Wire {
     if (!this.dragging) {
       return;
     }
-    let dx = e.movementX;
-    let dy = e.movementY;
-    let newX = parseFloat(this.tip.getAttribute("cx")) + dx;
-    let newY = parseFloat(this.tip.getAttribute("cy")) + dy;
-    this.setDestination(newX, newY);
+    let newX = e.clientX - 10;
+    let newY = e.clientY - 10;
+    let divLocation = this.tipDiv.getBoundingClientRect();
+    this.tipDiv.style.setProperty("left", newX.toFixed(0) + "px");
+    this.tipDiv.style.setProperty("top", newY.toFixed(0) + "px");
+
+    let dx = this.tip.getAttribute("cx") - divLocation.left;
+    let dy = this.tip.getAttribute("cy") - divLocation.top;
+
+    this.setDestination(newX + dx, newY + dy);
   }
 
   dragEnd(e) {
+    let dx = e.movementX;
+    let dy = e.movementY;
+    console.log("Drag End: " + dx + " " + dy);
     this.dragging = false;
   }
 
@@ -606,6 +613,10 @@ function setup() {
   music.volume = 0.25;
   tryPlaying(music);
   body.appendChild(music);
+
+  body.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  }, false);
 
   for (c of document.getElementsByTagName("canvas")) {
     c.parentElement.removeChild(c);
