@@ -357,10 +357,10 @@ class SvgContext {
     return 60;
   }
 
-  buildDataCallback(model, layer, index) {
+  buildDataCallback(model, layer, index, isOutput) {
     return function () {
       if (!modelEval) { return [0]; }
-      return modelEval.getArray(layer, index);
+      return modelEval.getArray(layer, index, isOutput);
     }.bind(model, layer, index);
   }
 
@@ -375,7 +375,7 @@ class SvgContext {
     for (let i = 0; i < shape[0]; ++i) {
       let tp = this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i));
+      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ false));
 
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
@@ -394,6 +394,9 @@ class SvgContext {
       this.line(parent, x0, y0, x1, y1);
       this.path(parent, x1, y1, x1 + 40, y1,
         x2, y2 + 50 + i * 20, x2, y2);
+
+      let tp = this.addTestPoint(parent, x1, y1);
+      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ true));
       // this.path(parent,)
     }
 
@@ -493,7 +496,8 @@ function getInputOutputTensors() {
 
 class ModelEvaluation {
   constructor(model) {
-    this.layerMap = new Map();
+    this.layerMapInput = new Map();
+    this.layerMapOutput = new Map();
 
     let inputTensor, outputTensor, weightTensor;
     [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
@@ -505,11 +509,19 @@ class ModelEvaluation {
           outputs: l.input
         });
       let prediction = smallerModel.predict(inputTensor)
-      this.layerMap.set(l, prediction.dataSync());
+      this.layerMapInput.set(l, prediction.dataSync());
+      smallerModel = tf.model(
+        {
+          inputs: model.inputs,
+          outputs: l.output
+        });
+      prediction = smallerModel.predict(inputTensor)
+      this.layerMapOutput.set(l, prediction.dataSync());
     }
   }
-  getArray(layer, index) {
-    let data = this.layerMap.get(layer);
+  getArray(layer, index, isOutput) {
+    let data = isOutput ? this.layerMapOutput.get(layer) :
+      this.layerMapInput.get(layer);
     if (!data) {
       return [0];
     }
