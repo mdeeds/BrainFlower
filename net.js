@@ -76,6 +76,12 @@ class Wire {
     this.tip.setAttribute("r", 10);
     this.tip.setAttribute("transform", "translate(-5, -5)");
     this.tip.setAttribute("fill", color2);
+
+    this.tipDiv = document.createElement("div");
+    this.tipDiv.innerHTML = "TIP";
+    this.tipDiv.classList.add("draggable");
+    this.tipDiv.classList.add("tipDiv");
+
     this.addDragHandlers(this.tip);
     this.setDestination(destinationX, destinationY);
 
@@ -116,6 +122,12 @@ class Wire {
       parent.appendChild(p);
     }
     parent.appendChild(this.tip);
+    let body = document.getElementById("body");
+    body.appendChild(this.tipDiv);
+
+    let dotPosition = this.tip.getBoundingClientRect();
+    this.tipDiv.style.setProperty("left", dotPosition.left);
+    this.tipDiv.style.setProperty("top", dotPosition.top);
   }
 
   setDestination(x, y) {
@@ -339,9 +351,9 @@ class SvgContext {
   }
 
   buildDataCallback(model, layer, index) {
-    return function () { 
+    return function () {
       if (!modelEval) { return [0]; }
-      return modelEval.getArray(layer, index); 
+      return modelEval.getArray(layer, index);
     }.bind(model, layer, index);
   }
 
@@ -574,11 +586,30 @@ class CounterSet {
   }
 }
 
+function loadSound(path) {
+  let audio = document.createElement("audio");
+  audio.src = path;
+  return audio;
+}
+
+function tryPlaying(audioElement) {
+  audioElement.play().catch((e) => {
+    setTimeout(() => { tryPlaying(audioElement); }, 100);
+  });
+}
+
+
 function setup() {
+  let body = document.getElementById("body");
+  music = loadSound("sfx/Background.mp3");
+  music.setAttribute("loop", true);
+  music.volume = 0.25;
+  tryPlaying(music);
+  body.appendChild(music);
+
   for (c of document.getElementsByTagName("canvas")) {
     c.parentElement.removeChild(c);
   }
-  let body = document.getElementById("body");
   {
     let l;
     let r;
