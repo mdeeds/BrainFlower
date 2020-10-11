@@ -333,6 +333,8 @@ class SvgContext {
   }
 
   addTestPoint(parent, x, y) {
+    this.stroke = "#000";
+    this.fill = "#fff";
     let d = this.diamond(parent, x, y);
     return d;
   }
@@ -362,6 +364,13 @@ class SvgContext {
       if (!modelEval) { return [0]; }
       return modelEval.getArray(layer, index, isOutput);
     }.bind(model, layer, index);
+  }
+
+  buildExpectedCallback() {
+    return function() {
+      if (!modelEval) { return [0]; }
+      return modelEval.getExpectedValues();
+    };
   }
 
   renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
@@ -442,6 +451,9 @@ class SvgContext {
       }
       offsetX += 50;
     }
+
+    let tp = this.addTestPoint(g, offsetX, offsetY);
+    testPoints.add(tp, this.buildExpectedCallback());
   }
 }
 
@@ -502,6 +514,8 @@ class ModelEvaluation {
     let inputTensor, outputTensor, weightTensor;
     [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
 
+    this.expected = outputTensor.dataSync();
+
     for (let l of model.layers) {
       let smallerModel = tf.model(
         {
@@ -525,12 +539,15 @@ class ModelEvaluation {
     if (!data) {
       return [0];
     }
-    let stride = layer.input.shape[1];
+    let stride = isOutput ? layer.output.shape[1] : layer.input.shape[1];
     let result = [];
     for (let i = index; i < data.length; i += stride) {
       result.push(data[i]);
     }
     return result;
+  }
+  getExpectedValues() {
+    return this.expected;
   }
 }
 
