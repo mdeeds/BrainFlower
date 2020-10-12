@@ -188,6 +188,8 @@ class Oscope {
       this.jitter = !this.jitter;
       if (this.jitter) {
         let img = document.createElement("img");
+        // TODO: Add this to the SVG and set its position the same way as the screen.
+        // Also, toggle it on and off by setting its visibility, not by changing its presence.
         img.setAttribute("src", "img/OnLED.png");
         img.setAttribute("width", 26);
         img.addEventListener("click", () => true);
@@ -259,11 +261,39 @@ class SvgContext {
     this.oscope = new Oscope(500, 0);
     this.mouseX = 0;
     this.mouseY = 0;
+    this.currentWeightTensor = null;
+    this.currentWeightIndex = -1;
+
     svg.addEventListener("mouseover",
       function (e) {
         this.mouseX = e.offsetX;
         this.mouseY = e.offsetY;
       }.bind(this));
+    document.getElementById("body").addEventListener("keydown",
+      (e) => {
+        if (!this.currentWeightTensor) {
+          console.log("No tensor selected.");
+          return;
+        }
+        let oldData = this.currentWeightTensor.dataSync();
+        let oldValue = oldData[this.currentWeightIndex];
+        let delta = 0.0;
+        let magnitude = (e.ctrlKey || e.metaKey) ? 0.01 : 0.5;
+        let invMag = 1.0 / magnitude;
+        if (e.code === 'ArrowRight' || e.code === 'ArrowUp') {
+          delta = +1;
+        } else if (e.code === 'ArrowLeft' || e.code === 'ArrowDown') {
+          delta = -1;
+        }
+        if (delta === 0) {
+          return;
+        }
+        let newValue = (Math.round(invMag * oldValue) + delta) / invMag;
+        oldData[this.currentWeightIndex] = newValue;
+        this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
+        show();
+        return true;
+      });
   }
 
   clear() {
@@ -351,13 +381,16 @@ class SvgContext {
     }
   }
 
-  addCircle(parent, x, y, weight) {
+  addCircle(parent, x, y, weightTensor, data, i) {
+    let weight = data[i];
     this.setFillForWeight(weight);
     let c = this.circle(parent, x, y, 5);
     c.setAttribute("weight", weight);
     c.addEventListener("mouseover", function () {
       this.weightBox.innerHTML = weight.toFixed(3);
-    }.bind(this, weight));
+      this.currentWeightTensor = weightTensor;
+      this.currentWeightIndex = i;
+    }.bind(this, weight, weightTensor, i));
   }
 
   addTestPoint(parent, x, y) {
@@ -381,7 +414,7 @@ class SvgContext {
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15, data[i]);
+        offsetX + 30, offsetY + r0 * 15, weights.val, data, i);
       ++i;
     }
     return 60;
@@ -444,7 +477,7 @@ class SvgContext {
         let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
-          offsetY + d1 * 15, data[i]);
+          offsetY + d1 * 15, weights.val, data, i);
         ++i;
       }
     }
