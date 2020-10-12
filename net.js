@@ -180,6 +180,24 @@ class Oscope {
     this.displayGroup.setAttribute("transform",
       "translate(" + (this.x + 150) + " " + (this.y + 142) + ") scale(0.55)");
 
+    this.jitter = false;
+
+    this.jitterDiv = document.createElement("div");
+    this.jitterDiv.classList.add("indicator");
+    this.jitterDiv.addEventListener("click", (e) => {
+      this.jitter = !this.jitter;
+      if (this.jitter) {
+        let img = document.createElement("img");
+        img.setAttribute("src", "img/OnLED.png");
+        img.setAttribute("width", 26);
+        img.addEventListener("click", () => true);
+        e.target.innerHTML = "";
+        e.target.appendChild(img);
+      } else {
+        e.target.innerHTML = "";
+      }
+    });
+
     this.showData();
   }
 
@@ -189,14 +207,24 @@ class Oscope {
     this.aWire.addTo(parent);
     this.bWire.addTo(parent);
     parent.appendChild(this.displayGroup);
+    let bodyRect = this.body.getBoundingClientRect();
+    this.jitterDiv.style.setProperty("left", bodyRect.x + 32);
+    this.jitterDiv.style.setProperty("top", bodyRect.y + 272);
+    document.getElementById("body").appendChild(this.jitterDiv);
   }
 
   showSeries(xs, series, color) {
     for (let i = 0; i < xs.length; ++i) {
       let x = xs[i];
       let y = series[i];
+      if (this.jitter) {
+        x += Math.random() * 0.05 - 0.025;
+        y += Math.random() * 0.05 - 0.025;
+      }
+
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       dot.setAttribute("fill", color);
+      dot.setAttribute("fill-opacity", 0.05);
       dot.setAttribute("cx", Math.min(200, Math.max(-200, 100 * x)));
       dot.setAttribute("cy", Math.min(200, Math.max(-200, 100 * -y)));
       dot.setAttribute("r", 5);
@@ -367,7 +395,7 @@ class SvgContext {
   }
 
   buildExpectedCallback() {
-    return function() {
+    return function () {
       if (!modelEval) { return [0]; }
       return modelEval.getExpectedValues();
     };

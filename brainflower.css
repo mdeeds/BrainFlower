@@ -68,6 +68,18 @@ svg {
   text-align: center;
 }
 
+.indicator {
+  width: 30px;
+  height: 30px;
+  border: solid magenta 1px;
+  position: absolute;
+  z-index: 100;
+}
+
+img {
+  z-index: -1;
+}
+
 .biggest {
   width: calc(min(95vw - 50px, 95vh - 50px));;
   height: calc(min(95vw - 50px, 90vh - 50px));
