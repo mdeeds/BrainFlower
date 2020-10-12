@@ -197,8 +197,8 @@ class Oscope {
       let y = series[i];
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       dot.setAttribute("fill", color);
-      dot.setAttribute("cx", 100 * x);
-      dot.setAttribute("cy", 100 * -y);
+      dot.setAttribute("cx", Math.min(200, Math.max(-200, 100 * x)));
+      dot.setAttribute("cy", Math.min(200, Math.max(-200, 100 * -y)));
       dot.setAttribute("r", 5);
       this.displayGroup.appendChild(dot);
     }
