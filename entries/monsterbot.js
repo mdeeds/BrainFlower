@@ -19,9 +19,12 @@ class monsterbot {
      */
     run(s) {
         if (s.rightFlowers > s.leftFlowers) {
-            return -0.3;
+            return -0.2;
+        if (s.leftFlowers > s.rightFlowers)
+            return 0.2;    
         } else {
             return 0.2;
+        
         }
     }
 }
