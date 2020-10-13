@@ -14,10 +14,22 @@ class Kili {
      */
     run(s) {
         if (s.rightFlowers > s.leftFlowers) {
-            return -0.5;
-        } else {
-            return 0.5;
-        }
-    }
+            return -0.5
 
+
+        } else if (s.rightFlowerDistance < s.leftFlowerDistance) {
+
+            return 0.5
+
+
+        }
+        else if (s.leftDistanceToWall < 70.8 && s.rightDistanceToWall < 70.8) {
+            return 0.9;
+        } else if (s.leftDistanceToWall = 50) {
+            return 0.
+        } else if (s.leftDistanceToWall = 50)
+            return 0.9;
+
+        return 0.1;
+    }
 }
