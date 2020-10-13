@@ -1,6 +1,15 @@
 const kLayerSpacing = 250;
 const kRoot2 = Math.sqrt(2);
 
+var botUnderTest;
+var ctx;
+var repeatBox;
+var match;
+var trainingData = [];
+var testPoints;
+var modelEval = null;
+var game = null;
+
 class TestPoint {
   constructor(element, dataCallback) {
     this.element = element;
@@ -62,12 +71,17 @@ class Wire {
     this.paths[0].setAttribute("stroke", color1);
     this.paths[1].setAttribute("stroke-dasharray", "4 7");
     this.paths[1].setAttribute("stroke", color2);
-    this.dragging = false;
     this.tip = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     this.tip.setAttribute("r", 10);
     this.tip.setAttribute("transform", "translate(-5, -5)");
     this.tip.setAttribute("fill", color2);
-    this.addDragHandlers(this.tip);
+
+    this.tipDiv = document.createElement("div");
+    this.tipDiv.classList.add("draggable");
+    this.tipDiv.classList.add("tipDiv");
+    this.tipDiv.draggable = true;
+
+    this.addDragHandlers(this.tipDiv);
     this.setDestination(destinationX, destinationY);
 
     this.dragging = false;
@@ -76,14 +90,14 @@ class Wire {
   }
 
   addDragHandlers(element) {
-    element.addEventListener("mousedown", this.dragStart.bind(this));
-    element.addEventListener("mousemove", this.drag.bind(this));
-    element.addEventListener("mouseleave", this.dragEnd.bind(this));
-    element.addEventListener("mouseup", this.dragEnd.bind(this));
+    element.addEventListener("dragstart", this.dragStart.bind(this));
+    element.addEventListener("drag", this.drag.bind(this));
+    element.addEventListener("dragend", this.dragEnd.bind(this));
     element.classList.add("draggable");
   }
 
   dragStart(e) {
+    console.log("Drag start");
     this.dragging = true;
   }
 
@@ -91,14 +105,22 @@ class Wire {
     if (!this.dragging) {
       return;
     }
-    let dx = e.movementX;
-    let dy = e.movementY;
-    let newX = parseFloat(this.tip.getAttribute("cx")) + dx;
-    let newY = parseFloat(this.tip.getAttribute("cy")) + dy;
-    this.setDestination(newX, newY);
+    let newX = e.clientX - 10;
+    let newY = e.clientY - 10;
+    let divLocation = this.tipDiv.getBoundingClientRect();
+    this.tipDiv.style.setProperty("left", newX.toFixed(0) + "px");
+    this.tipDiv.style.setProperty("top", newY.toFixed(0) + "px");
+
+    let dx = this.tip.getAttribute("cx") - divLocation.left;
+    let dy = this.tip.getAttribute("cy") - divLocation.top;
+
+    this.setDestination(newX + dx, newY + dy);
   }
 
   dragEnd(e) {
+    let dx = e.movementX;
+    let dy = e.movementY;
+    console.log("Drag End: " + dx + " " + dy);
     this.dragging = false;
   }
 
@@ -107,6 +129,12 @@ class Wire {
       parent.appendChild(p);
     }
     parent.appendChild(this.tip);
+    let body = document.getElementById("body");
+    body.appendChild(this.tipDiv);
+
+    let dotPosition = this.tip.getBoundingClientRect();
+    this.tipDiv.style.setProperty("left", dotPosition.left);
+    this.tipDiv.style.setProperty("top", dotPosition.top);
   }
 
   setDestination(x, y) {
@@ -152,6 +180,26 @@ class Oscope {
     this.displayGroup.setAttribute("transform",
       "translate(" + (this.x + 150) + " " + (this.y + 142) + ") scale(0.55)");
 
+    this.jitter = false;
+
+    this.jitterDiv = document.createElement("div");
+    this.jitterDiv.classList.add("indicator");
+    this.jitterDiv.addEventListener("click", (e) => {
+      this.jitter = !this.jitter;
+      if (this.jitter) {
+        let img = document.createElement("img");
+        // TODO: Add this to the SVG and set its position the same way as the screen.
+        // Also, toggle it on and off by setting its visibility, not by changing its presence.
+        img.setAttribute("src", "img/OnLED.png");
+        img.setAttribute("width", 26);
+        img.addEventListener("click", () => true);
+        e.target.innerHTML = "";
+        e.target.appendChild(img);
+      } else {
+        e.target.innerHTML = "";
+      }
+    });
+
     this.showData();
   }
 
@@ -161,16 +209,26 @@ class Oscope {
     this.aWire.addTo(parent);
     this.bWire.addTo(parent);
     parent.appendChild(this.displayGroup);
+    let bodyRect = this.body.getBoundingClientRect();
+    this.jitterDiv.style.setProperty("left", bodyRect.x + 32);
+    this.jitterDiv.style.setProperty("top", bodyRect.y + 272);
+    document.getElementById("body").appendChild(this.jitterDiv);
   }
 
   showSeries(xs, series, color) {
     for (let i = 0; i < xs.length; ++i) {
       let x = xs[i];
       let y = series[i];
+      if (this.jitter) {
+        x += Math.random() * 0.05 - 0.025;
+        y += Math.random() * 0.05 - 0.025;
+      }
+
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       dot.setAttribute("fill", color);
-      dot.setAttribute("cx", 100 * x);
-      dot.setAttribute("cy", 100 * -y);
+      dot.setAttribute("fill-opacity", 0.05);
+      dot.setAttribute("cx", Math.min(200, Math.max(-200, 100 * x)));
+      dot.setAttribute("cy", Math.min(200, Math.max(-200, 100 * -y)));
       dot.setAttribute("r", 5);
       this.displayGroup.appendChild(dot);
     }
@@ -203,11 +261,39 @@ class SvgContext {
     this.oscope = new Oscope(500, 0);
     this.mouseX = 0;
     this.mouseY = 0;
+    this.currentWeightTensor = null;
+    this.currentWeightIndex = -1;
+
     svg.addEventListener("mouseover",
       function (e) {
         this.mouseX = e.offsetX;
         this.mouseY = e.offsetY;
       }.bind(this));
+    document.getElementById("body").addEventListener("keydown",
+      (e) => {
+        if (!this.currentWeightTensor) {
+          console.log("No tensor selected.");
+          return;
+        }
+        let oldData = this.currentWeightTensor.dataSync();
+        let oldValue = oldData[this.currentWeightIndex];
+        let delta = 0.0;
+        let magnitude = (e.ctrlKey || e.metaKey) ? 0.01 : 0.5;
+        let invMag = 1.0 / magnitude;
+        if (e.code === 'ArrowRight' || e.code === 'ArrowUp') {
+          delta = +1;
+        } else if (e.code === 'ArrowLeft' || e.code === 'ArrowDown') {
+          delta = -1;
+        }
+        if (delta === 0) {
+          return;
+        }
+        let newValue = (Math.round(invMag * oldValue) + delta) / invMag;
+        oldData[this.currentWeightIndex] = newValue;
+        this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
+        show();
+        return true;
+      });
   }
 
   clear() {
@@ -295,16 +381,21 @@ class SvgContext {
     }
   }
 
-  addCircle(parent, x, y, weight) {
+  addCircle(parent, x, y, weightTensor, data, i) {
+    let weight = data[i];
     this.setFillForWeight(weight);
     let c = this.circle(parent, x, y, 5);
     c.setAttribute("weight", weight);
     c.addEventListener("mouseover", function () {
       this.weightBox.innerHTML = weight.toFixed(3);
-    }.bind(this, weight));
+      this.currentWeightTensor = weightTensor;
+      this.currentWeightIndex = i;
+    }.bind(this, weight, weightTensor, i));
   }
 
   addTestPoint(parent, x, y) {
+    this.stroke = "#000";
+    this.fill = "#fff";
     let d = this.diamond(parent, x, y);
     return d;
   }
@@ -323,17 +414,24 @@ class SvgContext {
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15, data[i]);
+        offsetX + 30, offsetY + r0 * 15, weights.val, data, i);
       ++i;
     }
     return 60;
   }
 
-  buildDataCallback(model, layer, index) {
-    return function () { 
+  buildDataCallback(model, layer, index, isOutput) {
+    return function () {
       if (!modelEval) { return [0]; }
-      return modelEval.getArray(layer, index); 
+      return modelEval.getArray(layer, index, isOutput);
     }.bind(model, layer, index);
+  }
+
+  buildExpectedCallback() {
+    return function () {
+      if (!modelEval) { return [0]; }
+      return modelEval.getExpectedValues();
+    };
   }
 
   renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
@@ -347,7 +445,7 @@ class SvgContext {
     for (let i = 0; i < shape[0]; ++i) {
       let tp = this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i));
+      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ false));
 
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
@@ -366,6 +464,9 @@ class SvgContext {
       this.line(parent, x0, y0, x1, y1);
       this.path(parent, x1, y1, x1 + 40, y1,
         x2, y2 + 50 + i * 20, x2, y2);
+
+      let tp = this.addTestPoint(parent, x1, y1);
+      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ true));
       // this.path(parent,)
     }
 
@@ -376,7 +477,7 @@ class SvgContext {
         let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
-          offsetY + d1 * 15, data[i]);
+          offsetY + d1 * 15, weights.val, data, i);
         ++i;
       }
     }
@@ -411,6 +512,9 @@ class SvgContext {
       }
       offsetX += 50;
     }
+
+    let tp = this.addTestPoint(g, offsetX, offsetY);
+    testPoints.add(tp, this.buildExpectedCallback());
   }
 }
 
@@ -423,14 +527,6 @@ class TrainingExample {
   }
 }
 
-var botUnderTest;
-var ctx;
-var repeatBox;
-var match;
-var trainingData = [];
-var testPoints;
-var modelEval = null;
-
 function show() {
   let model = botUnderTest.getModel();
   ctx.renderModel(model);
@@ -441,9 +537,9 @@ function collect() {
   let referenceBot = match.getEntry(0);
   console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
-    setupGame(referenceBot, match.getEntry(1));
+    game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
-      let frameState = runFrame();
+      let frameState = game.runFrame();
       trainingData.push(new TrainingExample(frameState));
     }
     counters.set("Games collected", trainingData.length / kFramesPerRound);
@@ -471,34 +567,84 @@ function getInputOutputTensors() {
   return [inputTensor, outputTensor, weightTensor];
 }
 
+function rebuildModel(model, layerCount) {
+  const input = model.inputs[0];
+  let previousLayer = input;
+  for (let i = 0; i <= layerCount; ++i) {
+    let l = model.layers[i];
+    if (l.input == l.output) {
+      continue;
+    }
+    let config = l.getConfig();
+    if (i == layerCount) {
+      config.activation = "linear";
+      console.log("Rebuilt: " + JSON.stringify(config));
+    }
+    const newLayer = tf.layers.dense(config).apply(previousLayer);
+    console.assert(
+      l.weights.length == newLayer.sourceLayer.weights.length);
+    for (let j = 0; j < l.weights.length; ++j) {
+      newLayer.sourceLayer.weights[j].val.assign(l.weights[j].val);
+    }
+    previousLayer = newLayer;
+  }
+  const newModel = tf.model({ inputs: input, outputs: previousLayer });
+  return newModel;
+}
+
 class ModelEvaluation {
   constructor(model) {
-    this.layerMap = new Map();
+    this.layerMapInput = new Map();
+    this.layerMapOutput = new Map();
 
     let inputTensor, outputTensor, weightTensor;
     [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
 
-    for (let l of model.layers) {
-      let smallerModel = tf.model(
-        {
-          inputs: model.inputs,
-          outputs: l.input
-        });
-      let prediction = smallerModel.predict(inputTensor)
-      this.layerMap.set(l, prediction.dataSync());
+    this.expected = outputTensor.dataSync();
+
+    for (let i = 0; i < model.layers.length; ++i) {
+      let l = model.layers[i];
+      let smallerModel = tf.model({
+        inputs: model.inputs,
+        outputs: l.input
+      });
+      let prediction = smallerModel.predict(inputTensor);
+      this.layerMapInput.set(l, prediction.dataSync());
+      if (!l.getConfig().units) {
+        continue;
+      }
+      smallerModel = rebuildModel(model, i);
+      // let newConfig = {};
+      // Object.assign(newConfig, l.getConfig());
+      // newConfig.activation = "linear";
+      // console.log("New config: " + JSON.stringify(newConfig));
+      // if (!newConfig.units) {
+      //   continue;
+      // }
+      // let newOutput = tf.layers.dense(newConfig);
+      // let newLayerOut = newOutput.apply(l.input);
+      // newLayerOut.weights = l.weights;
+      // l.input.output = newLayerOut;
+
+      prediction = smallerModel.predict(inputTensor)
+      this.layerMapOutput.set(l, prediction.dataSync());
     }
   }
-  getArray(layer, index) {
-    let data = this.layerMap.get(layer);
+  getArray(layer, index, isOutput) {
+    let data = isOutput ? this.layerMapOutput.get(layer) :
+      this.layerMapInput.get(layer);
     if (!data) {
       return [0];
     }
-    let stride = layer.input.shape[1];
+    let stride = isOutput ? layer.output.shape[1] : layer.input.shape[1];
     let result = [];
     for (let i = index; i < data.length; i += stride) {
       result.push(data[i]);
     }
     return result;
+  }
+  getExpectedValues() {
+    return this.expected;
   }
 }
 
@@ -573,11 +719,34 @@ class CounterSet {
   }
 }
 
+function loadSound(path) {
+  let audio = document.createElement("audio");
+  audio.src = path;
+  return audio;
+}
+
+function tryPlaying(audioElement) {
+  audioElement.play().catch((e) => {
+    setTimeout(() => { tryPlaying(audioElement); }, 100);
+  });
+}
+
+
 function setup() {
+  let body = document.getElementById("body");
+  music = loadSound("sfx/Background.mp3");
+  music.setAttribute("loop", true);
+  music.volume = 0.25;
+  tryPlaying(music);
+  body.appendChild(music);
+
+  body.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  }, false);
+
   for (c of document.getElementsByTagName("canvas")) {
     c.parentElement.removeChild(c);
   }
-  let body = document.getElementById("body");
   {
     let l;
     let r;

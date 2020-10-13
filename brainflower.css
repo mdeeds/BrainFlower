@@ -48,6 +48,12 @@ svg {
   cursor: move;
 }
 
+.tipDiv {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
 .status {
   width: calc(100vw - 100px);
   height: 50vh;
@@ -60,4 +66,21 @@ svg {
   border-width: 50px;
   border-style: inset;
   text-align: center;
+}
+
+.indicator {
+  width: 30px;
+  height: 30px;
+  border: solid magenta 1px;
+  position: absolute;
+  z-index: 100;
+}
+
+img {
+  z-index: -1;
+}
+
+.biggest {
+  width: calc(min(95vw - 50px, 95vh - 50px));;
+  height: calc(min(95vw - 50px, 90vh - 50px));
 }
