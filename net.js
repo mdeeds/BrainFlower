@@ -567,6 +567,31 @@ function getInputOutputTensors() {
   return [inputTensor, outputTensor, weightTensor];
 }
 
+function rebuildModel(model, layerCount) {
+  const input = model.inputs[0];
+  let previousLayer = input;
+  for (let i = 0; i <= layerCount; ++i) {
+    let l = model.layers[i];
+    if (l.input == l.output) {
+      continue;
+    }
+    let config = l.getConfig();
+    if (i == layerCount) {
+      config.activation = "linear";
+      console.log("Rebuilt: " + JSON.stringify(config));
+    }
+    const newLayer = tf.layers.dense(config).apply(previousLayer);
+    console.assert(
+      l.weights.length == newLayer.sourceLayer.weights.length);
+    for (let j = 0; j < l.weights.length; ++j) {
+      newLayer.sourceLayer.weights[j].val.assign(l.weights[j].val);
+    }
+    previousLayer = newLayer;
+  }
+  const newModel = tf.model({ inputs: input, outputs: previousLayer });
+  return newModel;
+}
+
 class ModelEvaluation {
   constructor(model) {
     this.layerMapInput = new Map();
@@ -577,19 +602,30 @@ class ModelEvaluation {
 
     this.expected = outputTensor.dataSync();
 
-    for (let l of model.layers) {
-      let smallerModel = tf.model(
-        {
-          inputs: model.inputs,
-          outputs: l.input
-        });
-      let prediction = smallerModel.predict(inputTensor)
+    for (let i = 0; i < model.layers.length; ++i) {
+      let l = model.layers[i];
+      let smallerModel = tf.model({
+        inputs: model.inputs,
+        outputs: l.input
+      });
+      let prediction = smallerModel.predict(inputTensor);
       this.layerMapInput.set(l, prediction.dataSync());
-      smallerModel = tf.model(
-        {
-          inputs: model.inputs,
-          outputs: l.output
-        });
+      if (!l.getConfig().units) {
+        continue;
+      }
+      smallerModel = rebuildModel(model, i);
+      // let newConfig = {};
+      // Object.assign(newConfig, l.getConfig());
+      // newConfig.activation = "linear";
+      // console.log("New config: " + JSON.stringify(newConfig));
+      // if (!newConfig.units) {
+      //   continue;
+      // }
+      // let newOutput = tf.layers.dense(newConfig);
+      // let newLayerOut = newOutput.apply(l.input);
+      // newLayerOut.weights = l.weights;
+      // l.input.output = newLayerOut;
+
       prediction = smallerModel.predict(inputTensor)
       this.layerMapOutput.set(l, prediction.dataSync());
     }
