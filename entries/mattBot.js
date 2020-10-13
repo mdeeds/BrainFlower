@@ -27,6 +27,9 @@ class MattBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
+    if (s.distanceToWall < 71) {
+      return this.hardTurn;
+    }
     if (s.leftFlowers == 0 && s.rightFlowers == 0) {
       return this.hardTurn;
     }
