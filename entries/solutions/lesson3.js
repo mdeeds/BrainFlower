@@ -16,7 +16,7 @@ class MattBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.rightFlowers > s.leftFlowers) {
+    if (s.leftFlowers > s.rightFlowers) {
       return -0.3;
     } else {
       return 0.2;

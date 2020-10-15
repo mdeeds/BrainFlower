@@ -25,11 +25,11 @@ class Roomba {
   run(s) {
 
     if (this.onCourse) {
-      if (s.leftDistanceToWall <= 70.7) {
+      if (s.rightDistanceToWall <= 70.7) {
         this.newHeading = s.myHeading + 90 * (Math.random() + 0.5);
         this.onCourse = false;
       }
-      if (s.rightDistanceToWall <= 70.7 || s.opponentDistance <= 120) {
+      if (s.leftDistanceToWall <= 70.7 || s.opponentDistance <= 120) {
         this.newHeading = s.myHeading - 90 * (Math.random() + 0.5);
         this.onCourse = false;
       }

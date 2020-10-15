@@ -21,9 +21,9 @@ class CloseBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.rightFlowerDistance < s.leftFlowerDistance) {
+    if (s.leftFlowerDistance < s.rightFlowerDistance) {
       return -0.4;
-    } else if (s.rightFlowerDistance > s.leftFlowerDistance) {
+    } else if (s.leftFlowerDistance > s.rightFlowerDistance) {
       return 0.4;
     }
     return 0.1;

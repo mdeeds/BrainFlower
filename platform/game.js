@@ -87,7 +87,7 @@ class Game {
     let bestDistance2 = 2500;
     for (let rc of this.robotContainers) {
       let d2 = distance2(f.x, f.y, rc.x, rc.y);
-      if (d2 < 2500) {
+      if (d2 < bestDistance2) {
         overlappingRobot = rc;
         bestDistance2 = d2;
       }
@@ -195,14 +195,14 @@ class Game {
         dt -= 2 * Math.PI;
       }
       if (dt < Math.PI / 4 && dt > -Math.PI / 12) {
-        state.leftFlowers++;
-        state.leftFlowerDistance =
-          Math.min(state.leftFlowerDistance, distance);
-      }
-      if (dt < Math.PI / 12 && dt > -Math.PI / 4) {
         state.rightFlowers++;
         state.rightFlowerDistance =
           Math.min(state.rightFlowerDistance, distance);
+      }
+      if (dt < Math.PI / 12 && dt > -Math.PI / 4) {
+        state.leftFlowers++;
+        state.leftFlowerDistance =
+          Math.min(state.leftFlowerDistance, distance);
       }
     }
     {

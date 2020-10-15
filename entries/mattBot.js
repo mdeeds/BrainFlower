@@ -8,8 +8,8 @@ class MattBot {
    * @param {number} right 
    */
   constructor(left, right, hardTurn) {
-    this.left = left || 0.1;
-    this.right = right || -0.4;
+    this.left = left || -0.4;
+    this.right = right || 0.1;
     this.hardTurn = hardTurn || -0.9;
   }
 
@@ -33,10 +33,10 @@ class MattBot {
     if (s.leftFlowers == 0 && s.rightFlowers == 0) {
       return this.hardTurn;
     }
-    if (s.rightFlowers > s.leftFlowers) {
-      return this.right;
-    } else {
+    if (s.leftFlowers > s.rightFlowers) {
       return this.left;
+    } else {
+      return this.right;
     }
   }
 }
