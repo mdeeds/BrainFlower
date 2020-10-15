@@ -18,7 +18,7 @@ class Kili {
     } else if (s.leftFlowerDistance < s.rightFlowerDistance) {
       return -0.5
     } else if (s.leftDistanceToWall < 70.8 || s.rightDistanceToWall < 70.8) {
-      return 0.9;
+      return 0.9;  // Try moving this "if" block to the top of the function.
     }
     return 0.1;
   }

@@ -27,10 +27,12 @@ class Mooo  {
     if (s.opponentAngle < -60) {
       return -0.80;
     } else if (s.opponentAngle < -20) {
+      // Returning -100000 does the same thing as returning -1.
       return -1000000000000000000000000000000000000;
     } else if (s.opponentAngle < -10) {
       return -100000000000000000000000000000000000;
     } else if (s.opponentAngle < 10) {
+      // This is the case where the opponent is straight ahead.  What do you want to do?
       return 10000000000000000000000000000000000000;
     } else if (s.opponentAngle < 20) {
       return 1000000000000000000000000000000000000;

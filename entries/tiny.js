@@ -20,6 +20,7 @@ class tinyBot {
      * @returns {number} - Turn rate [-1 to 1]
      */
     run(s) {
+      // Try adding a "if" statement like the one in lesson3.js or closeBot.js.
       return 0.15;
     }
   };

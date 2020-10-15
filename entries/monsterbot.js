@@ -24,7 +24,9 @@ class monsterbot {
     if (s.rightFlowers > s.leftFlowers) {
       return 0.2;
     } else {
-      return 0.2;
+      // Maybe return something different here.  What happens if this is 1.0?  What about 0.0?
+      // You might want one more "if"
+      return 0.2;  
     }
   }
 }
