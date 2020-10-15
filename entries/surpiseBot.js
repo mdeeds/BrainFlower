@@ -19,7 +19,7 @@ class Kili {
 
         } else if (s.leftFlowerDistance < s.rightFlowerDistance) {
 
-            return -0.5
+            return 0.5
 
 
         }
