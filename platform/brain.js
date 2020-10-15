@@ -46,6 +46,7 @@ class BrainSpec {
         }
         if (this.options.simplify) {
           layerOptions.kernelRegularizer = 'l1l2';
+          layerOptions.biasRegularizer = 'l1l2';
         }
         console.log("New layer: " + JSON.stringify(layerOptions));
         const layer = tf.layers.dense(layerOptions);
@@ -58,6 +59,7 @@ class BrainSpec {
       }
       if (this.options.simplify) {
         outputOptions.kernelRegularizer = 'l1l2';
+        outputOptions.biasRegularizer = 'l1l2';
       }
       console.log("Output: " + JSON.stringify(outputOptions));
       const outputLayer = tf.layers.dense(outputOptions);

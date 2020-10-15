@@ -49,7 +49,6 @@ class TestPointCollection {
     }
     return null;
   }
-
 }
 
 class Wire {
@@ -291,6 +290,7 @@ class SvgContext {
         let newValue = (Math.round(invMag * oldValue) + delta) / invMag;
         oldData[this.currentWeightIndex] = newValue;
         this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
+        modelEval = new ModelEvaluation(botUnderTest.brain.model);
         show();
         return true;
       });
@@ -515,6 +515,7 @@ class SvgContext {
 
     let tp = this.addTestPoint(g, offsetX, offsetY);
     testPoints.add(tp, this.buildExpectedCallback());
+    this.oscope.showData();
   }
 }
 
@@ -614,18 +615,6 @@ class ModelEvaluation {
         continue;
       }
       smallerModel = rebuildModel(model, i);
-      // let newConfig = {};
-      // Object.assign(newConfig, l.getConfig());
-      // newConfig.activation = "linear";
-      // console.log("New config: " + JSON.stringify(newConfig));
-      // if (!newConfig.units) {
-      //   continue;
-      // }
-      // let newOutput = tf.layers.dense(newConfig);
-      // let newLayerOut = newOutput.apply(l.input);
-      // newLayerOut.weights = l.weights;
-      // l.input.output = newLayerOut;
-
       prediction = smallerModel.predict(inputTensor)
       this.layerMapOutput.set(l, prediction.dataSync());
     }
@@ -812,9 +801,17 @@ function setup() {
   repeatBox.option("10x", 10);
   repeatBox.option("100x", 100);
   {
-    let button = createButton("Reset");
+    let button = createButton("Reset Brain");
     button.size(60, 30);
     button.mousePressed(resetBrain);
+  }
+  {
+    let button = createButton("Clear Data");
+    button.size(60, 30);
+    button.mousePressed(function() {
+      trainingData = [];
+      show();
+    });
   }
   counters = new CounterSet();
   counters.addTo(body);
