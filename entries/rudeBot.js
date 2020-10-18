@@ -18,20 +18,7 @@ class RudeBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.opponentAngle < -60) {
-      return -0.8;
-    } else if (s.opponentAngle < -10) {
-      return -0.5;
-    } else if (s.opponentAngle < -5) {
-      return -0.1;
-    } else if (s.opponentAngle < 5) {
-      return 0.0;
-    } else if (s.opponentAngle < 10) {
-      return 0.1;
-    } else if (s.opponentAngle < 60) {
-      return 0.5;
-    } else {
-      return -0.8;
-    }
+    let turn = s.opponentAngle / 45;
+    return Math.max(-1, Math.min(1, turn));
   }
 };
