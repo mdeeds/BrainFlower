@@ -33,6 +33,7 @@ class BrainSpec {
   createModel() {
     console.assert(
       this.options.layers.length + 1 == this.options.activations.length);
+    console.log("Creating model: " + JSON.stringify(this.options));
     let newModel = tf.tidy(() => {
       const input = tf.input({ shape: [kInputSize] });
       let previousLayerSize = kInputSize;
@@ -51,6 +52,7 @@ class BrainSpec {
         console.log("New layer: " + JSON.stringify(layerOptions));
         const layer = tf.layers.dense(layerOptions);
         previousLayer = layer.apply(previousLayer);
+        previousLayerSize = layerSize;
       }
       let outputOptions = {
         units: kOutputSize,
@@ -67,6 +69,7 @@ class BrainSpec {
       let model = tf.model({ inputs: input, outputs: output });
       return model;
     });
+    console.log("Constructed.")
     return newModel;
   }
 
@@ -91,7 +94,9 @@ class BrainSpec {
     } else {
       compileOptions.optimizer = this.options.optimizer;
     }
+    console.log("Compiling");
     model.compile(compileOptions);
+    console.log("compiled.");
   }
 }
 
@@ -127,16 +132,24 @@ class Brain {
     this.brainSpec.compile(this.model);
   }
 
-  createModel(e) {
-    const input = tf.input({ shape: [kInputSize] });
+  createModel(options) {
+    this.brainSpec = new BrainSpec(options);
     let model = this.brainSpec.createModel();
-    this.setDirty();
     console.log("New model created.");
     return model;
   }
 
-  reset() {
-    this.model = this.createModel();
+  reset(descriptor) {
+    let options = {};
+    options.layers = [];
+    options.activations = [];
+    for (let l of descriptor.split(/[-, ]/)) {
+      options.layers.push(parseInt(l));
+      options.activations.push("tanh");
+    }
+    options.activations.push("linear");
+
+    this.model = this.createModel(options);
     this.compileModel();
     this.setDirty();
   }
@@ -155,7 +168,12 @@ class Brain {
 
   maybeSave() {
     if (this.dirty) {
-      this.model.save('indexeddb://' + this.name).then(() => {
+      console.log("Saving.");
+      this.model.save('indexeddb://' + this.name)
+      .catch((e) => { 
+        console.log("Error saving: " + JSON.stringify(e));
+      })
+      .then(() => {
         this.dirty = false;
         this.lastSave = window.performance.now();
         console.log("Model saved.");

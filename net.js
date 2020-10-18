@@ -96,7 +96,6 @@ class Wire {
   }
 
   dragStart(e) {
-    console.log("Drag start");
     this.dragging = true;
   }
 
@@ -119,7 +118,6 @@ class Wire {
   dragEnd(e) {
     let dx = e.movementX;
     let dy = e.movementY;
-    console.log("Drag End: " + dx + " " + dy);
     this.dragging = false;
   }
 
@@ -271,26 +269,30 @@ class SvgContext {
     document.getElementById("body").addEventListener("keydown",
       (e) => {
         if (!this.currentWeightTensor) {
-          console.log("No tensor selected.");
           return;
         }
         let oldData = this.currentWeightTensor.dataSync();
         let oldValue = oldData[this.currentWeightIndex];
-        let delta = 0.0;
-        let magnitude = (e.ctrlKey || e.metaKey) ? 0.01 : 0.5;
-        let invMag = 1.0 / magnitude;
-        if (e.code === 'ArrowRight' || e.code === 'ArrowUp') {
-          delta = +1;
-        } else if (e.code === 'ArrowLeft' || e.code === 'ArrowDown') {
-          delta = -1;
+        let invMag = (e.ctrlKey || e.metaKey) ? 20 : 2;
+        let newValue;
+        if (e.key === '0') {
+          newValue = 0.0;
+        } else {
+          let delta = 0.0;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            delta = +1;
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            delta = -1;
+          }
+          if (delta === 0) {
+            return;
+          }
+          newValue = (Math.round(invMag * oldValue) + delta) / invMag;
         }
-        if (delta === 0) {
-          return;
-        }
-        let newValue = (Math.round(invMag * oldValue) + delta) / invMag;
         oldData[this.currentWeightIndex] = newValue;
         this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
-        modelEval = new ModelEvaluation(botUnderTest.brain.model);
+        // TODO: Compile and update model eval.
+        // modelEval = new ModelEvaluation(botUnderTest.brain.model);
         show();
         return true;
       });
@@ -412,9 +414,8 @@ class SvgContext {
 
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
-      let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15, weights.val, data, i);
+        offsetX + 30, offsetY + d0 * 15, weights.val, data, i);
       ++i;
     }
     return 60;
@@ -437,7 +438,6 @@ class SvgContext {
   renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
-    console.log(shape);
 
     this.stroke = "#000";
     this.fill = "#fff";
@@ -474,7 +474,6 @@ class SvgContext {
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
-        let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
           offsetY + d1 * 15, weights.val, data, i);
@@ -505,7 +504,6 @@ class SvgContext {
       if (l.weights.length == 0) {
         continue;
       }
-      console.log("Layer: " + l.name + " +" + offsetX);
       for (let w of l.weights) {
         let width = this.renderWeights(g, w, offsetX, offsetY, model, l);
         offsetX += width;
@@ -536,7 +534,6 @@ function show() {
 function collect() {
   show();
   let referenceBot = match.getEntry(0);
-  console.log("Training source: " + referenceBot.constructor.name);
   for (let i = 0; i < repeatBox.value(); ++i) {
     game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
@@ -579,7 +576,6 @@ function rebuildModel(model, layerCount) {
     let config = l.getConfig();
     if (i == layerCount) {
       config.activation = "linear";
-      console.log("Rebuilt: " + JSON.stringify(config));
     }
     const newLayer = tf.layers.dense(config).apply(previousLayer);
     console.assert(
@@ -605,6 +601,10 @@ class ModelEvaluation {
 
     for (let i = 0; i < model.layers.length; ++i) {
       let l = model.layers[i];
+      if (l.input == l.output) {
+        this.layerMapInput.set(inputTensor.dataSync());
+        continue;
+      }
       let smallerModel = tf.model({
         inputs: model.inputs,
         outputs: l.input
@@ -614,9 +614,9 @@ class ModelEvaluation {
       if (!l.getConfig().units) {
         continue;
       }
-      smallerModel = rebuildModel(model, i);
-      prediction = smallerModel.predict(inputTensor)
-      this.layerMapOutput.set(l, prediction.dataSync());
+      let outputModel = rebuildModel(model, i);
+      let outputPrediction = outputModel.predict(inputTensor)
+      this.layerMapOutput.set(l, outputPrediction.dataSync());
     }
   }
   getArray(layer, index, isOutput) {
@@ -665,8 +665,8 @@ function train() {
     });
 }
 
-function resetBrain() {
-  botUnderTest.brain.reset();
+function resetBrain(descriptor) {
+  botUnderTest.brain.reset(descriptor);
   counters.set("Train games", 0);
   modelEval = new ModelEvaluation(botUnderTest.brain.model);
   show();
@@ -768,7 +768,6 @@ function setup() {
 
   tf.io.listModels().then(models => {
     for (let m of Object.keys(models)) {
-      console.log(m);
       let div = document.createElement("div");
       div.innerText = m;
       body.appendChild(div);
@@ -801,14 +800,22 @@ function setup() {
   repeatBox.option("10x", 10);
   repeatBox.option("100x", 100);
   {
+    let d = document.getElementById("netspec");
+    d.innerText = "Brain config: ";
+    let input = createInput("4");
+    d.appendChild(input.elt);
     let button = createButton("Reset Brain");
-    button.size(60, 30);
-    button.mousePressed(resetBrain);
+    d.appendChild(button.elt);
+    button.size(60, 50);
+    button.mousePressed(
+      function () {
+        resetBrain(input.elt.value);
+      }.bind(input));
   }
   {
     let button = createButton("Clear Data");
     button.size(60, 30);
-    button.mousePressed(function() {
+    button.mousePressed(function () {
       trainingData = [];
       show();
     });
