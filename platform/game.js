@@ -8,8 +8,10 @@ var hitSound = false;
 class FrameState {
   constructor() {
     this.leftSensorArray = [];
+    this.leftSenses = new SensorState();
     this.leftTurn = 0;
     this.rightSensorArray = [];
+    this.rightSenses = new SensorState();
     this.rightTurn = 0;
   }
 }
@@ -127,8 +129,10 @@ class Game {
       let s = this.generateSenses(rc, otherRobot);
       if (i == 0) {
         frameState.leftSensorArray = s.asArray();
+        frameState.leftSenses = s;
       } else {
         frameState.rightSensorArray = s.asArray();
+        frameState.rightSenses = s;
       }
       let startTime = window.performance.now();
       let turn = 0.0;

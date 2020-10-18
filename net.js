@@ -518,7 +518,13 @@ class SvgContext {
 }
 
 class TrainingExample {
-  constructor(frameState) {
+  /**
+   * 
+   * @param {FrameState} frameState 
+   * @param {number} gameNumber 
+   */
+  constructor(frameState, gameNumber) {
+    this.gameNumber = gameNumber || 0;
     this.frameState = frameState;
     // training.js:1190 Uncaught (in promise) Error: sample weight is not supported yet.
     // SO SAD!
@@ -531,15 +537,24 @@ function show() {
   ctx.renderModel(model);
 }
 
+function getLastGameNumber(trainingData) {
+  if (trainingData.length == 0) {
+    return -1;
+  }
+  return trainingData[trainingData.length - 1].gameNumber;
+}
+
 function collect() {
   show();
   let referenceBot = match.getEntry(0);
+  let gameNumber = getLastGameNumber(trainingData) + 1;
   for (let i = 0; i < repeatBox.value(); ++i) {
     game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
       let frameState = game.runFrame();
-      trainingData.push(new TrainingExample(frameState));
+      trainingData.push(new TrainingExample(frameState, gameNumber));
     }
+    ++gameNumber;
     counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
@@ -548,14 +563,58 @@ function collect() {
   console.log("Done collecting.");
 }
 
-function getInputOutputTensors() {
+class SelectEverything {
+  isUseful(example) {
+    return true;
+  }
+}
+
+class SelectScoringMoves {
+  constructor(frameCount) {
+    this.frameCount = frameCount;
+    this.currentGame = -1;
+    this.currentScore = -1;
+    this.framesToKeep = 0;
+  }
+  /**
+   * @param {TrainingExample} example 
+   */
+  isUseful(example) {
+    if (example.gameNumber != this.currentGame) {
+      this.currentGame = example.gameNumber;
+      this.currentScore = -1;
+      return false;
+    }
+    let currentScore = example.frameState.leftSenses.myScore;
+    if (currentScore < this.currentScore) {
+      this.framesToKeep = this.frameCount;
+    }
+    this.currentScore = currentScore;
+    if (this.framesToKeep > 0) {
+      this.framesToKeep--;
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+}
+
+function getInputOutputTensors(selector) {
+  if (!selector) {
+    selector = new SelectEverything();
+  }
   let input = [];
   let output = [];
   let weights = [];
-  for (ex of trainingData) {
-    input.push(ex.frameState.leftSensorArray);
-    output.push([ex.frameState.leftTurn]);
-    weights.push(ex.weight);
+
+  for (let i = trainingData.length - 1; i >= 0; --i) {
+    let ex = trainingData[i];
+    if (selector.isUseful(ex)) {
+      input.push(ex.frameState.leftSensorArray);
+      output.push([ex.frameState.leftTurn]);
+      weights.push(ex.weight);
+    }
   }
   // TODO: Divide this into smaller batches and provide updates.
   let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
@@ -645,7 +704,10 @@ function train() {
   let body = document.getElementById("body");
   body.appendChild(trainingDiv);
   let inputTensor, outputTensor, weightTensor;
-  [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
+  [inputTensor, outputTensor, weightTensor] = getInputOutputTensors(
+    new SelectEverything()
+    // new SelectScoringMoves(60)
+    );
 
   let model = botUnderTest.getModel();
   console.log("Staring train");
