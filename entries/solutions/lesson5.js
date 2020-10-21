@@ -7,10 +7,10 @@ class MattBot {
    * @param {number} left 
    * @param {number} right 
    */
-  constructor(left, right, hardTurn) {
-    this.left = left || -0.3;
-    this.right = right || 0.2;
-    this.hardTurn = hardTurn || 1.0;
+  constructor(left = -0.3, right = 0.2, hardTurn = 1.0) {
+    this.left = left;
+    this.right = right;
+    this.hardTurn = hardTurn;
   }
 
   draw(c) {
