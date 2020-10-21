@@ -9,6 +9,7 @@ var trainingData = [];
 var testPoints;
 var modelEval = null;
 var game = null;
+var simplify = true;
 
 class TestPoint {
   constructor(element, dataCallback) {
@@ -637,11 +638,7 @@ function rebuildModel(model, layerCount) {
       config.activation = "linear";
     }
     const newLayer = tf.layers.dense(config).apply(previousLayer);
-    console.assert(
-      l.weights.length == newLayer.sourceLayer.weights.length);
-    for (let j = 0; j < l.weights.length; ++j) {
-      newLayer.sourceLayer.weights[j].val.assign(l.weights[j].val);
-    }
+    copyLayerWeights(newLayer.sourceLayer, l)
     previousLayer = newLayer;
   }
   const newModel = tf.model({ inputs: input, outputs: previousLayer });
@@ -696,6 +693,7 @@ class ModelEvaluation {
   }
 }
 
+var trainStart = 0;
 function train() {
   show();
   let trainingDiv = document.createElement("div");
@@ -707,11 +705,12 @@ function train() {
   [inputTensor, outputTensor, weightTensor] = getInputOutputTensors(
     new SelectEverything()
     // new SelectScoringMoves(60)
-    );
+  );
 
   let model = botUnderTest.getModel();
   console.log("Staring train");
   counters.incrementBy("Train games", trainingData.length / kFramesPerRound);
+  trainStart = window.performance.now();
   model.fit(inputTensor, outputTensor,
     {
       epochs: repeatBox.value(),
@@ -720,7 +719,8 @@ function train() {
     })
     .then(() => {
       trainingDiv.remove();
-      console.log("Done training");
+      let elapsed = window.performance.now() - trainStart;
+      console.log("Done training: " + (elapsed / 1000).toFixed(2) + "s");
       botUnderTest.brain.setDirty();
       modelEval = new ModelEvaluation(botUnderTest.brain.model);
       show();
@@ -728,7 +728,17 @@ function train() {
 }
 
 function resetBrain(descriptor) {
-  botUnderTest.brain.reset(descriptor);
+  let options = {};
+  options.layers = [];
+  options.activations = [];
+  for (let l of descriptor.split(/[-, ]/)) {
+    options.layers.push(parseInt(l));
+    options.activations.push("tanh");
+  }
+  options.activations.push("linear");
+  options.simplify = simplify;
+
+  botUnderTest.brain.reset(options);
   counters.set("Train games", 0);
   modelEval = new ModelEvaluation(botUnderTest.brain.model);
   show();
@@ -873,6 +883,23 @@ function setup() {
       function () {
         resetBrain(input.elt.value);
       }.bind(input));
+    let s = createSelect();
+    s.option("Simplify");
+    s.option("Perfect");
+    s.elt.addEventListener("change", function (e) {
+      selected = e.target.value == "Simplify";
+    });
+    d.appendChild(s.elt);
+
+    let sBackend = createSelect();
+    sBackend.option("cpu");
+    sBackend.option("webgl");
+    // sBackend.option("wasm");
+    // Error: 'step' not yet implemented or not found in the registry.
+    sBackend.elt.addEventListener("change", function (e) {
+      tf.setBackend(e.target.value);
+    });
+    d.appendChild(sBackend.elt);
   }
   {
     let button = createButton("Clear Data");

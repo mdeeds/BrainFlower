@@ -13,16 +13,20 @@ class BrainSpec {
     options ||= {};
     this.options = options;
     if (!("layers" in options)) {
-      options.layers = [4];
+      this.options.layers = [4];
     }
     if (!("activations" in options)) {
-      options.activations ||= ["tanh", "linear"];
+      this.options.activations = [];
+      for (let i = 0; i < this.options.layers.length; ++i) {
+        this.options.activations.push("tanh");
+      }
+      this.options.activations.push("linear");
     }
     if (!("optimizer" in options)) {
-      options.optimizer ||= "adam";
+      this.options.optimizer ||= "adam";
     }
     if (!("simplify" in options)) {
-      options.simplify = true;
+      this.options.simplify = true;
     }
   }
 
@@ -74,14 +78,6 @@ class BrainSpec {
   }
 
   /**
-   * Copies weights from `modelIn` into `modelOut` if they are the same
-   * shape. 
-   */
-  copyWeights(modelIn, modelOut) {
-    // TODO
-  }
-
-  /**
    * Compiles the model with the optimizer from the specification.
    * @param {tf.Model} model 
    */
@@ -97,6 +93,26 @@ class BrainSpec {
     console.log("Compiling");
     model.compile(compileOptions);
     console.log("compiled.");
+  }
+}
+
+
+function copyLayerWeights(targetLayer, sourceLayer) {
+  let numTargetWeights = targetLayer.weights.length;
+  console.assert(
+    numTargetWeights == sourceLayer.weights.length);
+  for (let j = 0; j < numTargetWeights; ++j) {
+    targetLayer.weights[j].val.assign(sourceLayer.weights[j].val);
+  }
+}
+
+function copyModelWeights(targetModel, sourceModel) {
+  let numLayers = sourceModel.layers.length;
+  console.assert(numLayers == targetModel.layers.length);
+  for (let i = 0; i < numLayers; ++i) {
+    let sourceLayer = sourceModel.layers[i];
+    let targetLayer = targetModel.layers[i];
+    copyLayerWeights(targetLayer, sourceLayer);
   }
 }
 
@@ -123,7 +139,7 @@ class Brain {
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
-      this.model = this.createModel();
+      this.createModel();
     }
     this.compileModel();
   }
@@ -134,22 +150,19 @@ class Brain {
 
   createModel(options) {
     this.brainSpec = new BrainSpec(options);
-    let model = this.brainSpec.createModel();
+    this.model = this.brainSpec.createModel();
     console.log("New model created.");
-    return model;
   }
 
-  reset(descriptor) {
-    let options = {};
-    options.layers = [];
-    options.activations = [];
-    for (let l of descriptor.split(/[-, ]/)) {
-      options.layers.push(parseInt(l));
-      options.activations.push("tanh");
-    }
-    options.activations.push("linear");
+  recompileModel(options) {
+    let newSpec = new BrainSpec(options);
+    let newModel = newSpec.createModel();
+    copyModelWeights(newModel, this.model);
+    this.model = newModel;
+  }
 
-    this.model = this.createModel(options);
+  reset(options) {
+    this.createModel(options);
     this.compileModel();
     this.setDirty();
   }
