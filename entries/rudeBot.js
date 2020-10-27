@@ -19,6 +19,6 @@ class RudeBot {
    */
   run(s) {
     let turn = s.opponentAngle / 45;
-    return Math.max(-1, Math.min(1, turn));
+    return turn;
   }
 };
