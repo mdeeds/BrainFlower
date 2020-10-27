@@ -694,6 +694,7 @@ class ModelEvaluation {
 }
 
 var trainStart = 0;
+var batchSize = 1;
 function train() {
   show();
   let trainingDiv = document.createElement("div");
@@ -715,6 +716,7 @@ function train() {
     {
       epochs: repeatBox.value(),
       shuffle: true,
+      batchSize: batchSize,
       //sampleWeight: weightTensor
     })
     .then(() => {
@@ -861,6 +863,7 @@ function setup() {
     button.size(60, 30);
     button.mousePressed(collect);
   }
+
   {
     let button = createButton("Train");
     button.size(60, 30);
@@ -900,6 +903,14 @@ function setup() {
       tf.setBackend(e.target.value);
     });
     d.appendChild(sBackend.elt);
+    let batchSizeBox = createSelect();
+    for (let size of [1, 10, 100, 1000]) {
+      batchSizeBox.option(size.toFixed(0), size);
+    }
+    batchSizeBox.elt.addEventListener("change", function(e) {
+      batchSize = parseInt(e.target.value);
+    });
+    d.appendChild(batchSizeBox.elt);
   }
   {
     let button = createButton("Clear Data");
