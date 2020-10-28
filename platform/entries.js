@@ -15,16 +15,19 @@ function addEntry(robot) {
  * @param {string[]} blockList 
  */
 function buildEntryMap(blockList) {
+  // Controllable Robots
   addEntry(new KeyBot());
-  addEntry(new CircleBot());
   addEntry(new KeyBot2());
+  addEntry(new LearnBot());
+  // Example Robots
+  addEntry(new CircleBot());
   addEntry(new RudeBot());
   addEntry(new CloseBot());
-  addEntry(new LearnBot());
   addEntry(new SquareBot());
   addEntry(new SteveBot());
   addEntry(new Roomba());
   addEntry(new MattBot());
+  // Student Robots
   addEntry(new monsterbot());
   addEntry(new Mooo());
   addEntry(new Kili());
