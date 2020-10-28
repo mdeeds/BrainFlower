@@ -1,7 +1,12 @@
 var leftEntryChoice;
 var rightEntryChoice;
+var game;
+var testMode = false;
 
 function setup() {
+  let p = window.getURLParams();
+  testMode = !!p.test;
+
   tf.setBackend('cpu');
   [leftEntryChoice, rightEntryChoice] = buildEntryMap();
 
@@ -16,6 +21,12 @@ function setup() {
   startButton.size(60, 40);
   startButton.position(kArenaSize / 2 - 25 + 50, 200);
   startButton.mousePressed(startGame);
+
+   for (c of document.getElementsByTagName("canvas")) {
+     c.classList.add("biggest");
+     c.style.setProperty("width", null);
+     c.style.setProperty("height", null);     
+   }
 }
 
 
@@ -43,30 +54,29 @@ function startGame() {
   let left = match.getEntry(0);
   let right = match.getEntry(1);
   match.remove();
-  robotContainers = setupGame(left, right);
-  for (let rc of robotContainers) {
-    robotDisplays.push(new RobotDisplay(rc));
-  }
+  game = new Game(left, right, { noFlowers: testMode });
+
+  robotDisplays.push(new RobotDisplay(game.leftContainer));
+  robotDisplays.push(new RobotDisplay(game.rightContainer));
 }
 
 var angle = 0;
 
 function playFrame() {
-  runFrame();
+  game.runFrame();
   background("DarkSeaGreen");
-  let x = 50;
+  let x = 100;
   for (let r of robotDisplays) {
     r.draw();
     let rc = r.robotContainer;
+    textAlign(CENTER);
     textSize(24);
     noStroke();
     fill(color("Black"))
-    text(rc.score.toFixed(0), x, 30);
-    x += 650;
+    text(rc.robot.constructor.name + ": " + rc.score.toFixed(0), x, 30);
+    x += 600;
   }
-  for (let f of flowers) {
-    f.draw();
-  }
+  game.drawFlowers();
 
   let framesRemaining = kFramesPerRound - frameNumber;
   let secondsRemaining = framesRemaining / 60.0;
@@ -102,6 +112,15 @@ function draw() {
     ++frameNumber;
     if (frameNumber <= kFramesPerRound) {
       playFrame();
+    }
+  }
+}
+
+function mouseClicked() {
+  if (testMode) {
+    if (mouseX >= 0 && mouseX < kArenaSize &&
+      mouseY >= 0 && mouseY < kArenaSize) {
+      game.addFlower(mouseX, mouseY);
     }
   }
 }

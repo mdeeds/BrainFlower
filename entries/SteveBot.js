@@ -27,10 +27,10 @@ class SteveBot {
       return 0.0;
     }
     if (s.leftFlowerDistance > s.rightFlowerDistance) {
-      return -0.5;
+      return 0.5;
     }
     else {
-      return 0.5;
+      return -0.5;
     }
   }
 };

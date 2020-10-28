@@ -19,20 +19,38 @@ class Mooo {
     c.stroke(color("red"))
     c.ellipse(70, 50, 20, 20);
   }
+  s1(s) {
+    return 0.25;
+  }
+  s2(s)
+  { 
+    if (s.opponentAngle < -10) {
+      return -0.79;
+    } else if (s.opponentAngle < 10) {
 
+      return 0;
+    }
+
+    else {
+      return 0.79;
+    }}
+  
   /*@param {SensorState} s 
   /*@returns {number} - Turn rate [-2 to 2]
  /****/
   run(s) {
-     if (s.opponentAngle < 10) {
-      return -0.1;
-    } else if (s.opponentAngle  > -10) {
-      return 0.1;
+    if (s.opponentScore > s.myScore) {
+      return this.s2(s);
+    } else if (s.opponentScore < s.myScore) {
+      return this.s1(s);
     }
-    else  {
-      return 0 ;
-    }
+    if (s.opponentScore = s.myScore) {
+      return this.s2(s);
 
+
+
+
+    }
 
   }
 }

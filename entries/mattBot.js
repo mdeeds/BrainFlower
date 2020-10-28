@@ -8,19 +8,9 @@ class MattBot {
    * @param {number} right 
    */
   constructor(left, right, hardTurn) {
-    this.left = left || 0.1;
-    this.right = right || -0.4;
+    this.left = left || -0.4;
+    this.right = right || 0.1;
     this.hardTurn = hardTurn || -0.9;
-
-    if (typeof hardTurn == "undefined") {
-      this.name = "MattBot";
-    } else {
-      this.name =
-        "MattBot:"
-        + this.left.toFixed(2) + ":"
-        + this.right.toFixed(2) + ":"
-        + this.hardTurn.toFixed(2);
-    }
   }
 
   draw(c) {
@@ -37,13 +27,16 @@ class MattBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
+    if (s.distanceToWall < 71) {
+      return this.hardTurn;
+    }
     if (s.leftFlowers == 0 && s.rightFlowers == 0) {
       return this.hardTurn;
     }
-    if (s.rightFlowers > s.leftFlowers) {
-      return this.right;
-    } else {
+    if (s.leftFlowers > s.rightFlowers) {
       return this.left;
+    } else {
+      return this.right;
     }
   }
 }
