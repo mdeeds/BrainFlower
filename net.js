@@ -9,6 +9,7 @@ var trainingData = [];
 var testPoints;
 var modelEval = null;
 var game = null;
+var simplify = true;
 
 class TestPoint {
   constructor(element, dataCallback) {
@@ -49,7 +50,6 @@ class TestPointCollection {
     }
     return null;
   }
-
 }
 
 class Wire {
@@ -97,7 +97,6 @@ class Wire {
   }
 
   dragStart(e) {
-    console.log("Drag start");
     this.dragging = true;
   }
 
@@ -120,7 +119,6 @@ class Wire {
   dragEnd(e) {
     let dx = e.movementX;
     let dy = e.movementY;
-    console.log("Drag End: " + dx + " " + dy);
     this.dragging = false;
   }
 
@@ -272,25 +270,30 @@ class SvgContext {
     document.getElementById("body").addEventListener("keydown",
       (e) => {
         if (!this.currentWeightTensor) {
-          console.log("No tensor selected.");
           return;
         }
         let oldData = this.currentWeightTensor.dataSync();
         let oldValue = oldData[this.currentWeightIndex];
-        let delta = 0.0;
-        let magnitude = (e.ctrlKey || e.metaKey) ? 0.01 : 0.5;
-        let invMag = 1.0 / magnitude;
-        if (e.code === 'ArrowRight' || e.code === 'ArrowUp') {
-          delta = +1;
-        } else if (e.code === 'ArrowLeft' || e.code === 'ArrowDown') {
-          delta = -1;
+        let invMag = (e.ctrlKey || e.metaKey) ? 20 : 2;
+        let newValue;
+        if (e.key === '0') {
+          newValue = 0.0;
+        } else {
+          let delta = 0.0;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+            delta = +1;
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+            delta = -1;
+          }
+          if (delta === 0) {
+            return;
+          }
+          newValue = (Math.round(invMag * oldValue) + delta) / invMag;
         }
-        if (delta === 0) {
-          return;
-        }
-        let newValue = (Math.round(invMag * oldValue) + delta) / invMag;
         oldData[this.currentWeightIndex] = newValue;
         this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
+        // TODO: Compile and update model eval.
+        // modelEval = new ModelEvaluation(botUnderTest.brain.model);
         show();
         return true;
       });
@@ -412,9 +415,8 @@ class SvgContext {
 
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
-      let r0 = shape[0] - d0 - 1;
       this.addCircle(parent,
-        offsetX + 30, offsetY + r0 * 15, weights.val, data, i);
+        offsetX + 30, offsetY + d0 * 15, weights.val, data, i);
       ++i;
     }
     return 60;
@@ -437,7 +439,6 @@ class SvgContext {
   renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
-    console.log(shape);
 
     this.stroke = "#000";
     this.fill = "#fff";
@@ -474,7 +475,6 @@ class SvgContext {
     let i = 0;
     for (let d0 = 0; d0 < shape[0]; ++d0) {
       for (let d1 = 0; d1 < shape[1]; ++d1) {
-        let r1 = shape[1] - d1 - 1;
         this.addCircle(parent,
           offsetX + d0 * 15 + 30,
           offsetY + d1 * 15, weights.val, data, i);
@@ -505,7 +505,6 @@ class SvgContext {
       if (l.weights.length == 0) {
         continue;
       }
-      console.log("Layer: " + l.name + " +" + offsetX);
       for (let w of l.weights) {
         let width = this.renderWeights(g, w, offsetX, offsetY, model, l);
         offsetX += width;
@@ -515,11 +514,18 @@ class SvgContext {
 
     let tp = this.addTestPoint(g, offsetX, offsetY);
     testPoints.add(tp, this.buildExpectedCallback());
+    this.oscope.showData();
   }
 }
 
 class TrainingExample {
-  constructor(frameState) {
+  /**
+   * 
+   * @param {FrameState} frameState 
+   * @param {number} gameNumber 
+   */
+  constructor(frameState, gameNumber) {
+    this.gameNumber = gameNumber || 0;
     this.frameState = frameState;
     // training.js:1190 Uncaught (in promise) Error: sample weight is not supported yet.
     // SO SAD!
@@ -532,16 +538,24 @@ function show() {
   ctx.renderModel(model);
 }
 
+function getLastGameNumber(trainingData) {
+  if (trainingData.length == 0) {
+    return -1;
+  }
+  return trainingData[trainingData.length - 1].gameNumber;
+}
+
 function collect() {
   show();
   let referenceBot = match.getEntry(0);
-  console.log("Training source: " + referenceBot.constructor.name);
+  let gameNumber = getLastGameNumber(trainingData) + 1;
   for (let i = 0; i < repeatBox.value(); ++i) {
     game = new Game(referenceBot, match.getEntry(1));
     for (let i = 0; i < kFramesPerRound; ++i) {
       let frameState = game.runFrame();
-      trainingData.push(new TrainingExample(frameState));
+      trainingData.push(new TrainingExample(frameState, gameNumber));
     }
+    ++gameNumber;
     counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
@@ -550,14 +564,58 @@ function collect() {
   console.log("Done collecting.");
 }
 
-function getInputOutputTensors() {
+class SelectEverything {
+  isUseful(example) {
+    return true;
+  }
+}
+
+class SelectScoringMoves {
+  constructor(frameCount) {
+    this.frameCount = frameCount;
+    this.currentGame = -1;
+    this.currentScore = -1;
+    this.framesToKeep = 0;
+  }
+  /**
+   * @param {TrainingExample} example 
+   */
+  isUseful(example) {
+    if (example.gameNumber != this.currentGame) {
+      this.currentGame = example.gameNumber;
+      this.currentScore = -1;
+      return false;
+    }
+    let currentScore = example.frameState.leftSenses.myScore;
+    if (currentScore < this.currentScore) {
+      this.framesToKeep = this.frameCount;
+    }
+    this.currentScore = currentScore;
+    if (this.framesToKeep > 0) {
+      this.framesToKeep--;
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+}
+
+function getInputOutputTensors(selector) {
+  if (!selector) {
+    selector = new SelectEverything();
+  }
   let input = [];
   let output = [];
   let weights = [];
-  for (ex of trainingData) {
-    input.push(ex.frameState.leftSensorArray);
-    output.push([ex.frameState.leftTurn]);
-    weights.push(ex.weight);
+
+  for (let i = trainingData.length - 1; i >= 0; --i) {
+    let ex = trainingData[i];
+    if (selector.isUseful(ex)) {
+      input.push(ex.frameState.leftSensorArray);
+      output.push([ex.frameState.leftTurn]);
+      weights.push(ex.weight);
+    }
   }
   // TODO: Divide this into smaller batches and provide updates.
   let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
@@ -578,14 +636,9 @@ function rebuildModel(model, layerCount) {
     let config = l.getConfig();
     if (i == layerCount) {
       config.activation = "linear";
-      console.log("Rebuilt: " + JSON.stringify(config));
     }
     const newLayer = tf.layers.dense(config).apply(previousLayer);
-    console.assert(
-      l.weights.length == newLayer.sourceLayer.weights.length);
-    for (let j = 0; j < l.weights.length; ++j) {
-      newLayer.sourceLayer.weights[j].val.assign(l.weights[j].val);
-    }
+    copyLayerWeights(newLayer.sourceLayer, l)
     previousLayer = newLayer;
   }
   const newModel = tf.model({ inputs: input, outputs: previousLayer });
@@ -604,6 +657,10 @@ class ModelEvaluation {
 
     for (let i = 0; i < model.layers.length; ++i) {
       let l = model.layers[i];
+      if (l.input == l.output) {
+        this.layerMapInput.set(inputTensor.dataSync());
+        continue;
+      }
       let smallerModel = tf.model({
         inputs: model.inputs,
         outputs: l.input
@@ -613,21 +670,9 @@ class ModelEvaluation {
       if (!l.getConfig().units) {
         continue;
       }
-      smallerModel = rebuildModel(model, i);
-      // let newConfig = {};
-      // Object.assign(newConfig, l.getConfig());
-      // newConfig.activation = "linear";
-      // console.log("New config: " + JSON.stringify(newConfig));
-      // if (!newConfig.units) {
-      //   continue;
-      // }
-      // let newOutput = tf.layers.dense(newConfig);
-      // let newLayerOut = newOutput.apply(l.input);
-      // newLayerOut.weights = l.weights;
-      // l.input.output = newLayerOut;
-
-      prediction = smallerModel.predict(inputTensor)
-      this.layerMapOutput.set(l, prediction.dataSync());
+      let outputModel = rebuildModel(model, i);
+      let outputPrediction = outputModel.predict(inputTensor)
+      this.layerMapOutput.set(l, outputPrediction.dataSync());
     }
   }
   getArray(layer, index, isOutput) {
@@ -648,6 +693,7 @@ class ModelEvaluation {
   }
 }
 
+var trainStart = 0;
 function train() {
   show();
   let trainingDiv = document.createElement("div");
@@ -656,11 +702,15 @@ function train() {
   let body = document.getElementById("body");
   body.appendChild(trainingDiv);
   let inputTensor, outputTensor, weightTensor;
-  [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
+  [inputTensor, outputTensor, weightTensor] = getInputOutputTensors(
+    new SelectEverything()
+    // new SelectScoringMoves(60)
+  );
 
   let model = botUnderTest.getModel();
   console.log("Staring train");
   counters.incrementBy("Train games", trainingData.length / kFramesPerRound);
+  trainStart = window.performance.now();
   model.fit(inputTensor, outputTensor,
     {
       epochs: repeatBox.value(),
@@ -669,15 +719,26 @@ function train() {
     })
     .then(() => {
       trainingDiv.remove();
-      console.log("Done training");
+      let elapsed = window.performance.now() - trainStart;
+      console.log("Done training: " + (elapsed / 1000).toFixed(2) + "s");
       botUnderTest.brain.setDirty();
       modelEval = new ModelEvaluation(botUnderTest.brain.model);
       show();
     });
 }
 
-function resetBrain() {
-  botUnderTest.brain.reset();
+function resetBrain(descriptor) {
+  let options = {};
+  options.layers = [];
+  options.activations = [];
+  for (let l of descriptor.split(/[-, ]/)) {
+    options.layers.push(parseInt(l));
+    options.activations.push("tanh");
+  }
+  options.activations.push("linear");
+  options.simplify = simplify;
+
+  botUnderTest.brain.reset(options);
   counters.set("Train games", 0);
   modelEval = new ModelEvaluation(botUnderTest.brain.model);
   show();
@@ -779,7 +840,6 @@ function setup() {
 
   tf.io.listModels().then(models => {
     for (let m of Object.keys(models)) {
-      console.log(m);
       let div = document.createElement("div");
       div.innerText = m;
       body.appendChild(div);
@@ -812,9 +872,42 @@ function setup() {
   repeatBox.option("10x", 10);
   repeatBox.option("100x", 100);
   {
-    let button = createButton("Reset");
+    let d = document.getElementById("netspec");
+    d.innerText = "Brain config: ";
+    let input = createInput("4");
+    d.appendChild(input.elt);
+    let button = createButton("Reset Brain");
+    d.appendChild(button.elt);
+    button.size(60, 50);
+    button.mousePressed(
+      function () {
+        resetBrain(input.elt.value);
+      }.bind(input));
+    let s = createSelect();
+    s.option("Simplify");
+    s.option("Perfect");
+    s.elt.addEventListener("change", function (e) {
+      selected = e.target.value == "Simplify";
+    });
+    d.appendChild(s.elt);
+
+    let sBackend = createSelect();
+    sBackend.option("cpu");
+    sBackend.option("webgl");
+    // sBackend.option("wasm");
+    // Error: 'step' not yet implemented or not found in the registry.
+    sBackend.elt.addEventListener("change", function (e) {
+      tf.setBackend(e.target.value);
+    });
+    d.appendChild(sBackend.elt);
+  }
+  {
+    let button = createButton("Clear Data");
     button.size(60, 30);
-    button.mousePressed(resetBrain);
+    button.mousePressed(function () {
+      trainingData = [];
+      show();
+    });
   }
   counters = new CounterSet();
   counters.addTo(body);

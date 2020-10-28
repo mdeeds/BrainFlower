@@ -1,6 +1,11 @@
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.4.0/dist/tf.min.js"></script>
+  
+  <!-- Adds the WASM backend to the global backend registry -->
+  <!-- script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script -->
+  <!-- Fails with: Error: 'step' not yet implemented or not found in the registry.-->
+ 
   <script src="net.js"></script>
 
   <script src="entries/circleBot.js"></script>
@@ -17,6 +22,7 @@
   <script src="entries/Mooo.js"></script>
   <script src="entries/surpiseBot.js"></script>
   <script src="entries/littlebot.js"></script>
+  <script src="entries/tiny.js"></script>
   <script src="entries/simpleBot.js"></script>
 
   <script src="platform/brain.js"></script>
@@ -52,5 +58,6 @@
     will still be there. You can't share your net or check it into the source
     repository (yet).
   </div>
+  <div id="netspec"></div>
 
 </body>

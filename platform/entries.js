@@ -29,6 +29,8 @@ function buildEntryMap(blockList) {
   addEntry(new Mooo());
   addEntry(new Kili());
   addEntry(new littlebot());
+  addEntry(new tinyBot());
+  addEntry(new SimpleBot());
   if (blockList) {
     for (n of blockList) {
       entryMap.delete(n);

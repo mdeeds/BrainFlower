@@ -8,11 +8,10 @@ class SimpleBot {
   }
 
   run(s) {
-    if (s.leftFlowers == 0 ||
-      s.leftFlowerDistance > s.rightFlowerDistance) {
-      return 1;
+    if (s.leftFlowers == 0) {
+      return 0.6;
     } else {
-      return 0;
+      return -0.2;
     }
   }
 }

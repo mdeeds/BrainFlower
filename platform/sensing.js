@@ -52,7 +52,7 @@ class SensorState {
     result.push(this.leftFlowerDistance / 400);
     result.push(this.rightFlowerDistance / 400);
     result.push(this.opponentDistance / 400);
-    result.push(this.opponentAngle / 180);
+    result.push(this.opponentAngle / 90);
     result.push(this.distanceToWall / 400);
     result.push(this.leftDistanceToWall / 400);
     result.push(this.rightDistanceToWall / 400);

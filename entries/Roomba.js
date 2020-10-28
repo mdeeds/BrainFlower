@@ -21,9 +21,7 @@ class Roomba {
    * @param {SensorState} s 
    * @returns {number} - Turn rate [-1 to 1]
    */
-
   run(s) {
-
     if (this.onCourse) {
       if (s.rightDistanceToWall <= 70.7) {
         this.newHeading = s.myHeading - 90 * (Math.random() + 0.5);

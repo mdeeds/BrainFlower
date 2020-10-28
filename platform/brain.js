@@ -13,16 +13,20 @@ class BrainSpec {
     options ||= {};
     this.options = options;
     if (!("layers" in options)) {
-      options.layers = [4];
+      this.options.layers = [4];
     }
     if (!("activations" in options)) {
-      options.activations ||= ["tanh", "linear"];
+      this.options.activations = [];
+      for (let i = 0; i < this.options.layers.length; ++i) {
+        this.options.activations.push("tanh");
+      }
+      this.options.activations.push("linear");
     }
     if (!("optimizer" in options)) {
-      options.optimizer ||= "adam";
+      this.options.optimizer ||= "adam";
     }
     if (!("simplify" in options)) {
-      options.simplify = true;
+      this.options.simplify = true;
     }
   }
 
@@ -33,6 +37,7 @@ class BrainSpec {
   createModel() {
     console.assert(
       this.options.layers.length + 1 == this.options.activations.length);
+    console.log("Creating model: " + JSON.stringify(this.options));
     let newModel = tf.tidy(() => {
       const input = tf.input({ shape: [kInputSize] });
       let previousLayerSize = kInputSize;
@@ -46,10 +51,12 @@ class BrainSpec {
         }
         if (this.options.simplify) {
           layerOptions.kernelRegularizer = 'l1l2';
+          layerOptions.biasRegularizer = 'l1l2';
         }
         console.log("New layer: " + JSON.stringify(layerOptions));
         const layer = tf.layers.dense(layerOptions);
         previousLayer = layer.apply(previousLayer);
+        previousLayerSize = layerSize;
       }
       let outputOptions = {
         units: kOutputSize,
@@ -58,6 +65,7 @@ class BrainSpec {
       }
       if (this.options.simplify) {
         outputOptions.kernelRegularizer = 'l1l2';
+        outputOptions.biasRegularizer = 'l1l2';
       }
       console.log("Output: " + JSON.stringify(outputOptions));
       const outputLayer = tf.layers.dense(outputOptions);
@@ -65,15 +73,8 @@ class BrainSpec {
       let model = tf.model({ inputs: input, outputs: output });
       return model;
     });
+    console.log("Constructed.")
     return newModel;
-  }
-
-  /**
-   * Copies weights from `modelIn` into `modelOut` if they are the same
-   * shape. 
-   */
-  copyWeights(modelIn, modelOut) {
-    // TODO
   }
 
   /**
@@ -89,7 +90,29 @@ class BrainSpec {
     } else {
       compileOptions.optimizer = this.options.optimizer;
     }
+    console.log("Compiling");
     model.compile(compileOptions);
+    console.log("compiled.");
+  }
+}
+
+
+function copyLayerWeights(targetLayer, sourceLayer) {
+  let numTargetWeights = targetLayer.weights.length;
+  console.assert(
+    numTargetWeights == sourceLayer.weights.length);
+  for (let j = 0; j < numTargetWeights; ++j) {
+    targetLayer.weights[j].val.assign(sourceLayer.weights[j].val);
+  }
+}
+
+function copyModelWeights(targetModel, sourceModel) {
+  let numLayers = sourceModel.layers.length;
+  console.assert(numLayers == targetModel.layers.length);
+  for (let i = 0; i < numLayers; ++i) {
+    let sourceLayer = sourceModel.layers[i];
+    let targetLayer = targetModel.layers[i];
+    copyLayerWeights(targetLayer, sourceLayer);
   }
 }
 
@@ -116,7 +139,7 @@ class Brain {
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
-      this.model = this.createModel();
+      this.createModel();
     }
     this.compileModel();
   }
@@ -125,16 +148,21 @@ class Brain {
     this.brainSpec.compile(this.model);
   }
 
-  createModel(e) {
-    const input = tf.input({ shape: [kInputSize] });
-    let model = this.brainSpec.createModel();
-    this.setDirty();
+  createModel(options) {
+    this.brainSpec = new BrainSpec(options);
+    this.model = this.brainSpec.createModel();
     console.log("New model created.");
-    return model;
   }
 
-  reset() {
-    this.model = this.createModel();
+  recompileModel(options) {
+    let newSpec = new BrainSpec(options);
+    let newModel = newSpec.createModel();
+    copyModelWeights(newModel, this.model);
+    this.model = newModel;
+  }
+
+  reset(options) {
+    this.createModel(options);
     this.compileModel();
     this.setDirty();
   }
@@ -153,7 +181,12 @@ class Brain {
 
   maybeSave() {
     if (this.dirty) {
-      this.model.save('indexeddb://' + this.name).then(() => {
+      console.log("Saving.");
+      this.model.save('indexeddb://' + this.name)
+      .catch((e) => { 
+        console.log("Error saving: " + JSON.stringify(e));
+      })
+      .then(() => {
         this.dirty = false;
         this.lastSave = window.performance.now();
         console.log("Model saved.");
