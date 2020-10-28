@@ -19,19 +19,20 @@ function setup() {
     }
   }
 
-  let sweep = false;
+  let p = window.getURLParams();
+  let sweep = !!p.sweep;
 
   if (!sweep) {
     leftEntries = rightEntries;
   } else {
     let robotUnderTest = MattBot;
-    for (let a1 of [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.8, 1.0]) {
-      for (let a2 of [-0.01, -0.1, -0.2, -0.3, -0.4, -0.5, -0.8, -1.0]) {
-        for (let a3 of [ null ]) {
+    for (let a1 of [-0.4, -0.3, -0.2, -0.1]) {
+      for (let a2 of [0.1, 0.2, 0.3, 0.4]) {
+        for (let a3 of [-1]) {
           let name = robotUnderTest.name;
-          name += (a1 ? ":" + a1.toFixed(2) : "");
-          name += (a2 ? ":" + a2.toFixed(2) : "");
-          name += (a3 ? ":" + a3.toFixed(2) : "");
+          name += ":" + a1.toFixed(2);
+          name += ":" + a2.toFixed(2);
+          name += ":" + a3.toFixed(2);
           let entry = new robotUnderTest.prototype.constructor(a1, a2, a3);
           entry.name = name;
           leftEntries.push(entry);
