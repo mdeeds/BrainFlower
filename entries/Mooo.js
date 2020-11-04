@@ -20,19 +20,28 @@ class Mooo {
     c.ellipse(70, 50, 20, 20);
   }
   s1(s) {
-    return 0.25;
+    if (s.leftFlowerDistance < s.rightFlowerDistance) {
+      return -0.25;
+    } else if (s.leftFlowerDistance > s.rightFlowerDistance) {
+      return 0.25;
+    }
+    
+    else if (s.leftFlowerDistance = s.rightFlowerDistance) {
+      return 0;
+    }
+    return 1;
   }
   s2(s)
   { 
     if (s.opponentAngle < -10) {
-      return -0.79;
+      return -0.89;
     } else if (s.opponentAngle < 10) {
 
       return 0;
     }
 
     else {
-      return 0.79;
+      return 0.89;
     }}
   
   /*@param {SensorState} s 
