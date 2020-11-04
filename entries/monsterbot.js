@@ -12,19 +12,27 @@ class monsterbot {
         // c.rect(0, 0, 0, 0); 
 
     }
-
     /**
      * @param {SensorState} s 
      * @returns {number} - Turn rate [-1 to 1]
      */
+
+
     run(s) {
-        if (s.rightFlowers > s.leftFlowers) {
-            return -0.2;
-        if (s.leftFlowers > s.rightFlowers)
-            return 0.2;    
-        } else {
-            return 0.2;
-        
+        if
+            (opponentScore > 25) {
+            return strategy1(s);
+        } else {//strategy2
+            if (s.numFlowersLeft > s.numFlowersRight) {
+                return -0.45
+            } else {
+                //strategy2
+                if (s.numFlowersLeft > s.numFlowersRight) {
+                    return -0.45;
+                } else {
+                    return 0.45;
+                }
+            }
         }
     }
 }
