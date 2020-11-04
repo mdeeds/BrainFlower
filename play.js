@@ -63,8 +63,17 @@ function startGame() {
 var angle = 0;
 
 function playFrame() {
-  game.runFrame();
+  let frameState = game.runFrame();
   background("DarkSeaGreen");
+
+  if (testMode) {
+    textAlign(LEFT);
+    textSize(24);
+    noStroke();
+    fill(color("Black"))
+    text(JSON.stringify(frameState.leftSenses, null, '  '), 0, 20);
+  }
+
   let x = 100;
   for (let r of robotDisplays) {
     r.draw();
