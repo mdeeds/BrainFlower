@@ -1,5 +1,5 @@
 class surpriseBot {
-  constuctor(turn = 0.10) {
+  constructor(turn = 0.10) {
     this.turn = turn
   }
 
