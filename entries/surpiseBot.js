@@ -17,7 +17,7 @@ class surpriseBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.opomentscore > s.myscore) {
+    if (s.opponentScore > s.myScore) {
       let turn = s.opponentAngle / 45;
       return Math.max(-1, Math.min(1, turn));
      } else if ((s.leftFlowers > 0 || s.rightFlowers > 0)
@@ -28,9 +28,9 @@ class surpriseBot {
       return 0.9;  // Try moving this "if" block to the top of the function.
     }
     else if (s.leftFlowers > s.rightFlowers) {
-      return 0.1;
+      return -this.turn;
     } else if (s.leftFlowerDistance < s.rightFlowerDistance) {
-      return 0.1;
+      return this.turn;
     }
     return 0.1;
   
