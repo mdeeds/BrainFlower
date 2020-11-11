@@ -19,6 +19,7 @@ class littlebot{/**
    * @returns {number} - turn 
    */
   run(s) {
+    // Try adding an "if" statement like one from "closeBot.js" or "lesson3.js"
     return 0.15;
   }
 };

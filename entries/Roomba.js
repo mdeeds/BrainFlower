@@ -21,16 +21,14 @@ class Roomba {
    * @param {SensorState} s 
    * @returns {number} - Turn rate [-1 to 1]
    */
-
   run(s) {
-
     if (this.onCourse) {
-      if (s.leftDistanceToWall <= 70.7) {
-        this.newHeading = s.myHeading + 90 * (Math.random() + 0.5);
+      if (s.rightDistanceToWall <= 70.7) {
+        this.newHeading = s.myHeading - 90 * (Math.random() + 0.5);
         this.onCourse = false;
       }
-      if (s.rightDistanceToWall <= 70.7 || s.opponentDistance <= 120) {
-        this.newHeading = s.myHeading - 90 * (Math.random() + 0.5);
+      if (s.leftDistanceToWall <= 70.7 || s.opponentDistance <= 120) {
+        this.newHeading = s.myHeading + 90 * (Math.random() + 0.5);
         this.onCourse = false;
       }
       //console.log("new heading" + this.newHeading.toFixed(3));
@@ -49,6 +47,6 @@ class Roomba {
       }
       return turn;
     }
-    return Math.random() / 20;
+    return 0.0;
   }
 };
