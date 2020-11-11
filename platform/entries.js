@@ -30,7 +30,7 @@ function buildEntryMap(blockList) {
   // Student Robots
   addEntry(new monsterbot());
   addEntry(new Mooo());
-  addEntry(new Kili());
+  addEntry(new surpriseBot());
   addEntry(new littlebot());
   addEntry(new tinyBot());
   addEntry(new SimpleBot());

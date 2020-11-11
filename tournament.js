@@ -25,8 +25,8 @@ function setup() {
   if (!sweep) {
     leftEntries = rightEntries;
   } else {
-    let robotUnderTest = MattBot;
-    for (let a1 of [-0.4, -0.3, -0.2, -0.1]) {
+    let robotUnderTest = surpriseBot;
+    for (let a1 of [0.10, 0.20, 0.55, 0.15]) {
       for (let a2 of [0.1, 0.2, 0.3, 0.4]) {
         for (let a3 of [-1]) {
           let name = robotUnderTest.name;

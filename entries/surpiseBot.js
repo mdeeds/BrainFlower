@@ -1,4 +1,8 @@
-class Kili {
+class surpriseBot {
+  constuctor(turn = 0.10) {
+    this.turn = turn
+  }
+
 
   draw(c) {
     c.noStroke();
@@ -13,13 +17,22 @@ class Kili {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.leftFlowers > s.rightFlowers) {
-      return -0.5
-    } else if (s.leftFlowerDistance < s.rightFlowerDistance) {
-      return -0.5
-    } else if (s.leftDistanceToWall < 70.8 || s.rightDistanceToWall < 70.8) {
+    if (s.opomentscore > s.myscore) {
+      let turn = s.opponentAngle / 45;
+      return Math.max(-1, Math.min(1, turn));
+     } else if ((s.leftFlowers > 0 || s.rightFlowers > 0)
+      && s.leftFlowerDistance == s.rightFlowerDistance) {
+      return 0;
+    }
+    else if (s.leftDistanceToWall < 70.8 || s.rightDistanceToWall < 70.8) {
       return 0.9;  // Try moving this "if" block to the top of the function.
     }
+    else if (s.leftFlowers > s.rightFlowers) {
+      return 0.1;
+    } else if (s.leftFlowerDistance < s.rightFlowerDistance) {
+      return 0.1;
+    }
     return 0.1;
-  }
+  
+}
 }
