@@ -81,6 +81,12 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
+  if (!!robotA.reset) {
+    robotA.reset();
+  }
+  if (!!robotB.reset) {
+    robotB.reset();
+  }
   let game = new Game(robotA, robotB);
   containerA = game.leftContainer;
   containerB = game.rightContainer;
