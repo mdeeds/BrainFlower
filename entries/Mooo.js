@@ -27,10 +27,12 @@ class Mooo {
     }
 
     else if (s.leftFlowerDistance == s.rightFlowerDistance) {
-      return 0 ;
+      return 1 ;
     }
+
+    return 0;
     
-    return 1;
+    
   }
   s2(s) {
     if (s.opponentAngle < -10) {
