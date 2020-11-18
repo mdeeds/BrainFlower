@@ -21,29 +21,34 @@ class Mooo {
   }
   s1(s) {
     if (s.leftFlowerDistance < s.rightFlowerDistance) {
-      return -0.25;
+      return this.left;
     } else if (s.leftFlowerDistance > s.rightFlowerDistance) {
-      return 0.25;
+      return this.right;
+    }
+
+    else if (s.leftFlowerDistance == s.rightFlowerDistance) {
+      return 0 ;
     }
     
-    else if (s.leftFlowerDistance = s.rightFlowerDistance) {
-      return 0;
-    }
     return 1;
   }
-  s2(s)
-  { 
+  s2(s) {
     if (s.opponentAngle < -10) {
-      return -0.89;
+      return this.left;
     } else if (s.opponentAngle < 10) {
 
       return 0;
     }
 
     else {
-      return 0.89;
-    }}
-  
+      return this.right;
+    }
+  }
+  constructor(left = -0.40, right = 0.40 ) {
+    this.left = left;
+    this.right = right;
+  }
+
   /*@param {SensorState} s 
   /*@returns {number} - Turn rate [-2 to 2]
  /****/
@@ -53,13 +58,10 @@ class Mooo {
     } else if (s.opponentScore < s.myScore) {
       return this.s1(s);
     }
-    if (s.opponentScore = s.myScore) {
+    if (s.opponentScore == s.myScore) {
       return this.s2(s);
 
-
-
-
     }
-
   }
+
 }
