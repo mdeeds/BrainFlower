@@ -31,7 +31,7 @@ function setup() {
         for (let a3 of [-1]) {
           let name = robotUnderTest.name;
           name += ":" + a1.toFixed(2);
-          name += ":" + a2.toFixed(2);
+          name += ":" + a2.toFixed(4);
           name += ":" + a3.toFixed(2);
           let entry = new robotUnderTest.prototype.constructor(a1, a2, a3);
           entry.name = name;
@@ -81,6 +81,12 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
+  if (!!robotA.reset) {
+    robotA.reset();
+  }
+  if (!!robotB.reset) {
+    robotB.reset();
+  }
   let game = new Game(robotA, robotB);
   containerA = game.leftContainer;
   containerB = game.rightContainer;
