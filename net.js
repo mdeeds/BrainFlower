@@ -224,7 +224,7 @@ class Oscope {
 
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       dot.setAttribute("fill", color);
-      dot.setAttribute("fill-opacity", 0.05);
+      dot.setAttribute("fill-opacity", 0.2);
       dot.setAttribute("cx", Math.min(200, Math.max(-200, 100 * x)));
       dot.setAttribute("cy", Math.min(200, Math.max(-200, 100 * -y)));
       dot.setAttribute("r", 5);
@@ -907,7 +907,7 @@ function setup() {
     for (let size of [1, 10, 100, 1000]) {
       batchSizeBox.option(size.toFixed(0), size);
     }
-    batchSizeBox.elt.addEventListener("change", function(e) {
+    batchSizeBox.elt.addEventListener("change", function (e) {
       batchSize = parseInt(e.target.value);
     });
     d.appendChild(batchSizeBox.elt);
