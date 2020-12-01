@@ -1,4 +1,13 @@
 class CircleBot {
+  constructor(turn = -0.20, change_rate = 0.0001) {
+    this.initial_turn = turn;
+    this.change_rate = change_rate;
+    this.turn = turn;
+  }
+
+  reset() {
+    this.turn = this.initial_turn;
+  }
   /**
    * Draws the CircleBot.
    * @param {Renderer} c 
@@ -20,6 +29,7 @@ class CircleBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    return 0.15;
+    this.turn = this.turn + this.change_rate;
+    return this.turn;
   }
 };

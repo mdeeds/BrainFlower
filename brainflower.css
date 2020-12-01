@@ -89,3 +89,9 @@ input {
   font-size: 20px;
   font-family: monospace;
 }
+
+.options {
+  border: 1px solid green;
+  padding: 5px;
+  margin: 5px;
+}
