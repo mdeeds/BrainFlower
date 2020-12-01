@@ -293,8 +293,9 @@ class SvgContext {
         }
         oldData[this.currentWeightIndex] = newValue;
         this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
-        // TODO: Compile and update model eval.
-        // modelEval = new ModelEvaluation(botUnderTest.brain.model);
+
+        // currentBrain.compileModel();
+        modelEval = new ModelEvaluation(currentBrain.model);
         show();
         return true;
       });
@@ -423,11 +424,11 @@ class SvgContext {
     return 60;
   }
 
-  buildDataCallback(model, layer, index, isOutput) {
+  buildDataCallback(model, layer, layerNumber, index, isOutput) {
     return function () {
       if (!modelEval) { return [0]; }
-      return modelEval.getArray(layer, index, isOutput);
-    }.bind(model, layer, index);
+      return modelEval.getArray(layer, layerNumber, index, isOutput);
+    }.bind(model, layer, layerNumber, index);
   }
 
   buildExpectedCallback() {
@@ -437,7 +438,7 @@ class SvgContext {
     };
   }
 
-  renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
+  renderWeights2(parent, weights, offsetX, offsetY, model, layer, layerNumber) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
 
@@ -447,7 +448,7 @@ class SvgContext {
     for (let i = 0; i < shape[0]; ++i) {
       let tp = this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ false));
+      testPoints.add(tp, this.buildDataCallback(model, layer, layerNumber, i, /*isOutput=*/ false));
 
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
@@ -468,7 +469,7 @@ class SvgContext {
         x2, y2 + 50 + i * 20, x2, y2);
 
       let tp = this.addTestPoint(parent, x1, y1);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ true));
+      testPoints.add(tp, this.buildDataCallback(model, layer, layerNumber, i, /*isOutput=*/ true));
       // this.path(parent,)
     }
 
@@ -485,11 +486,11 @@ class SvgContext {
     return shape[0] * 15 + 5;
   }
 
-  renderWeights(parent, weights, offsetX, offsetY, model, layer) {
+  renderWeights(parent, weights, offsetX, offsetY, model, layer, layerNumber) {
     if (weights.shape.length == 1) {
       return this.renderWeights1(parent, weights, offsetX, offsetY);
     } else if (weights.shape.length == 2) {
-      return this.renderWeights2(parent, weights, offsetX, offsetY, model, layer);
+      return this.renderWeights2(parent, weights, offsetX, offsetY, model, layer, layerNumber);
     }
   }
 
@@ -501,16 +502,18 @@ class SvgContext {
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.oscope.addTo(g);
-
+    let layerNumber = 0;
     for (let l of model.layers) {
       if (l.weights.length == 0) {
+        ++layerNumber;
         continue;
       }
       for (let w of l.weights) {
-        let width = this.renderWeights(g, w, offsetX, offsetY, model, l);
+        let width = this.renderWeights(g, w, offsetX, offsetY, model, l, layerNumber);
         offsetX += width;
       }
       offsetX += 50;
+      ++layerNumber;
     }
 
     let tp = this.addTestPoint(g, offsetX, offsetY);
@@ -563,9 +566,9 @@ function collect() {
     counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
+  console.log("Done collecting.");
   modelEval = new ModelEvaluation(currentBrain.getModel());
   show();
-  console.log("Done collecting.");
 }
 
 class SelectEverything {
@@ -717,39 +720,50 @@ function rebuildModel(model, layerCount) {
 
 class ModelEvaluation {
   constructor(model) {
+    this.model = model;
     this.layerMapInput = new Map();
     this.layerMapOutput = new Map();
 
+    this.addDataFromModel();
+  }
+
+  addDataFromModel() {
     let inputTensor, outputTensor, weightTensor;
     [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
 
     this.expected = outputTensor.dataSync();
 
-    for (let i = 0; i < model.layers.length; ++i) {
-      let l = model.layers[i];
+    for (let i = 0; i < this.model.layers.length; ++i) {
+      let l = this.model.layers[i];
       if (l.input == l.output) {
-        this.layerMapInput.set(l.name, inputTensor.dataSync());
+        this.layerMapInput.set("in:" + i, inputTensor.dataSync());
+        console.log("Seting in:" + i);
         continue;
       }
       let smallerModel = tf.model({
-        inputs: model.inputs,
+        inputs: this.model.inputs,
         outputs: l.input
       });
       let prediction = smallerModel.predict(inputTensor);
-      this.layerMapInput.set(l.name, prediction.dataSync());
+      this.layerMapInput.set("in:" + i, prediction.dataSync());
+      console.log("Seting in:" + i);
       if (!l.getConfig().units) {
         continue;
       }
-      let outputModel = rebuildModel(model, i);
+      let outputModel = rebuildModel(this.model, i);
       let outputPrediction = outputModel.predict(inputTensor)
-      this.layerMapOutput.set(l.name, outputPrediction.dataSync());
+      this.layerMapOutput.set("out:" + i, outputPrediction.dataSync());
+      console.log("Seting out:" + i);
     }
   }
-  getArray(layer, index, isOutput) {
-    let data = isOutput ? this.layerMapOutput.get(layer.name) :
-      this.layerMapInput.get(layer.name);
+
+  getArray(layer, layerNumber, index, isOutput) {
+    const layerKey = isOutput ?
+      ("out:" + layerNumber) : ("in:" + layerNumber);
+    let data = isOutput ? this.layerMapOutput.get(layerKey) :
+      this.layerMapInput.get(layerKey);
     if (!data) {
-      console.log("Layer not found: " + layer.name);
+      console.log("Layer not found: " + layerKey);
       return [0];
     }
     let stride = isOutput ? layer.output.shape[1] : layer.input.shape[1];
@@ -807,7 +821,8 @@ function resetBrain() {
   options.layers = [];
   options.activations = [];
   for (let l of descriptor.split(/[-, ]/)) {
-    options.layers.push(parseInt(l));
+    let number = parseInt(l);
+    options.layers.push(number);
     options.activations.push("tanh");
   }
   options.activations.push("linear");
@@ -931,6 +946,7 @@ function setup() {
   {
     let numberOptions = document.createElement("div");
     numberOptions.id = "numbers";
+    numberOptions.innerText = "Mode: ";
     numberOptions.classList.add("options")
     let numberChoice = createSelect();
     numberChoice.option("1 input", 1);
@@ -1012,7 +1028,7 @@ function setup() {
   {
     let d = document.getElementById("netspec");
     d.innerText = "Brain config: ";
-    let input = createInput("1");
+    let input = createInput("2 1");
     input.elt.id = "brainDescriptor";
     d.appendChild(input.elt);
     let button = createButton("Reset Brain");
