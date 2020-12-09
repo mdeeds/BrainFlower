@@ -27,7 +27,7 @@ class Mooo {
     }
 
     else if (s.leftFlowerDistance == s.rightFlowerDistance) {
-      return 1 ;
+      return 0 ;
     }
 
     return 0;
