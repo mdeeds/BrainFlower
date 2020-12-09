@@ -25,10 +25,10 @@ function setup() {
   if (!sweep) {
     leftEntries = rightEntries;
   } else {
-    let robotUnderTest = MattBot;
-    for (let a1 of [-0.25, -0.20, -0.15, -0.10]) {
-      for (let a2 of [0.0001, 0.0003, 0.0005]) {
-        for (let a3 of [-1]) {
+    let robotUnderTest = CircleBot;
+    for (let a1 of [-0.15, -0.2, -0.25, -0.3]) {
+      for (let a2 of [0.0001, 0.0003, 0.001, 0.003]) {
+        for (let a3 of [0]) {
           let name = robotUnderTest.name;
           name += ":" + a1.toFixed(2);
           name += ":" + a2.toFixed(4);
