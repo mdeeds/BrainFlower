@@ -1,6 +1,7 @@
 class surpriseBot {
-  constructor(turn = 0.10) {
-    this.turn = turn
+  constructor(turn = 0.10, useChase = 1) {
+    this.turn = turn;
+    this.useChase = useChase;
   }
 
 
@@ -17,9 +18,13 @@ class surpriseBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    //if (s.opponentScore > s.myScore) {
-      //let turn = s.opponentAngle / 45;
-      //return Math.max(-1, Math.min(1, turn));
+    if (this.useChase == 1) {
+      if (s.opponentScore > s.myScore) {
+        let turn = s.opponentAngle / 45;
+        return Math.max(-1, Math.min(1, turn));
+      }
+    }
+
     if ((s.leftFlowers > 0 || s.rightFlowers > 0)
       && s.leftFlowerDistance == s.rightFlowerDistance) {
       return 0;
@@ -33,6 +38,6 @@ class surpriseBot {
       return this.turn;
     }
     return 0.1;
-  
-}
+
+  }
 }
