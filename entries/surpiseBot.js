@@ -17,10 +17,10 @@ class surpriseBot {
    * @returns {number} - Turn rate [-1 to 1]
    */
   run(s) {
-    if (s.opponentScore > s.myScore) {
-      let turn = s.opponentAngle / 45;
-      return Math.max(-1, Math.min(1, turn));
-     } else if ((s.leftFlowers > 0 || s.rightFlowers > 0)
+    //if (s.opponentScore > s.myScore) {
+      //let turn = s.opponentAngle / 45;
+      //return Math.max(-1, Math.min(1, turn));
+    if ((s.leftFlowers > 0 || s.rightFlowers > 0)
       && s.leftFlowerDistance == s.rightFlowerDistance) {
       return 0;
     }

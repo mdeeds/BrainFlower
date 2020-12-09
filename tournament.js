@@ -26,9 +26,9 @@ function setup() {
     leftEntries = rightEntries;
   } else {
     let robotUnderTest = surpriseBot;
-    for (let a1 of [0.5, 0.1, 0.25, 0.75]) {
-      for (let a2 of [0.4]) {
-        for (let a3 of [-1]) {
+    for (let a1 of [0.05, 0.1, 0.15, 0.01]) {
+      for (let a2 of [0]) {
+        for (let a3 of [0]) {
           let name = robotUnderTest.name;
           name += ":" + a1.toFixed(2);
           name += ":" + a2.toFixed(4);
