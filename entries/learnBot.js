@@ -1,5 +1,5 @@
 class LearnBot {
-  constructor(referenceBot) {
+  constructor() {
     this.brain = new Brain("LearnBot");
   }
 
@@ -24,6 +24,10 @@ class LearnBot {
    */
   getModel() {
     return this.brain.model;
+  }
+
+  getBrain() {
+    return this.brain;
   }
 
   /**

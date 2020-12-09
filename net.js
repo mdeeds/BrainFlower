@@ -2,6 +2,7 @@ const kLayerSpacing = 250;
 const kRoot2 = Math.sqrt(2);
 
 var botUnderTest;
+var currentBrain;
 var ctx;
 var repeatBox;
 var match;
@@ -224,7 +225,7 @@ class Oscope {
 
       let dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
       dot.setAttribute("fill", color);
-      dot.setAttribute("fill-opacity", 0.05);
+      dot.setAttribute("fill-opacity", 0.2);
       dot.setAttribute("cx", Math.min(200, Math.max(-200, 100 * x)));
       dot.setAttribute("cy", Math.min(200, Math.max(-200, 100 * -y)));
       dot.setAttribute("r", 5);
@@ -292,8 +293,9 @@ class SvgContext {
         }
         oldData[this.currentWeightIndex] = newValue;
         this.currentWeightTensor.assign(tf.tensor(oldData, this.currentWeightTensor.shape, 'float32'));
-        // TODO: Compile and update model eval.
-        // modelEval = new ModelEvaluation(botUnderTest.brain.model);
+
+        // currentBrain.compileModel();
+        modelEval = new ModelEvaluation(currentBrain.model);
         show();
         return true;
       });
@@ -422,11 +424,11 @@ class SvgContext {
     return 60;
   }
 
-  buildDataCallback(model, layer, index, isOutput) {
+  buildDataCallback(model, layer, layerNumber, index, isOutput) {
     return function () {
       if (!modelEval) { return [0]; }
-      return modelEval.getArray(layer, index, isOutput);
-    }.bind(model, layer, index);
+      return modelEval.getArray(layer, layerNumber, index, isOutput);
+    }.bind(model, layer, layerNumber, index);
   }
 
   buildExpectedCallback() {
@@ -436,7 +438,7 @@ class SvgContext {
     };
   }
 
-  renderWeights2(parent, weights, offsetX, offsetY, model, layer) {
+  renderWeights2(parent, weights, offsetX, offsetY, model, layer, layerNumber) {
     let shape = weights.shape;
     let data = weights.val.dataSync();
 
@@ -446,7 +448,7 @@ class SvgContext {
     for (let i = 0; i < shape[0]; ++i) {
       let tp = this.addTestPoint(parent, offsetX + i * 15 + 30,
         offsetY + shape[1] * 15 + 15);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ false));
+      testPoints.add(tp, this.buildDataCallback(model, layer, layerNumber, i, /*isOutput=*/ false));
 
       this.line(parent,
         offsetX + i * 15 + 30, offsetY + 0,
@@ -467,7 +469,7 @@ class SvgContext {
         x2, y2 + 50 + i * 20, x2, y2);
 
       let tp = this.addTestPoint(parent, x1, y1);
-      testPoints.add(tp, this.buildDataCallback(model, layer, i, /*isOutput=*/ true));
+      testPoints.add(tp, this.buildDataCallback(model, layer, layerNumber, i, /*isOutput=*/ true));
       // this.path(parent,)
     }
 
@@ -484,11 +486,11 @@ class SvgContext {
     return shape[0] * 15 + 5;
   }
 
-  renderWeights(parent, weights, offsetX, offsetY, model, layer) {
+  renderWeights(parent, weights, offsetX, offsetY, model, layer, layerNumber) {
     if (weights.shape.length == 1) {
       return this.renderWeights1(parent, weights, offsetX, offsetY);
     } else if (weights.shape.length == 2) {
-      return this.renderWeights2(parent, weights, offsetX, offsetY, model, layer);
+      return this.renderWeights2(parent, weights, offsetX, offsetY, model, layer, layerNumber);
     }
   }
 
@@ -500,16 +502,18 @@ class SvgContext {
     g = document.createElementNS("http://www.w3.org/2000/svg", "g");
     this.svg.appendChild(g);
     this.oscope.addTo(g);
-
+    let layerNumber = 0;
     for (let l of model.layers) {
       if (l.weights.length == 0) {
+        ++layerNumber;
         continue;
       }
       for (let w of l.weights) {
-        let width = this.renderWeights(g, w, offsetX, offsetY, model, l);
+        let width = this.renderWeights(g, w, offsetX, offsetY, model, l, layerNumber);
         offsetX += width;
       }
       offsetX += 50;
+      ++layerNumber;
     }
 
     let tp = this.addTestPoint(g, offsetX, offsetY);
@@ -534,7 +538,10 @@ class TrainingExample {
 }
 
 function show() {
-  let model = botUnderTest.getModel();
+  let model = currentBrain.getModel();
+  if (model.input.shape[1] != getInputSize()) {
+    resetBrain();
+  }
   ctx.renderModel(model);
 }
 
@@ -559,9 +566,9 @@ function collect() {
     counters.set("Games collected", trainingData.length / kFramesPerRound);
     // TODO: determine win, and store appropriately
   }
-  modelEval = new ModelEvaluation(botUnderTest.brain.model);
-  show();
   console.log("Done collecting.");
+  modelEval = new ModelEvaluation(currentBrain.getModel());
+  show();
 }
 
 class SelectEverything {
@@ -601,7 +608,34 @@ class SelectScoringMoves {
   }
 }
 
+function getInputSize() {
+  const taskChoice = document.getElementById("taskChoice");
+  if (taskChoice.selectedIndex == 1) {
+    return kInputSize;
+  } else {
+    const numberChoice = document.getElementById("numberChoice");
+    if (numberChoice.selectedIndex == 0) {
+      return 1;
+    } else {
+      return 2;
+    }
+  }
+}
+
 function getInputOutputTensors(selector) {
+  const taskChoice = document.getElementById("taskChoice");
+  if (taskChoice.selectedIndex == 1) {
+    return getGameInputOutputTensors(selector);
+  } else {
+    const numberChoice = document.getElementById("numberChoice");
+    if (numberChoice.selectedIndex == 0) {
+      return getOneInputOutputTensors();
+    } else {
+      return getTwoInputOutputTensors();
+    }
+  }
+}
+function getGameInputOutputTensors(selector) {
   if (!selector) {
     selector = new SelectEverything();
   }
@@ -619,6 +653,45 @@ function getInputOutputTensors(selector) {
   }
   // TODO: Divide this into smaller batches and provide updates.
   let inputTensor = tf.tensor2d(input, [input.length, kInputSize]);
+  let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
+  let weightTensor = tf.tensor1d(weights, 'float32');
+
+  return [inputTensor, outputTensor, weightTensor];
+}
+
+function getOneInputOutputTensors(selector) {
+  let input = [];
+  let output = [];
+  let weights = [];
+
+  for (let i = 0; i < 2000; ++i) {
+    let x = 4 * Math.random() - 2;
+    let y = x * x - 2.0;
+    input.push([x]);
+    output.push([y]);
+    weights.push(1);
+  }
+  let inputTensor = tf.tensor2d(input, [input.length, 1]);
+  let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
+  let weightTensor = tf.tensor1d(weights, 'float32');
+
+  return [inputTensor, outputTensor, weightTensor];
+}
+
+function getTwoInputOutputTensors(selector) {
+  let input = [];
+  let output = [];
+  let weights = [];
+
+  for (let i = 0; i < 2000; ++i) {
+    let a = 2 * Math.random() - 1;
+    let b = 2 * Math.random() - 1;
+    let y = a - b;
+    input.push([a, b]);
+    output.push([y]);
+    weights.push(1);
+  }
+  let inputTensor = tf.tensor2d(input, [input.length, 2]);
   let outputTensor = tf.tensor2d(output, [output.length, kOutputSize]);
   let weightTensor = tf.tensor1d(weights, 'float32');
 
@@ -647,38 +720,50 @@ function rebuildModel(model, layerCount) {
 
 class ModelEvaluation {
   constructor(model) {
+    this.model = model;
     this.layerMapInput = new Map();
     this.layerMapOutput = new Map();
 
+    this.addDataFromModel();
+  }
+
+  addDataFromModel() {
     let inputTensor, outputTensor, weightTensor;
     [inputTensor, outputTensor, weightTensor] = getInputOutputTensors();
 
     this.expected = outputTensor.dataSync();
 
-    for (let i = 0; i < model.layers.length; ++i) {
-      let l = model.layers[i];
+    for (let i = 0; i < this.model.layers.length; ++i) {
+      let l = this.model.layers[i];
       if (l.input == l.output) {
-        this.layerMapInput.set(inputTensor.dataSync());
+        this.layerMapInput.set("in:" + i, inputTensor.dataSync());
+        console.log("Seting in:" + i);
         continue;
       }
       let smallerModel = tf.model({
-        inputs: model.inputs,
+        inputs: this.model.inputs,
         outputs: l.input
       });
       let prediction = smallerModel.predict(inputTensor);
-      this.layerMapInput.set(l, prediction.dataSync());
+      this.layerMapInput.set("in:" + i, prediction.dataSync());
+      console.log("Seting in:" + i);
       if (!l.getConfig().units) {
         continue;
       }
-      let outputModel = rebuildModel(model, i);
+      let outputModel = rebuildModel(this.model, i);
       let outputPrediction = outputModel.predict(inputTensor)
-      this.layerMapOutput.set(l, outputPrediction.dataSync());
+      this.layerMapOutput.set("out:" + i, outputPrediction.dataSync());
+      console.log("Seting out:" + i);
     }
   }
-  getArray(layer, index, isOutput) {
-    let data = isOutput ? this.layerMapOutput.get(layer) :
-      this.layerMapInput.get(layer);
+
+  getArray(layer, layerNumber, index, isOutput) {
+    const layerKey = isOutput ?
+      ("out:" + layerNumber) : ("in:" + layerNumber);
+    let data = isOutput ? this.layerMapOutput.get(layerKey) :
+      this.layerMapInput.get(layerKey);
     if (!data) {
+      console.log("Layer not found: " + layerKey);
       return [0];
     }
     let stride = isOutput ? layer.output.shape[1] : layer.input.shape[1];
@@ -708,7 +793,7 @@ function train() {
     // new SelectScoringMoves(60)
   );
 
-  let model = botUnderTest.getModel();
+  let model = currentBrain.getModel();
   console.log("Staring train");
   counters.incrementBy("Train games", trainingData.length / kFramesPerRound);
   trainStart = window.performance.now();
@@ -723,26 +808,31 @@ function train() {
       trainingDiv.remove();
       let elapsed = window.performance.now() - trainStart;
       console.log("Done training: " + (elapsed / 1000).toFixed(2) + "s");
-      botUnderTest.brain.setDirty();
-      modelEval = new ModelEvaluation(botUnderTest.brain.model);
+      currentBrain.setDirty();
+      modelEval = new ModelEvaluation(currentBrain.model);
       show();
     });
 }
 
-function resetBrain(descriptor) {
+function resetBrain() {
+  let descriptor = document.getElementById("brainDescriptor").value;
   let options = {};
+  options.inputSize = getInputSize();
   options.layers = [];
   options.activations = [];
   for (let l of descriptor.split(/[-, ]/)) {
-    options.layers.push(parseInt(l));
+    let number = parseInt(l);
+    options.layers.push(number);
     options.activations.push("tanh");
   }
   options.activations.push("linear");
   options.simplify = simplify;
 
-  botUnderTest.brain.reset(options);
+  console.log("Reset options: " + JSON.stringify(options));
+
+  currentBrain.reset(options);
   counters.set("Train games", 0);
-  modelEval = new ModelEvaluation(botUnderTest.brain.model);
+  modelEval = new ModelEvaluation(currentBrain.model);
   show();
 }
 
@@ -794,6 +884,38 @@ function tryPlaying(audioElement) {
   });
 }
 
+function updateInput(target) {
+  let selectedLabel = "";
+  for (let i = 0; i < target.options.length; ++i) {
+    if (i == target.selectedIndex) {
+      selectedLabel = target.options[i].value;
+      document.getElementById(selectedLabel).style.display = null;
+    } else {
+      document.getElementById(target.options[i].value).style.display = "none";
+    }
+  }
+  if (selectedLabel == "game") {
+    botUnderTest = new LearnBot();
+    currentBrain = botUnderTest.getBrain();
+  } else {
+    let numberChoice = document.getElementById("numberChoice");
+    const modelName = numberChoice.options[
+      numberChoice.selectedIndex].innerText;
+    const inputCount = numberChoice.options[
+      numberChoice.selectedIndex].value;
+    let options = {
+      inputSize: inputCount,
+      layers: [4],
+      activations: ['tanh'],
+      simplify: true,
+    };
+    currentBrain = new Brain(modelName, options);
+  }
+}
+
+function handleChangeInput(ev) {
+  updateInput(ev.target);
+}
 
 function setup() {
   let body = document.getElementById("body");
@@ -810,19 +932,50 @@ function setup() {
   for (c of document.getElementsByTagName("canvas")) {
     c.parentElement.removeChild(c);
   }
+  let taskChoice = createSelect();
+  taskChoice.elt.id = "taskChoice";
   {
+    let d = document.createElement("div");
+    taskChoice.option("numbers");
+    taskChoice.option("game");
+    taskChoice.elt.addEventListener("change", handleChangeInput);
+    d.innerText = "Task: ";
+    d.appendChild(taskChoice.elt);
+    body.appendChild(d);
+  }
+  {
+    let numberOptions = document.createElement("div");
+    numberOptions.id = "numbers";
+    numberOptions.innerText = "Mode: ";
+    numberOptions.classList.add("options")
+    let numberChoice = createSelect();
+    numberChoice.option("1 input", 1);
+    numberChoice.option("2 inputs", 2);
+    numberChoice.elt.id = "numberChoice";
+    numberChoice.elt.addEventListener("change", handleChangeInput);
+    numberOptions.appendChild(numberChoice.elt);
+    body.appendChild(numberOptions);
+  }
+  {
+    let learnOptions = document.createElement("div");
+    learnOptions.id = "game";
+    learnOptions.classList.add("options")
+    learnOptions.style.display = "none";
     let l;
     let r;
     [l, r] = buildEntryMap(["KeyBot", "LearnBot", "KeyBot2"]);
     let ldiv = document.createElement("div");
     ldiv.innerHTML = "Learn from: ";
     ldiv.appendChild(l.elt);
-    body.appendChild(ldiv);
+    learnOptions.appendChild(ldiv);
     let rdiv = document.createElement("div");
     rdiv.innerHTML = "Play against: ";
     rdiv.appendChild(r.elt);
-    body.appendChild(rdiv);
+    learnOptions.appendChild(rdiv);
+    body.appendChild(learnOptions);
   }
+
+  updateInput(taskChoice.elt);
 
   let svg = document.createElementNS(
     "http://www.w3.org/2000/svg", "svg");
@@ -834,10 +987,8 @@ function setup() {
 
   ctx = new SvgContext(svg);
 
-  botUnderTest = new LearnBot(match.getEntry(0));
-
   let modelNameBox = document.createElement("div");
-  modelNameBox.innerText = botUnderTest.brain.name;
+  modelNameBox.innerText = currentBrain.name;
   body.appendChild(modelNameBox);
 
   tf.io.listModels().then(models => {
@@ -877,15 +1028,13 @@ function setup() {
   {
     let d = document.getElementById("netspec");
     d.innerText = "Brain config: ";
-    let input = createInput("4");
+    let input = createInput("2 1");
+    input.elt.id = "brainDescriptor";
     d.appendChild(input.elt);
     let button = createButton("Reset Brain");
     d.appendChild(button.elt);
     button.size(60, 50);
-    button.mousePressed(
-      function () {
-        resetBrain(input.elt.value);
-      }.bind(input));
+    button.mousePressed(resetBrain);
     let s = createSelect();
     s.option("Simplify");
     s.option("Perfect");
@@ -905,9 +1054,9 @@ function setup() {
     d.appendChild(sBackend.elt);
     let batchSizeBox = createSelect();
     for (let size of [1, 10, 100, 1000]) {
-      batchSizeBox.option(size.toFixed(0), size);
+      batchSizeBox.option("Batch size " + size.toFixed(0), size);
     }
-    batchSizeBox.elt.addEventListener("change", function(e) {
+    batchSizeBox.elt.addEventListener("change", function (e) {
       batchSize = parseInt(e.target.value);
     });
     d.appendChild(batchSizeBox.elt);
@@ -924,6 +1073,8 @@ function setup() {
   counters.addTo(body);
 
   testPoints = new TestPointCollection();
+
+  setTimeout(show, 1000);
 }
 
 function draw() {

@@ -53,7 +53,7 @@ class KeyBot2 {
     if (this.speed == 0) {
       return 0.0;
     } else {
-      let da = subtractAngles(this.desiredAngle, s.myHeading); 
+      let da = subtractAngles(this.desiredAngle, s.myHeading) / 100; 
       return da;
     }
   }

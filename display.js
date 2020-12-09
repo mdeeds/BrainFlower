@@ -11,7 +11,7 @@ function setup() {
   entries.push(new CircleBot());
   entries.push(new CloseBot());
   entries.push(new RudeBot());
-  entries.push(new Kili());
+  entries.push(new surpriseBot());
   entries.push(new SteveBot());
   entries.push(new MattBot());
   entries.push(new tinyBot());

@@ -1,6 +1,7 @@
 class BrainSpec {
   /**
    * Creates a brain specification from options
+   *   inputSize - the number of inputs
    *   layers - an array of integers the sizes of  the layers.
    *   activations - array of strings: activation functions for each layer
    *     plus one activation for the output layer.
@@ -14,6 +15,9 @@ class BrainSpec {
     this.options = options;
     if (!("layers" in options)) {
       this.options.layers = [4];
+    }
+    if (!("inputSize") in options) {
+      this.options.inputSize = kInputSize;
     }
     if (!("activations" in options)) {
       this.options.activations = [];
@@ -39,8 +43,8 @@ class BrainSpec {
       this.options.layers.length + 1 == this.options.activations.length);
     console.log("Creating model: " + JSON.stringify(this.options));
     let newModel = tf.tidy(() => {
-      const input = tf.input({ shape: [kInputSize] });
-      let previousLayerSize = kInputSize;
+      const input = tf.input({ shape: [this.options.inputSize] });
+      let previousLayerSize = this.options.inputSize;
       let layerIndex = 0;
       let previousLayer = input;
       for (let layerSize of this.options.layers) {
@@ -123,15 +127,19 @@ class Brain {
    * already exists, that one is returned, otherwise a new brain is created and
    * this name is used to periodically save the model. 
    */
-  constructor(name) {
+  constructor(name, options) {
     console.log("New Brain.");
     this.name = name;
-    this.loadOrCreate();
     this.brainSpec = new BrainSpec();
     this.lastSave = 0;
+    this.loadOrCreate(name, options);
   }
 
-  async loadOrCreate(modelName) {
+  getModel() {
+    return this.model;
+  }
+
+  async loadOrCreate(modelName, options) {
     let name = modelName || this.name;
     try {
       this.model = await tf.loadLayersModel('indexeddb://' + name);
@@ -139,7 +147,7 @@ class Brain {
       console.log("Model loaded.");
     } catch (e) {
       console.log(e);
-      this.createModel();
+      this.createModel(options);
     }
     this.compileModel();
   }
@@ -183,14 +191,14 @@ class Brain {
     if (this.dirty) {
       console.log("Saving.");
       this.model.save('indexeddb://' + this.name)
-      .catch((e) => { 
-        console.log("Error saving: " + JSON.stringify(e));
-      })
-      .then(() => {
-        this.dirty = false;
-        this.lastSave = window.performance.now();
-        console.log("Model saved.");
-      });
+        .catch((e) => {
+          console.log("Error saving: " + JSON.stringify(e));
+        })
+        .then(() => {
+          this.dirty = false;
+          this.lastSave = window.performance.now();
+          console.log("Model saved.");
+        });
     }
   }
 

@@ -25,13 +25,13 @@ function setup() {
   if (!sweep) {
     leftEntries = rightEntries;
   } else {
-    let robotUnderTest = MattBot;
-    for (let a1 of [-0.4, -0.3, -0.2, -0.1]) {
-      for (let a2 of [0.1, 0.2, 0.3, 0.4]) {
-        for (let a3 of [-1]) {
+    let robotUnderTest = CircleBot;
+    for (let a1 of [-0.15, -0.2, -0.25, -0.3]) {
+      for (let a2 of [0.0001, 0.0003, 0.001, 0.003]) {
+        for (let a3 of [0]) {
           let name = robotUnderTest.name;
           name += ":" + a1.toFixed(2);
-          name += ":" + a2.toFixed(2);
+          name += ":" + a2.toFixed(4);
           name += ":" + a3.toFixed(2);
           let entry = new robotUnderTest.prototype.constructor(a1, a2, a3);
           entry.name = name;
@@ -81,6 +81,12 @@ function addScore(containerA, containerB) {
 var matches = new Map();
 
 function runOneGame(robotA, robotB) {
+  if (!!robotA.reset) {
+    robotA.reset();
+  }
+  if (!!robotB.reset) {
+    robotB.reset();
+  }
   let game = new Game(robotA, robotB);
   containerA = game.leftContainer;
   containerB = game.rightContainer;
