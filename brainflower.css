@@ -81,9 +81,16 @@ img {
 }
 
 .biggest {
-  width: calc(min(95vw - 50px, 95vh - 50px));;
-  height: calc(min(95vw - 50px, 90vh - 50px));
+  width: calc(min(95vw - 5px, 95vh - 50px));;
+  height: calc(min(95vw - 5px, 95vh - 50px));
 }
+
+.medium {
+  width: calc(min(95vw - 5px, 95vh - 150px));
+  height: calc(min(95vw - 5px, 95vh - 150px));
+  margin: 5px;
+}
+
 
 input {
   font-size: 20px;
@@ -94,4 +101,35 @@ input {
   border: 1px solid green;
   padding: 5px;
   margin: 5px;
+}
+
+.editable {
+  background-color: #111;
+  border-radius: 3px;
+  border: 1px solid grey;
+}
+
+.code {
+  width: calc(min(95vw - 5px, 95vh - 150px));
+  border-radius: 5px;
+  border: solid 1px grey;
+  white-space: pre;
+  margin: 2px;
+  padding: 5px;
+}
+.errors {
+  color: red;
+  background-color: black;
+}
+ 
+#main {
+  display: inline;
+}
+
+#leftSpan {
+  float: left;
+}
+
+#rightSpan {
+  float: right;
 }
