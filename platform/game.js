@@ -36,6 +36,10 @@ class Game {
     }
   }
 
+  getFlowers() {
+    return this.flowers;
+  }
+
   drawFlowers() {
     for (let f of this.flowers) {
       f.draw();

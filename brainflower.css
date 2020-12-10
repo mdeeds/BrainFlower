@@ -107,9 +107,12 @@ input {
   background-color: #111;
   border-radius: 3px;
   border: 1px solid grey;
+  font-family: monospace;
+  color: goldenrod;
 }
 
 .code {
+  font-size: 22px;
   width: calc(min(95vw - 5px, 95vh - 150px));
   border-radius: 5px;
   border: solid 1px grey;
@@ -132,4 +135,11 @@ input {
 
 #rightSpan {
   float: right;
+}
+
+#instructionBox {
+  width: calc(min(95vw - 5px, 95vh - 150px));
+  font-size: 22px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: lightblue;
 }

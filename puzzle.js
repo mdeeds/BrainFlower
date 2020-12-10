@@ -1,20 +1,18 @@
 var started = false;
 var startButton;
-var game;
+var game = null;
 var messageBox;
 var testMode = false;
 var robotDisplays = [];
 var left;
+var buildMode = false;
+var currentChallenge = null;
 
 function setup() {
   let p = window.getURLParams();
+  buildMode = !!p.build;
 
   createCanvas(kArenaSize, kArenaSize);
-
-  startButton = createButton("Start");
-  startButton.size(60, 40);
-  startButton.position(kArenaSize / 2 - 25 + 50, 200);
-  startButton.mousePressed(startGame);
 
   const body = document.getElementById("body");
   let main = document.createElement("div");
@@ -22,10 +20,7 @@ function setup() {
   body.appendChild(main);
   let leftSpan = document.createElement("span");
   leftSpan.id = "leftSpan";
-  let rightSpan = document.createElement("span");
-  rightSpan.id = "rightSpan";
   main.appendChild(leftSpan);
-  main.appendChild(rightSpan);
 
   for (c of document.getElementsByTagName("canvas")) {
     c.classList.add("medium");
@@ -34,27 +29,40 @@ function setup() {
     leftSpan.appendChild(c);
   }
 
+  new Challenge("puzzle_1.txt", loadGame);
+}
+
+function loadGame(challenge) {
+  const main = document.getElementById("main");
+  let rightSpan = document.createElement("span");
+  rightSpan.id = "rightSpan";
+  main.appendChild(rightSpan);
+
+  instructionBox = document.createElement("div");
+  instructionBox.id = "instructionBox";
+  instructionBox.innerHTML = challenge.instructions;
+  rightSpan.appendChild(instructionBox);
+
   codeBox = document.createElement("div");
-  codeBox.innerHTML =
-    "<div>function run(s) {</div>" +
-    "<div>  return <span contenteditable>0.5</span>;</div>" +
-    "<div>}</div>";
+  codeBox.innerHTML = challenge.code;
   codeBox.id = "code";
   codeBox.classList.add("code");
   rightSpan.appendChild(codeBox);
-  console.log(codeBox.innerText);
 
   messageBox = document.createElement("div");
+  messageBox.id = "messageBox";
   messageBox.classList.add("errors");
   messageBox.classList.add("code");
-
   rightSpan.appendChild(messageBox);
 
-  left = new Programmable(messageBox);
-  let right = new SpinBot();
-  game = new Game(left, right, { noFlowers: true });
-  robotDisplays.push(new RobotDisplay(game.leftContainer));
-  robotDisplays.push(new RobotDisplay(game.rightContainer));
+  startButton = createButton("Start");
+  startButton.size(60, 40);
+  startButton.mousePressed(handleButtonClick);
+  rightSpan.appendChild(startButton.elt);
+
+  currentChallenge = challenge;
+
+  resetGame();
 
   for (s of document.getElementsByTagName("span")) {
     if (s.contentEditable == "true") {
@@ -63,6 +71,19 @@ function setup() {
   }
 }
 
+function handleButtonClick() {
+  const buttonText = startButton.elt.innerText;
+  if (buttonText == "Start") {
+    startGame();
+    startButton.elt.innerText = "Stop";
+  } else if (buttonText == "Stop") {
+    pauseGame();
+    startButton.elt.innerText = "Reset";
+  } else {
+    resetGame();
+    startButton.elt.innerText = "Start";
+  }
+}
 
 function loadSound(path) {
   let audio = document.createElement("audio");
@@ -79,11 +100,30 @@ function startGame() {
   hitSound = loadSound("sfx/Hit.mp3");
 
   started = true;
-  startButton.remove();
 
   left.setCode(
     document.getElementById("code").innerText +
     "run(s)");
+}
+
+function pauseGame() {
+  music.pause();
+  started = false;
+}
+
+function resetGame() {
+  left = new Programmable(messageBox);
+  let right = new SpinBot();
+  game = new Game(left, right, { noFlowers: true });
+
+  for (f of currentChallenge.flowers) {
+    game.addFlower(f.x, f.y);
+  }
+
+  robotDisplays = [];
+  robotDisplays.push(new RobotDisplay(game.leftContainer));
+  robotDisplays.push(new RobotDisplay(game.rightContainer));
+  frameNumber = 0;
 }
 
 
@@ -122,6 +162,7 @@ function playFrame() {
     fill(color("red"));
     stroke(color("black"));
     if (framesRemaining === 0) {
+      handleButtonClick();
       textSize(200);
       text("STOP", kArenaSize / 2, 450);
     } else {
@@ -132,11 +173,36 @@ function playFrame() {
 
 var frameNumber = 0;
 function draw() {
+  if (!game) {
+    return;
+  }
   playFrame();
   if (started) {
     ++frameNumber;
     if (frameNumber >= kFramesPerRound) {
       started = false;
+    }
+  }
+}
+
+function mouseClicked() {
+  if (buildMode) {
+    if (mouseX >= 0 && mouseX < kArenaSize &&
+      mouseY >= 0 && mouseY < kArenaSize) {
+      game.addFlower(mouseX, mouseY);
+      const messageBox = document.getElementById("messageBox");
+      const flowers = game.getFlowers();
+      let flowerArray = [];
+      for (f of flowers) {
+        flowerArray.push(f);
+      }
+      messageBox.innerText = JSON.stringify(
+        flowerArray, null, 1);
+
+      const range = document.createRange();
+      range.selectNode(messageBox);
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(range);
     }
   }
 }

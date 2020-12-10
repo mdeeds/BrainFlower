@@ -1,0 +1,45 @@
+instructions:
+Welcome to BrainFlower Journey!  The blue robot's brain is defined in the
+code on this page.  If you see something like 
+<span contenteditable>this</span> it is code you can edit.  You need to edit
+this code to make the robot win the challenge.  
+
+To win, your robot, the blue one, must collect more flowers than the opponent.
+In this challenge your opponent won't move, so you just need to get the flower.
+
+Once you have won this challenge, you can proceed to the next one.  Go ahead
+and give it a try!
+
+code:
+function run(s) {
+  return (=0.5=);
+};
+
+flowers:
+[
+  {
+    "x": 238.56041131105397,
+    "y": 208.74035989717223,
+    "t": 2080.699999999203
+  },
+  {
+    "x": 287.9177377892031,
+    "y": 343.4447300771208,
+    "t": 2039.8999999992402
+  },
+  {
+    "x": 318.76606683804624,
+    "y": 503.85604113110537,
+    "t": 2035.3999999992443
+  },
+  {
+    "x": 307.4550128534704,
+    "y": 437.0179948586118,
+    "t": 2028.8999999992502
+  },
+  {
+    "x": 283.80462724935734,
+    "y": 286.88946015424165,
+    "t": 0
+  }
+]
