@@ -15,8 +15,8 @@ class SpinBot {
     c.ellipse(50, 50, 95, 95);
     c.noFill();
     c.stroke(color("Red"));
-    c.strokeWeight(2);
-    for (let i = 0; i < Math.PI * 2; i += Math.PI / 6) {
+    c.strokeWeight(3);
+    for (let i = 0; i < Math.PI * 2; i += Math.PI / 3) {
       let t = i;
       for (let r = 0; r < 50; r += 1) {
         c.line(
