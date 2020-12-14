@@ -117,15 +117,7 @@ class Game {
     return true;
   }
 
-  /**
-   * Runs the robots and physics simulation without any draw operations.
-   * TODO: reutrn the sensor state for two robots and
-   * the outputs from both robots.
-   */
-  runFrame() {
-    if (!this.options.noFlowers && Math.random() < 0.005) {
-      this.addRandomFlower();
-    }
+  getFrameState() {
     let frameState = new FrameState();
     for (let i of [0, 1]) {
       let rc = this.robotContainers[i];
@@ -137,6 +129,28 @@ class Game {
       } else {
         frameState.rightSensorArray = s.asArray();
         frameState.rightSenses = s;
+      }
+    }
+    return frameState;
+  }
+
+  /**
+   * Runs the robots and physics simulation without any draw operations.
+   * TODO: reutrn the sensor state for two robots and
+   * the outputs from both robots.
+   */
+  runFrame() {
+    if (!this.options.noFlowers && Math.random() < 0.005) {
+      this.addRandomFlower();
+    }
+    let frameState = this.getFrameState();
+    for (let i of [0, 1]) {
+      let rc = this.robotContainers[i];
+      let s;
+      if (i == 0) {
+        s = frameState.leftSenses;
+      } else {
+        s = frameState.rightSenses;
       }
       let startTime = window.performance.now();
       let turn = 0.0;

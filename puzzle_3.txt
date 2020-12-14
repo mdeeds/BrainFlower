@@ -1,0 +1,56 @@
+instructions:
+<p>A function has three parts:
+<ul>
+<li> Name: <span style="code">run</span></li>
+<li> Arguments: <span style="code">(s)</span></li>
+<li> Body: <span style="code">{ ... }</span></li>
+</ul>
+
+<p>The robot has senses in the <span class="code">s</span> argument.  The robot
+can use these to turn toward the flowers.
+
+<p>If you "pause" the game, you will see all the values inside
+<span class="code">s</span>
+
+code:
+function run(s) {
+  if (s.rightFlowers > s.leftFlowers) {
+    return (=1=);
+  } else {
+    return (=0=);
+  }
+}
+
+flowers:
+[
+ {
+  "x": 232.39074550128535,
+  "y": 247.81491002570692,
+  "t": 148.89999999999583
+ },
+ {
+  "x": 262.21079691516707,
+  "y": 572.7506426735218,
+  "t": 136.8999999999965
+ },
+ {
+  "x": 236.5038560411311,
+  "y": 636.503856041131,
+  "t": 128.99999999999696
+ },
+ {
+  "x": 228.2776349614396,
+  "y": 520.3084832904884,
+  "t": 73.70000000000009
+ },
+ {
+  "x": 558.3547557840617,
+  "y": 194.34447300771208,
+  "t": 57.90000000000055
+ },
+ {
+  "x": 315.68123393316193,
+  "y": 698.2005141388174,
+  "t": 0
+ }
+]

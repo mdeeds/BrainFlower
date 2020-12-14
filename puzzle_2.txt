@@ -1,0 +1,35 @@
+instructions:
+<p>In the last challenge, the robot turned to the right.  This time the 
+flowers are to the left.  A negative number will make the robot turn left.
+
+<p>Make a number negative by putting a minus sign <span class="code">-</span>
+before it.
+
+code:
+function run(s) {
+  return (=0.5=);
+}
+
+flowers:
+[
+ {
+  "x": 355.7840616966581,
+  "y": 245.75835475578404,
+  "t": 42.10000000000033
+ },
+ {
+  "x": 552.1850899742931,
+  "y": 227.24935732647813,
+  "t": 17.69999999999998
+ },
+ {
+  "x": 695.1156812339332,
+  "y": 162.46786632390746,
+  "t": 8.899999999999984
+ },
+ {
+  "x": 752.6992287917737,
+  "y": 93.573264781491,
+  "t": 0
+ }
+]

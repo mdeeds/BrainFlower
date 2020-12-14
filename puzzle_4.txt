@@ -1,0 +1,43 @@
+instructions:
+A function has three parts:
+<ul>
+<li> Name: <span style="code">run</span></li>
+<li> Arguments: <span style="code">(s)</span></li>
+<li> Body: <span style="code">{ ... }</span></li>
+</ul>
+
+The robot has senses in the <span class="code">s</span> argument.  The robot
+can use these to turn toward the flowers.
+
+code:
+function run(s) {
+  if (s.leftFlowerDistance > s.rightFlowerDistance) {
+    return (=1=);
+  } else {
+    return (=0=);
+  }
+}
+
+flowers:
+[
+ {
+  "x": 397.9434447300771,
+  "y": 178.92030848329048,
+  "t": 37.90000000000027
+ },
+ {
+  "x": 144.98714652956298,
+  "y": 364.0102827763496,
+  "t": 30.500000000000163
+ },
+ {
+  "x": 562.4678663239074,
+  "y": 430.8483290488432,
+  "t": 17.69999999999998
+ },
+ {
+  "x": 353.7275064267352,
+  "y": 685.8611825192802,
+  "t": 0
+ }
+]

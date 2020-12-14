@@ -25,6 +25,11 @@ button {
   border-style: outset solid lightgreen;
 }
 
+button:disabled {
+  background-color: black;
+  color:#686;
+}
+
 table {
   border-collapse: collapse;
   margin: 26px;
@@ -143,3 +148,9 @@ input {
   font-family: Arial, Helvetica, sans-serif;
   color: lightblue;
 }
+#goalBox {
+  font-size: 32px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: lightblue;
+}
+

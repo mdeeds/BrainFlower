@@ -45,10 +45,16 @@ class Challenge {
     } else {
       this.flowers = [];
     }
+    if (o.goal) {
+      this.goal = parseInt(o.goal);
+    } else {
+      this.goal = this.flowers.length;
+    }
+
     this.instructions = o.instructions;
     this.code = o.code;
-    this.code = this.code.replace("(=", "<span contenteditable>");
-    this.code = this.code.replace("=)", "</span>");
+    this.code = this.code.replace(/\(\=/g, "<span contenteditable>");
+    this.code = this.code.replace(/\=\)/g, "</span>");
 
     this.readyCallback(this);
   }

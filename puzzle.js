@@ -1,4 +1,5 @@
 var started = false;
+var paused = false;
 var startButton;
 var game = null;
 var messageBox;
@@ -7,6 +8,12 @@ var robotDisplays = [];
 var left;
 var buildMode = false;
 var currentChallenge = null;
+
+var puzzleNames = [
+  "puzzle_1.txt",
+  "puzzle_2.txt",
+  "puzzle_3.txt",
+];
 
 function setup() {
   let p = window.getURLParams();
@@ -29,22 +36,20 @@ function setup() {
     leftSpan.appendChild(c);
   }
 
-  new Challenge("puzzle_1.txt", loadGame);
-}
-
-function loadGame(challenge) {
-  const main = document.getElementById("main");
+  // const main = document.getElementById("main");
   let rightSpan = document.createElement("span");
   rightSpan.id = "rightSpan";
   main.appendChild(rightSpan);
 
+  goalBox = document.createElement("div");
+  goalBox.id = "goalBox";
+  rightSpan.appendChild(goalBox);
+
   instructionBox = document.createElement("div");
   instructionBox.id = "instructionBox";
-  instructionBox.innerHTML = challenge.instructions;
   rightSpan.appendChild(instructionBox);
 
   codeBox = document.createElement("div");
-  codeBox.innerHTML = challenge.code;
   codeBox.id = "code";
   codeBox.classList.add("code");
   rightSpan.appendChild(codeBox);
@@ -55,10 +60,35 @@ function loadGame(challenge) {
   messageBox.classList.add("code");
   rightSpan.appendChild(messageBox);
 
+
+  {
+    const b = createButton("<-");
+    b.size(40, 40);
+    rightSpan.appendChild(b.elt);
+    b.elt.id = "previousPuzzle";
+  }
   startButton = createButton("Start");
   startButton.size(60, 40);
   startButton.mousePressed(handleButtonClick);
   rightSpan.appendChild(startButton.elt);
+  {
+    const b = createButton("->");
+    b.size(40, 40);
+    rightSpan.appendChild(b.elt);
+    b.elt.id = "nextPuzzle";
+    b.elt.disabled = true;
+  }
+
+  new Challenge("puzzle_1.txt", loadGame);
+}
+
+function loadGame(challenge) {
+  let instructionBox = document.getElementById("instructionBox");
+  instructionBox.innerHTML = challenge.instructions;
+  let codeBox = document.getElementById("code");
+  codeBox.innerHTML = challenge.code;
+  goalBox.innerText = 'Goal: Collect ' + challenge.goal.toFixed(0) +
+    ' flowers.';
 
   currentChallenge = challenge;
 
@@ -100,6 +130,7 @@ function startGame() {
   hitSound = loadSound("sfx/Hit.mp3");
 
   started = true;
+  paused = false;
 
   left.setCode(
     document.getElementById("code").innerText +
@@ -109,11 +140,18 @@ function startGame() {
 function pauseGame() {
   music.pause();
   started = false;
+  paused = true;
+}
+
+function completeChallenge() {
+  pauseGame();
+  document.getElementById("nextPuzzle").enabled = true;
 }
 
 function resetGame() {
   left = new Programmable(messageBox);
   let right = new SpinBot();
+  paused = false;
   game = new Game(left, right, { noFlowers: true });
 
   for (f of currentChallenge.flowers) {
@@ -131,12 +169,8 @@ function playFrame() {
   background("DarkSeaGreen");
   if (started) {
     let frameState = game.runFrame();
-    if (testMode) {
-      textAlign(LEFT);
-      textSize(24);
-      noStroke();
-      fill(color("Black"))
-      text(JSON.stringify(frameState.leftSenses, null, '  '), 0, 20);
+    if (frameState.leftSenses.myScore == currentChallenge.goal) {
+      pauseGame();
     }
   }
 
@@ -168,6 +202,18 @@ function playFrame() {
     } else {
       text(secondsRemaining.toFixed(0), kArenaSize / 2, 600);
     }
+  }
+  if (paused) {
+    frameState = game.getFrameState();
+    textAlign(LEFT);
+    textSize(24);
+    noStroke();
+    fill(color("Black"))
+    text(JSON.stringify(frameState.leftSenses,
+      function (key, val) {
+        return (typeof val === "number") ?
+          val.toFixed(1) : val;
+      }, ' '), 20, 100);
   }
 }
 
