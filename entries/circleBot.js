@@ -1,5 +1,5 @@
 class CircleBot {
-  constructor(turn = -0.20, change_rate = 0.0001) {
+  constructor(turn = -0.20, change_rate = 0) {
     this.initial_turn = turn;
     this.change_rate = change_rate;
     this.turn = turn;

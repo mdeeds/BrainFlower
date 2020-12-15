@@ -1,0 +1,21 @@
+title:
+You vs. RudeBot
+
+opponent:
+RudeBot
+
+instructions:
+<p>The code you have learned so far should is enough to beat RudeBot.
+
+goal:
+-1
+
+code:
+function run(s) {
+(= 
+
+=)
+}
+
+flowers:
+random

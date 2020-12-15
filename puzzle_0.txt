@@ -1,0 +1,47 @@
+title:
+Welcome!
+
+instructions:
+<p>Click the button to start the round.
+
+<p>When you have achieved the goal below, the round will end and you 
+will be able to click the <button>-></button> to proceed to the
+next level.
+
+<p>The <span class="code">run</span> function is what controls the blue robot.
+You can't change the code now, but in the next round you will.
+
+code:
+function run(s) {
+  return 0;
+}
+
+flowers:
+[
+ {
+  "x": 267.3521850899743,
+  "y": 255.01285347043702,
+  "t": 73.5000000000001
+ },
+ {
+  "x": 387.6606683804627,
+  "y": 370.17994858611826,
+  "t": 67.70000000000043
+ },
+ {
+  "x": 529.5629820051414,
+  "y": 536.7609254498715,
+  "t": 11.199999999999976
+ },
+ {
+  "x": 554.2416452442159,
+  "y": 518.2519280205655,
+  "t": 5.299999999999997
+ },
+ {
+  "x": 533.6760925449871,
+  "y": 506.9408740359897,
+  "t": 0
+ }
+]
+

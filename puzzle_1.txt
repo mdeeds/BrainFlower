@@ -1,14 +1,17 @@
+title:
+Right Turn = Positive Number
+
 instructions:
-<p>Welcome to BrainFlower Journey!  The blue robot's brain is defined in the
+<p>The blue robot's brain is defined in the
 code on this page.  If you see something like 
 <span contenteditable>this</span> it is code you can edit.  You need to edit
 this code to make the robot win the challenge.  
 
-<p>To win, your robot, the blue one, must collect more flowers than the opponent.
-In this challenge your opponent won't move, so you just need to get the flower.
-
 <p>Once you have won this challenge, you can proceed to the next one.  Go ahead
-and give it a try!
+and give it a try!  It might take several tries to find the right value.
+
+<p>The <button>start</button> will become <button>stop</button> when the 
+match is running.  Use this to abort and start this round with new code.
 
 code:
 function run(s) {

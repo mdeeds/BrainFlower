@@ -33,14 +33,18 @@ class Challenge {
       }
     }
     if (identifier) {
-      result[identifier] = value;
+      result[identifier] = value.trimEnd();
     }
     return result;
   }
 
   setFromString(data) {
     const o = this.parseObjectFromString(data);
-    if (o.flowers) {
+    this.randomFlowers = false;
+    if (o.flowers == "random") {
+      this.randomFlowers = true;
+      this.flowers = [];
+    } else if (o.flowers) {
       this.flowers = JSON.parse(o.flowers);
     } else {
       this.flowers = [];
@@ -49,6 +53,18 @@ class Challenge {
       this.goal = parseInt(o.goal);
     } else {
       this.goal = this.flowers.length;
+    }
+
+    if (o.title) {
+      this.title = o.title;
+    } else {
+      this.title = "Hmm...";
+    }
+
+    if (o.opponent) {
+      this.opponent = eval("new " + o.opponent + "()");
+    } else {
+      this.opponent = new SpinBot();
     }
 
     this.instructions = o.instructions;

@@ -1,3 +1,6 @@
+title:
+Left Turn = Negative Number
+
 instructions:
 <p>In the last challenge, the robot turned to the right.  This time the 
 flowers are to the left.  A negative number will make the robot turn left.
@@ -7,7 +10,7 @@ before it.
 
 code:
 function run(s) {
-  return (=0.5=);
+  return (=-0.5=);
 }
 
 flowers:

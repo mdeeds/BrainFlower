@@ -1,0 +1,36 @@
+title: You vs. SteveBot
+
+instructions:
+I think this is impossible, but congratulations!
+
+
+opponent:
+SteveBot
+
+code:
+function run(s) {
+  function steal(s) {
+    return s.opponentAngle / (= 20 =);
+  };
+
+  function seek(s) {
+    if (s.leftFlowers == s.rightFlowers &&
+      s.leftFlowers == 0) {
+        return (= -1 =);
+    }
+    let difference = 
+      s.leftFlowerDistance - s.rightFlowerDistance;
+    return difference;
+  }
+  if ((= true =)) {
+    return seek(s);
+  } else {
+    return steal(s);
+  }
+}
+
+goal:
+-1
+
+flowers:
+random

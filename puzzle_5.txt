@@ -1,0 +1,79 @@
+title:
+What's in a difference?
+
+opponent:
+CircleBot
+
+instructions:
+<p>If we subtract the distance to the closest right flower from the 
+distance to the closest left flower, what do we get?
+
+<p>When the right flower is closer, the number is positive and we want
+to turn right because right is closer.  When the left flower is closer
+we get a negative number and we want to turn left.  When they are
+both the same distance, we want to go straight.
+
+<p>This difference is a great signal for our robot, but its not
+perfect.
+
+<p>Adjust the code at the top of the function to improve this code.
+
+code:
+function run(s) {
+  if (s.leftFlowers == s.rightFlowers &&
+    s.leftFlowers == (=999=)) {
+      return (=0.0=);
+  }
+  let difference = 
+    s.leftFlowerDistance - s.rightFlowerDistance;
+  return difference;
+}
+
+flowers:
+[
+ {
+  "x": 192.2879177377892,
+  "y": 237.53213367609254,
+  "t": 72.50000000000016
+ },
+ {
+  "x": 159.38303341902312,
+  "y": 362.9820051413882,
+  "t": 63.600000000000634
+ },
+ {
+  "x": 132.64781491002572,
+  "y": 595.3727506426735,
+  "t": 56.50000000000053
+ },
+ {
+  "x": 289.97429305912596,
+  "y": 642.6735218508998,
+  "t": 51.800000000000466
+ },
+ {
+  "x": 435.98971722365036,
+  "y": 572.7506426735218,
+  "t": 42.30000000000033
+ },
+ {
+  "x": 434.9614395886889,
+  "y": 458.61182519280203,
+  "t": 37.90000000000027
+ },
+ {
+  "x": 547.0437017994858,
+  "y": 375.3213367609254,
+  "t": 31.100000000000172
+ },
+ {
+  "x": 711.5681233933162,
+  "y": 160.41131105398458,
+  "t": 0
+ },
+ {
+  "x": 634.4473007712082,
+  "y": 371.20822622107966,
+  "t": 36.200000000000244
+ }
+ ]

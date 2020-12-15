@@ -1,0 +1,25 @@
+title:
+Stealing Flowers
+
+opponent:
+MattBot
+
+instructions:
+<p>If our robot bumps into the back of the opponent, it will steal a flower.
+The <span class="code">opponentAngle</span> sensor tells us the angle from
+us to the opponent.  If we are headed straight at the opponent, the sensor will
+be zero.  If the opponent is directly right, it will be 90.
+
+<p>The opponent is rarely within 1 degree of straight ahead of us, so we need
+to make this smaller by dividing it by something.
+
+code:
+function run(s) {
+  return s.opponentAngle / (= 2 =);
+}
+
+goal:
+-1
+
+flowers:
+random
