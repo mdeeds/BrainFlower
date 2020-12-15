@@ -1,5 +1,5 @@
 instructions:
-asdf
+Don't get stuck!
 
 code:
 function run(s) {

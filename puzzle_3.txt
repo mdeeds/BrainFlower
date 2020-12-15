@@ -1,11 +1,4 @@
 instructions:
-<p>A function has three parts:
-<ul>
-<li> Name: <span style="code">run</span></li>
-<li> Arguments: <span style="code">(s)</span></li>
-<li> Body: <span style="code">{ ... }</span></li>
-</ul>
-
 <p>The robot has senses in the <span class="code">s</span> argument.  The robot
 can use these to turn toward the flowers.
 
