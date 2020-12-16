@@ -19,7 +19,7 @@ goal:
 code:
 function run(s) {
   if ((=false=)) {
-    return -1;
+    return (=-1=);
   }
   if (s.leftFlowers > s.rightFlowers) {
     return -0.9;
