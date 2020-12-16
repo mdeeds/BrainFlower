@@ -1,5 +1,5 @@
 instructions:
-Don't get stuck!
+Need for Speed
 
 code:
 function run(s) {

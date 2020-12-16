@@ -1,4 +1,5 @@
-title: You vs. SteveBot
+title:
+You vs. SteveBot
 
 instructions:
 I think this is impossible, but congratulations!

@@ -1,3 +1,6 @@
+title:
+Go to where the most flowers are.
+
 instructions:
 <p>The robot has senses in the <span class="code">s</span> argument.  The robot
 can use these to turn toward the flowers.
