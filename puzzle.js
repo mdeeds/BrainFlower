@@ -17,10 +17,12 @@ var puzzleNames = [
   "puzzle_2.txt",
   "puzzle_3.txt",
   "puzzle_4.txt",
+  "puzzle_7.txt",
   "puzzle_5.txt",
   "mattbot.txt",
   "puzzle_6.txt",
   "steve.txt",
+
 ];
 
 function setup() {

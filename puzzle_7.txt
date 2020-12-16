@@ -1,0 +1,60 @@
+title:
+Beware the corner.
+
+opponent:
+SpinBot
+
+instructions:
+<p>If our robot bumps into the back of the opponent, it will steal a flower.
+The <span class="code">opponentAngle</span> sensor tells us the angle from
+us to the opponent.  If we are headed straight at the opponent, the sensor will
+be zero.  If the opponent is directly right, it will be 90.
+
+<p>The opponent is rarely within 1 degree of straight ahead of us, so we need
+to make this smaller by dividing it by something.
+
+goal:
+4
+
+code:
+function run(s) {
+  if ((=false=)) {
+    return -1;
+  }
+  if (s.leftFlowers > s.rightFlowers) {
+    return -0.9;
+  }
+  if (s.leftFlowers < s.rightFlowers) {
+    return 0.9;
+  }
+  return 0;
+}
+
+flowers:
+[
+ {
+  "x": 132.24222585924713,
+  "y": 381.0147299509001,
+  "t": 97.29999999999875
+ },
+ {
+  "x": 106.05564648117839,
+  "y": 650.7364975450082,
+  "t": 93.09999999999899
+ },
+ {
+  "x": 27.495908346972175,
+  "y": 796.0720130932897,
+  "t": 87.4999999999993
+ },
+ {
+  "x": 697.8723404255319,
+  "y": 121.76759410801964,
+  "t": 3.800000000000002
+ },
+ {
+  "x": 638.9525368248773,
+  "y": 89.0343698854337,
+  "t": 0
+ }
+]
